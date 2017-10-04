@@ -3,3 +3,6 @@ The first text file
 This is a change to the file by Alex
 
 Steven added more text
+
+Alex's fourth line
+
