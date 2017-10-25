@@ -18,7 +18,7 @@ public class MainActivity extends AppCompatActivity {
         setContentView(R.layout.activity_main);
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
-        //Tablayout is a property of layout XML: ALEX
+        //Tablayout is a property of layout XML: STEVEN
         TabLayout tabLayout = (TabLayout) findViewById(R.id.tab_layout); //additional comment
         tabLayout.addTab(tabLayout.newTab().setText("Tab 1"));
         tabLayout.addTab(tabLayout.newTab().setText("Tab 2"));
