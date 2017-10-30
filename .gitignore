@@ -1,6 +1,8 @@
 #ignore things that will break the project
 
 *.rawproto
+local.properties
+
 
 #system configuration files that should not be added to github
 
