@@ -1,11 +1,16 @@
 package com.example.steven.testtabs;
 
 import android.Manifest;
+import android.content.ComponentName;
 import android.content.ContentResolver;
+import android.content.Context;
+import android.content.Intent;
+import android.content.ServiceConnection;
 import android.content.pm.PackageManager;
 import android.database.Cursor;
 import android.net.Uri;
 import android.os.Bundle;
+import android.os.IBinder;
 import android.provider.MediaStore;
 import android.support.design.widget.TabLayout;
 import android.support.v4.app.ActivityCompat;
@@ -13,6 +18,7 @@ import android.support.v4.content.ContextCompat;
 import android.support.v4.view.ViewPager;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
+import android.view.MenuItem;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
@@ -29,6 +35,10 @@ public class MainActivity extends AppCompatActivity {
     ArrayList<Song> arrayList;
     ListView listView;
     SongAdapter adapter;
+
+    MusicService musicSrv;
+    Intent playIntent;
+    boolean musicBound = false;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -78,6 +88,42 @@ public class MainActivity extends AppCompatActivity {
         });
     }
 
+    @Override
+    protected void onStart() {
+        super.onStart();
+        if(playIntent==null){
+            playIntent = new Intent(this, MusicService.class);
+            bindService(playIntent, musicConnection, Context.BIND_AUTO_CREATE);
+            startService(playIntent);
+        }
+    }
+
+    @Override
+    protected void onDestroy() {
+        stopService(playIntent);
+        musicSrv=null;
+        super.onDestroy();
+    }
+
+    //connect to the service
+    private ServiceConnection musicConnection = new ServiceConnection(){
+
+        @Override
+        public void onServiceConnected(ComponentName name, IBinder service) {
+            MusicService.MusicBinder binder = (MusicService.MusicBinder)service;
+            //get service
+            musicSrv = binder.getService();
+            //pass list
+            musicSrv.setList(arrayList);
+            musicBound = true;
+        }
+
+        @Override
+        public void onServiceDisconnected(ComponentName name) {
+            musicBound = false;
+        }
+    };
+
     //Gets music from External Content
     public void getMusic() {
         ContentResolver musicResolver = getContentResolver();
@@ -86,13 +132,13 @@ public class MainActivity extends AppCompatActivity {
 
         if(songCursor != null && songCursor.moveToFirst()) {
             int titleColumn  = songCursor.getColumnIndex(android.provider.MediaStore.Audio.Media.TITLE);
-            int idColumn     = songCursor.getColumnIndex(android.provider.MediaStore.Audio.Media._ID);
             int artistColumn = songCursor.getColumnIndex(android.provider.MediaStore.Audio.Media.ARTIST);
+            int idColumn     = songCursor.getColumnIndex(android.provider.MediaStore.Audio.Media._ID);
 
             do {
-                long thisId       = songCursor.getLong(idColumn);
                 String thisTitle  = songCursor.getString(titleColumn);
                 String thisArtist = songCursor.getString(artistColumn);
+                long thisId       = songCursor.getLong(idColumn);
 
                 arrayList.add(new Song(thisId, thisTitle, thisArtist));
             }
@@ -121,6 +167,29 @@ public class MainActivity extends AppCompatActivity {
                 //open music player to play desired song
             }
         });
+    }
+
+    public void songPicked(View view){
+        musicSrv.setSong(Integer.parseInt(view.getTag().toString()));
+        musicSrv.playSong();
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        //menu item selected
+
+        switch (item.getItemId()) {
+            case R.id.action_shuffle:
+                //shuffle
+                break;
+            case R.id.action_end:
+                stopService(playIntent);
+                musicSrv=null;
+                System.exit(0);
+                break;
+        }
+        return super.onOptionsItemSelected(item);
+
     }
 
     @Override
