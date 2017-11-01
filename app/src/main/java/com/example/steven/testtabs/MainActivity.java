@@ -27,7 +27,6 @@ import android.widget.Toast;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
-import org.testng.annotations.Test;
 import java.util.regex.Pattern;
 
 import static junit.framework.Assert.assertEquals;
@@ -63,9 +62,9 @@ public class MainActivity extends AppCompatActivity {
         }
 
         /***************************************
-         * This is a test of testing
+         * This is a test of testing get rid of this.
          ******************************/
-        assertEquals(4, 2 + 4);
+        assertEquals(4, 2 + 2);
 
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
