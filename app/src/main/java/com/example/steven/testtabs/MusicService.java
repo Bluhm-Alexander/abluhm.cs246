@@ -23,10 +23,11 @@ public class MusicService extends Service implements
     private ArrayList<Song> songs;
     private int songPosn;
     private final IBinder musicBind = new MusicBinder();
+    int currentTab;
 
     public void onCreate(){
         super.onCreate();
-        songPosn=0;
+        songPosn = 0;
         player = new MediaPlayer();
 
         initMusicPlayer();
@@ -69,9 +70,7 @@ public class MusicService extends Service implements
     }
 
     @Override
-    public void onCompletion(MediaPlayer mediaPlayer) {
-
-    }
+    public void onCompletion(MediaPlayer mediaPlayer) { }
 
     @Override
     public boolean onError(MediaPlayer mediaPlayer, int i, int i1) {
@@ -104,7 +103,5 @@ public class MusicService extends Service implements
         player.prepareAsync(); //From the MediaPlayer class
     }
 
-    public void setSong(int songIndex){
-        songPosn = songIndex;
-    }
+    public void setSong(int songIndex){ songPosn = songIndex; }
 }

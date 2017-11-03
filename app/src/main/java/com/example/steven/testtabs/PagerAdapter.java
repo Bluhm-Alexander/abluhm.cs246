@@ -17,10 +17,10 @@ public class PagerAdapter extends FragmentPagerAdapter {
         super(fm);
     }
 
-    public void addFragment(SongListFragment fragment, String title, ArrayList<Song> list, String sortBy) {
+    public void addFragment(SongListFragment fragment, String title, ArrayList<Song> list) {
         fragmentList.add(fragment);
         fragmentTitleList.add(title);
-        fragment.setSongs(list, sortBy);
+        fragment.setSongs(list);
     }
 
     @Override

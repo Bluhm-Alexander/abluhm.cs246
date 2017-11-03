@@ -42,12 +42,13 @@ public class MainActivity extends AppCompatActivity {
     private ViewPager viewPager;
     private PagerAdapter pagerAdapter;
     private ArrayList<Song> songList = new ArrayList<>();
+    private ArrayList<ArrayList<Song>> allLists = new ArrayList<>();
+    int currentTab = 0;
 
     MediaPlayer mediaPlayer;
     MusicService musicSrv;
     Intent playIntent;
     boolean musicBound = false;
-
     private ServiceConnection musicConnection = new ServiceConnection() {
 
         @Override
@@ -86,14 +87,36 @@ public class MainActivity extends AppCompatActivity {
         pagerAdapter = new PagerAdapter(getSupportFragmentManager(), mediaPlayer);
         viewPager = (ViewPager) findViewById(R.id.container);
         setupViewPager();
-        TabLayout tabLayout = (TabLayout) findViewById(R.id.tabs);
+        final TabLayout tabLayout = (TabLayout) findViewById(R.id.tabs);
         tabLayout.setupWithViewPager(viewPager);
+        tabLayout.addOnTabSelectedListener(new TabLayout.OnTabSelectedListener() {
+
+            @Override
+            public void onTabSelected(TabLayout.Tab tab) {
+                currentTab = tabLayout.getSelectedTabPosition();
+                musicSrv.setList(allLists.get(currentTab));
+
+                //For debugging
+                Toast.makeText(getApplicationContext(),"Switched to tab: " + currentTab,Toast.LENGTH_SHORT).show();
+            }
+
+            @Override
+            public void onTabUnselected(TabLayout.Tab tab) {
+
+            }
+
+            @Override
+            public void onTabReselected(TabLayout.Tab tab) {
+
+            }
+        });
     }
 
     private void setupViewPager() {
-        pagerAdapter.addFragment(new SongListFragment(), "Title sort", songList, "title");
-        pagerAdapter.addFragment(new SongListFragment(), "Artist sort", songList, "artist");
-        pagerAdapter.addFragment(new SongListFragment(), "Album sort", songList, "album");
+        pagerAdapter.addFragment(new SongListFragment(), "Title sort",  allLists.get(0));
+        pagerAdapter.addFragment(new SongListFragment(), "Artist sort", allLists.get(1));
+        pagerAdapter.addFragment(new SongListFragment(), "Album sort",  allLists.get(2));
+        pagerAdapter.addFragment(new SongListFragment(), "Playlist sort", new ArrayList<Song>());
         viewPager.setAdapter(pagerAdapter);
     }
 
@@ -114,6 +137,7 @@ public class MainActivity extends AppCompatActivity {
         super.onDestroy();
     }
 
+    //On item click on listView
     public void songPicked(View view) {
         musicSrv.setSong(Integer.parseInt(view.getTag().toString()));
         musicSrv.playSong();
@@ -122,7 +146,6 @@ public class MainActivity extends AppCompatActivity {
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         //menu item selected
-
         switch (item.getItemId()) {
             case R.id.action_shuffle:
                 //shuffle
@@ -140,7 +163,8 @@ public class MainActivity extends AppCompatActivity {
     public void getMusic() {
         ContentResolver musicResolver = getContentResolver();
         Uri songUri = MediaStore.Audio.Media.EXTERNAL_CONTENT_URI;
-        Cursor songCursor = musicResolver.query(songUri, null, null, null, null);
+        String selection = MediaStore.Audio.Media.IS_MUSIC + " != 0";
+        Cursor songCursor = musicResolver.query(songUri, null, selection, null, null);
 
         if(songCursor != null && songCursor.moveToFirst()) {
             int titleColumn  = songCursor.getColumnIndex(MediaStore.Audio.Media.TITLE);
@@ -157,15 +181,31 @@ public class MainActivity extends AppCompatActivity {
                 songList.add(new Song(thisId, thisTitle, thisArtist, thisAlbum));
             }
             while (songCursor.moveToNext());
-
             songCursor.close();
+
+            //Default sorting
+            Collections.sort(songList, new Comparator<Song>(){
+                public int compare(Song a, Song b){
+                    return a.getTitle().compareTo(b.getTitle());
+                }
+            });
+
+            allLists.add(new ArrayList<Song>(songList));
+            allLists.add(new ArrayList<Song>(songList));
+            allLists.add(new ArrayList<Song>(songList));
+
+            Collections.sort(allLists.get(1), new Comparator<Song>(){
+                public int compare(Song a, Song b){
+                    return a.getArtist().compareTo(b.getArtist());
+                }
+            });
+
+            Collections.sort(allLists.get(2), new Comparator<Song>(){
+                public int compare(Song a, Song b){
+                    return a.getAlbum().compareTo(b.getAlbum());
+                }
+            });
         }
-    }
-
-    //Creates list of songs inside of the list view
-
-    private void setupMusicService() {
-
     }
 
     @Override

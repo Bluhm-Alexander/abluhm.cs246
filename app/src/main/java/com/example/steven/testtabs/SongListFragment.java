@@ -28,41 +28,8 @@ public class SongListFragment extends ListFragment {
         return rootView;
     }
 
-    public void setSongs(ArrayList<Song> arrayList, String sortBy) {
+    public void setSongs(ArrayList<Song> arrayList) {
         //Get songs
-        songList.addAll(arrayList);
-
-        switch(sortBy) {
-            case "album":
-                Collections.sort(songList, new Comparator<Song>(){
-                    public int compare(Song a, Song b){
-                        return a.getAlbum().compareTo(b.getAlbum());
-                    }
-                });
-                break;
-            case "artist":
-                Collections.sort(songList, new Comparator<Song>(){
-                    public int compare(Song a, Song b){
-                        return a.getArtist().compareTo(b.getArtist());
-                    }
-                });
-                break;
-            case "title":
-                Collections.sort(songList, new Comparator<Song>(){
-                    public int compare(Song a, Song b){
-                        return a.getTitle().compareTo(b.getTitle());
-                    }
-                });
-                break;
-            case "playlist":
-                break;
-            default:
-                Toast.makeText(getActivity(),"Internal error: Passed wrong sorting type",Toast.LENGTH_LONG).show();
-                Collections.sort(songList, new Comparator<Song>(){
-                    public int compare(Song a, Song b){
-                        return a.getTitle().compareTo(b.getTitle());
-                    }
-                });
-        }
+        songList = arrayList;
     }
 }
