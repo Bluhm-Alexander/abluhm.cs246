@@ -14,10 +14,6 @@ import android.util.Log;
 
 import java.util.ArrayList;
 
-/**
- * Created by xflip on 10/30/2017.
- */
-
 public class MusicService extends Service implements
         MediaPlayer.OnPreparedListener,
         MediaPlayer.OnErrorListener,

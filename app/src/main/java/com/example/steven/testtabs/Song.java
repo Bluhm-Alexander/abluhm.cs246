@@ -1,21 +1,20 @@
 package com.example.steven.testtabs;
 
-/**
- * Created by Flip on 10/29/2017.
- */
-
 public class Song {
     private long id;
     private String title;
     private String artist;
+    private String album;
 
-    public Song(long songID, String songTitle, String songArtist) {
-        id = songID;
-        title = songTitle;
+    Song(long songID, String songTitle, String songArtist, String songAlbum) {
+        id     = songID;
+        title  = songTitle;
         artist = songArtist;
+        album  = songAlbum;
     }
 
-    public long getID()       { return id; }
-    public String getTitle()  { return title; }
-    public String getArtist() { return artist; }
+    long getID()             { return id;     }
+    public String getTitle() { return title;  }
+    String getArtist()       { return artist; }
+    String getAlbum()        { return album;  }
 }

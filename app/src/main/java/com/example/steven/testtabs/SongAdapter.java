@@ -10,15 +10,11 @@ import android.widget.TextView;
 
 import java.util.ArrayList;
 
-/**
- * Created by Flip on 10/29/2017.
- */
-
 public class SongAdapter extends BaseAdapter {
     private ArrayList<Song> songs;
     private LayoutInflater songInf;
 
-    public SongAdapter(Context c, ArrayList<Song> theSongs){
+    SongAdapter(Context c, ArrayList<Song> theSongs){
         songs = theSongs;
         songInf = LayoutInflater.from(c);
     }
@@ -30,14 +26,12 @@ public class SongAdapter extends BaseAdapter {
 
     @Override
     public Object getItem(int arg0) {
-        // TODO Auto-generated method stub
-        return null;
+        return songs.get(arg0);
     }
 
     @Override
     public long getItemId(int arg0) {
-        // TODO Auto-generated method stub
-        return 0;
+        return songs.get(arg0).getID();
     }
 
     @Override
@@ -46,13 +40,15 @@ public class SongAdapter extends BaseAdapter {
         LinearLayout songLay = (LinearLayout)songInf.inflate
                 (R.layout.song, parent, false);
         //get title and artist views
-        TextView songView = (TextView)songLay.findViewById(R.id.song_title);
+        TextView songView   = (TextView)songLay.findViewById(R.id.song_title);
         TextView artistView = (TextView)songLay.findViewById(R.id.song_artist);
+        TextView albumView  = (TextView)songLay.findViewById(R.id.song_album);
         //get song using position
         Song currSong = songs.get(position);
         //get title and artist strings
         songView.setText(currSong.getTitle());
         artistView.setText(currSong.getArtist());
+        albumView.setText(currSong.getAlbum());
         //set position as tag
         songLay.setTag(position);
         return songLay;

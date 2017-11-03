@@ -1,37 +1,40 @@
 package com.example.steven.testtabs;
 
+import android.media.MediaPlayer;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
-import android.support.v4.app.FragmentStatePagerAdapter;
+import android.support.v4.app.FragmentPagerAdapter;
+import android.support.v4.app.ListFragment;
 
-public class PagerAdapter extends FragmentStatePagerAdapter {
-    int mNumOfTabs;
+import java.util.ArrayList;
+import java.util.List;
 
-    public PagerAdapter(FragmentManager fm, int NumOfTabs) {
+public class PagerAdapter extends FragmentPagerAdapter {
+    private final List<ListFragment> fragmentList = new ArrayList<>();
+    private final List<String> fragmentTitleList = new ArrayList<>();
+
+    public PagerAdapter(FragmentManager fm, MediaPlayer player) {
         super(fm);
-        this.mNumOfTabs = NumOfTabs;
+    }
+
+    public void addFragment(SongListFragment fragment, String title, ArrayList<Song> list, String sortBy) {
+        fragmentList.add(fragment);
+        fragmentTitleList.add(title);
+        fragment.setSongs(list, sortBy);
+    }
+
+    @Override
+    public CharSequence getPageTitle(int position) {
+        return fragmentTitleList.get(position);
     }
 
     @Override
     public Fragment getItem(int position) {
-
-        switch (position) {
-            case 0:
-                TabFragment1 tab1 = new TabFragment1();
-                return tab1;
-            case 1:
-                TabFragment2 tab2 = new TabFragment2();
-                return tab2;
-            case 2:
-                TabFragment3 tab3 = new TabFragment3();
-                return tab3;
-            default:
-                return null;
-        }
+        return fragmentList.get(position);
     }
 
     @Override
     public int getCount() {
-        return mNumOfTabs;
+        return fragmentList.size();
     }
 }
