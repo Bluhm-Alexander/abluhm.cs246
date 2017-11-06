@@ -23,7 +23,6 @@ public class MusicService extends Service implements
     private ArrayList<Song> songs;
     private int songPosn;
     private final IBinder musicBind = new MusicBinder();
-    int currentTab;
 
     public void onCreate(){
         super.onCreate();
@@ -103,5 +102,11 @@ public class MusicService extends Service implements
         player.prepareAsync(); //From the MediaPlayer class
     }
 
+    //Possibly unused right now
     public void setSong(int songIndex){ songPosn = songIndex; }
+
+    //Sets song by obj. Finds pressed song in other sorted list and finds the index of it in THIS list
+    public void setSong(Song thisSong) {
+        songPosn = songs.indexOf(thisSong);
+    }
 }

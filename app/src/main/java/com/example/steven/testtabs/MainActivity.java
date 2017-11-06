@@ -76,15 +76,15 @@ public class MainActivity extends AppCompatActivity {
         //Permissions stuff to access the external SDCard
         if(ContextCompat.checkSelfPermission(MainActivity.this, Manifest.permission.READ_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED) {
             if(ActivityCompat.shouldShowRequestPermissionRationale(MainActivity.this, Manifest.permission.READ_EXTERNAL_STORAGE))
-                ActivityCompat.requestPermissions(MainActivity.this, new String[]{Manifest.permission.READ_EXTERNAL_STORAGE}, MY_PERMISSION_REQUEST);
+                ActivityCompat.requestPermissions(MainActivity.this, new String[]{ Manifest.permission.READ_EXTERNAL_STORAGE }, MY_PERMISSION_REQUEST);
             else {
-                ActivityCompat.requestPermissions(MainActivity.this, new String[]{Manifest.permission.READ_EXTERNAL_STORAGE}, MY_PERMISSION_REQUEST);
+                ActivityCompat.requestPermissions(MainActivity.this, new String[]{ Manifest.permission.READ_EXTERNAL_STORAGE }, MY_PERMISSION_REQUEST);
             }
         } else {
             getMusic();
         }
 
-        pagerAdapter = new PagerAdapter(getSupportFragmentManager(), mediaPlayer);
+        pagerAdapter = new PagerAdapter(getSupportFragmentManager());
         viewPager = (ViewPager) findViewById(R.id.container);
         setupViewPager();
         final TabLayout tabLayout = (TabLayout) findViewById(R.id.tabs);
@@ -94,7 +94,6 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onTabSelected(TabLayout.Tab tab) {
                 currentTab = tabLayout.getSelectedTabPosition();
-                musicSrv.setList(allLists.get(currentTab));
 
                 //For debugging
                 Toast.makeText(getApplicationContext(),"Switched to tab: " + currentTab,Toast.LENGTH_SHORT).show();
@@ -139,7 +138,7 @@ public class MainActivity extends AppCompatActivity {
 
     //On item click on listView
     public void songPicked(View view) {
-        musicSrv.setSong(Integer.parseInt(view.getTag().toString()));
+        musicSrv.setSong(allLists.get(currentTab).get(Integer.parseInt(view.getTag().toString())));
         musicSrv.playSong();
     }
 

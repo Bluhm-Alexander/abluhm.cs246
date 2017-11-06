@@ -13,7 +13,7 @@ public class PagerAdapter extends FragmentPagerAdapter {
     private final List<ListFragment> fragmentList = new ArrayList<>();
     private final List<String> fragmentTitleList = new ArrayList<>();
 
-    public PagerAdapter(FragmentManager fm, MediaPlayer player) {
+    public PagerAdapter(FragmentManager fm) {
         super(fm);
     }
 
