@@ -6,12 +6,14 @@ import android.content.ContentResolver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.ServiceConnection;
+import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.database.Cursor;
 import android.media.MediaPlayer;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.IBinder;
+import android.preference.Preference;
 import android.provider.MediaStore;
 import android.support.design.widget.TabLayout;
 import android.support.v4.app.ActivityCompat;
@@ -49,7 +51,7 @@ public class MainActivity extends AppCompatActivity {
     private Intent playIntent;
     private boolean musicBound = false;
     private ServiceConnection musicConnection;
-
+    private String currentSongName;
     int currentTab = 0;
 
 
@@ -65,6 +67,24 @@ public class MainActivity extends AppCompatActivity {
         setupViewPager();
         setupTabLayout();
         startService();
+
+
+    }
+
+    @Override
+    protected void onPause() {
+        super.onPause();
+        currentSongName = musicSrv.getNowPlaying().getTitle();
+        SharedPreferences.Editor editor = getSharedPreferences("text", 0).edit();
+        editor.putString("Song Title", currentSongName);
+        editor.apply();
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        SharedPreferences.Editor editor = getSharedPreferences("text", 0).edit();
+        currentSongName = getSharedPreferences("text", 0).getString("Song Title", null);
     }
 
     //Create the Tab Layout

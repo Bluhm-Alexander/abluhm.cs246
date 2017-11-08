@@ -32,6 +32,10 @@ public class MusicService extends Service implements
         initMusicPlayer();
     }
 
+    public Song getNowPlaying() {
+        return songs.get(songPosn);
+    }
+
     //Initialize
     public void initMusicPlayer(){
         //set player properties
