@@ -16,17 +16,19 @@
             android:id="@+id/tabs"
             android:layout_width="match_parent"
             android:layout_height="133dp"
-            app:tabMode="scrollable"
-            app:tabMinWidth="133dp"
-            app:tabMaxWidth="133dp"
+            android:layout_alignParentEnd="true"
+            android:layout_below="@+id/appbar"
             app:tabBackground="@drawable/rectangle"
-            />
+            app:tabMaxWidth="133dp"
+            app:tabMinWidth="133dp"
+            app:tabMode="scrollable" />
 
     </android.support.design.widget.AppBarLayout>
 
     <android.support.v4.view.ViewPager
         android:id="@+id/container"
         android:layout_width="match_parent"
-        android:layout_height="fill_parent" />
+        android:layout_height="fill_parent"
+        android:layout_below="@id/appbar"/>
 
 </RelativeLayout>
