@@ -10,15 +10,17 @@
         android:id="@+id/appbar"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:padding="8dp" >
+        android:padding="8px" >
 
         <android.support.design.widget.TabLayout
             android:id="@+id/tabs"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
+            android:layout_height="133dp"
             app:tabMode="scrollable"
             app:tabMinWidth="133dp"
-            app:tabMaxWidth="133dp"/>
+            app:tabMaxWidth="133dp"
+            app:tabBackground="@drawable/tab"
+            />
 
     </android.support.design.widget.AppBarLayout>
 

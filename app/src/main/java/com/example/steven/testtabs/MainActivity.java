@@ -22,6 +22,7 @@ import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.MenuItem;
 import android.view.View;
+import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.ListView;
@@ -41,31 +42,16 @@ public class MainActivity extends AppCompatActivity {
 
     private ViewPager viewPager;
     private PagerAdapter pagerAdapter;
+    private TabLayout tabLayout;
     private ArrayList<Song> songList = new ArrayList<>();
     private ArrayList<ArrayList<Song>> allLists = new ArrayList<>();
+    private MusicService musicSrv;
+    private Intent playIntent;
+    private boolean musicBound = false;
+    private ServiceConnection musicConnection;
+
     int currentTab = 0;
 
-    MediaPlayer mediaPlayer;
-    MusicService musicSrv;
-    Intent playIntent;
-    boolean musicBound = false;
-    private ServiceConnection musicConnection = new ServiceConnection() {
-
-        @Override
-        public void onServiceConnected(ComponentName name, IBinder service) {
-            MusicService.MusicBinder binder = (MusicService.MusicBinder)service;
-            //get service
-            musicSrv = binder.getService();
-            //pass list
-            musicSrv.setList(songList);
-            musicBound = true;
-        }
-
-        @Override
-        public void onServiceDisconnected(ComponentName name) {
-            musicBound = false;
-        }
-    };
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -73,22 +59,19 @@ public class MainActivity extends AppCompatActivity {
         setContentView(R.layout.activity_main);
         Log.d(TAG, "onCreate: Starting.");
 
-        //Permissions stuff to access the external SDCard
-        if(ContextCompat.checkSelfPermission(MainActivity.this, Manifest.permission.READ_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED) {
-            if(ActivityCompat.shouldShowRequestPermissionRationale(MainActivity.this, Manifest.permission.READ_EXTERNAL_STORAGE))
-                ActivityCompat.requestPermissions(MainActivity.this, new String[]{ Manifest.permission.READ_EXTERNAL_STORAGE }, MY_PERMISSION_REQUEST);
-            else {
-                ActivityCompat.requestPermissions(MainActivity.this, new String[]{ Manifest.permission.READ_EXTERNAL_STORAGE }, MY_PERMISSION_REQUEST);
-            }
-        } else {
-            getMusic();
-        }
-
+        getPermissions();
         pagerAdapter = new PagerAdapter(getSupportFragmentManager());
         viewPager = (ViewPager) findViewById(R.id.container);
         setupViewPager();
-        final TabLayout tabLayout = (TabLayout) findViewById(R.id.tabs);
+        setupTabLayout();
+        startService();
+    }
+
+    //Create the Tab Layout
+    private void setupTabLayout() {
+        tabLayout = (TabLayout) findViewById(R.id.tabs);
         tabLayout.setupWithViewPager(viewPager);
+
         tabLayout.addOnTabSelectedListener(new TabLayout.OnTabSelectedListener() {
 
             @Override
@@ -109,14 +92,48 @@ public class MainActivity extends AppCompatActivity {
 
             }
         });
+
+        //Set tab padding
+        for(int i = 0; i < tabLayout.getTabCount(); i++) {
+            View tab = ((ViewGroup) tabLayout.getChildAt(0)).getChildAt(i);
+            ViewGroup.MarginLayoutParams p = (ViewGroup.MarginLayoutParams) tab.getLayoutParams();
+            p.setMargins(16,16,16,16);
+            tab.requestLayout();
+        }
+
     }
 
+    //For managing fragment tabs
     private void setupViewPager() {
         pagerAdapter.addFragment(new SongListFragment(), "Title sort",  allLists.get(0));
         pagerAdapter.addFragment(new SongListFragment(), "Artist sort", allLists.get(1));
         pagerAdapter.addFragment(new SongListFragment(), "Album sort",  allLists.get(2));
         pagerAdapter.addFragment(new SongListFragment(), "Playlist sort", new ArrayList<Song>());
+        pagerAdapter.setupSettings();
+
+        //Set adapter for viewPager
         viewPager.setAdapter(pagerAdapter);
+    }
+
+    //Start the service
+    private void startService() {
+        musicConnection = new ServiceConnection() {
+
+            @Override
+            public void onServiceConnected(ComponentName name, IBinder service) {
+                MusicService.MusicBinder binder = (MusicService.MusicBinder)service;
+                //get service
+                musicSrv = binder.getService();
+                //pass list
+                musicSrv.setList(songList);
+                musicBound = true;
+            }
+
+            @Override
+            public void onServiceDisconnected(ComponentName name) {
+                musicBound = false;
+            }
+        };
     }
 
     @Override
@@ -136,12 +153,6 @@ public class MainActivity extends AppCompatActivity {
         super.onDestroy();
     }
 
-    //On item click on listView
-    public void songPicked(View view) {
-        musicSrv.setSong(allLists.get(currentTab).get(Integer.parseInt(view.getTag().toString())));
-        musicSrv.playSong();
-    }
-
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         //menu item selected
@@ -158,7 +169,47 @@ public class MainActivity extends AppCompatActivity {
         return super.onOptionsItemSelected(item);
     }
 
-    //Gets music from External Content
+    @Override
+    public void onRequestPermissionsResult(int requestCode, String[] permissions, int[] grantResults) {
+        switch(requestCode) {
+            case MY_PERMISSION_REQUEST: {
+                if(grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                    if(ContextCompat.checkSelfPermission(MainActivity.this,
+                            Manifest.permission.READ_EXTERNAL_STORAGE) == PackageManager.PERMISSION_GRANTED) {
+                        Toast.makeText(this, "Permission granted!", Toast.LENGTH_SHORT).show();
+
+                        getMusic();
+                    }
+                } else {
+                    Toast.makeText(this, "No permission granted!", Toast.LENGTH_SHORT).show();
+                    finish();
+                }
+                return;
+            }
+        }
+    }
+
+    //Permission handling
+    private void getPermissions() {
+        //Permissions stuff to access the external SDCard
+        if(ContextCompat.checkSelfPermission(MainActivity.this, Manifest.permission.READ_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED) {
+            if(ActivityCompat.shouldShowRequestPermissionRationale(MainActivity.this, Manifest.permission.READ_EXTERNAL_STORAGE))
+                ActivityCompat.requestPermissions(MainActivity.this, new String[]{ Manifest.permission.READ_EXTERNAL_STORAGE }, MY_PERMISSION_REQUEST);
+            else {
+                ActivityCompat.requestPermissions(MainActivity.this, new String[]{ Manifest.permission.READ_EXTERNAL_STORAGE }, MY_PERMISSION_REQUEST);
+            }
+        } else {
+            getMusic();
+        }
+    }
+
+    //On item click on listView
+    public void songPicked(View view) {
+        musicSrv.setSong(allLists.get(currentTab).get(Integer.parseInt(view.getTag().toString())));
+        musicSrv.playSong();
+    }
+
+    //Grabs music from external content
     public void getMusic() {
         ContentResolver musicResolver = getContentResolver();
         Uri songUri = MediaStore.Audio.Media.EXTERNAL_CONTENT_URI;
@@ -204,26 +255,6 @@ public class MainActivity extends AppCompatActivity {
                     return a.getAlbum().compareTo(b.getAlbum());
                 }
             });
-        }
-    }
-
-    @Override
-    public void onRequestPermissionsResult(int requestCode, String[] permissions, int[] grantResults) {
-        switch(requestCode) {
-            case MY_PERMISSION_REQUEST: {
-                if(grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-                    if(ContextCompat.checkSelfPermission(MainActivity.this,
-                            Manifest.permission.READ_EXTERNAL_STORAGE) == PackageManager.PERMISSION_GRANTED) {
-                        Toast.makeText(this, "Permission granted!", Toast.LENGTH_SHORT).show();
-
-                        getMusic();
-                    }
-                } else {
-                    Toast.makeText(this, "No permission granted!", Toast.LENGTH_SHORT).show();
-                    finish();
-                }
-                return;
-            }
         }
     }
 }
