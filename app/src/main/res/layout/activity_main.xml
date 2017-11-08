@@ -19,7 +19,7 @@
             app:tabMode="scrollable"
             app:tabMinWidth="133dp"
             app:tabMaxWidth="133dp"
-            app:tabBackground="@drawable/tab"
+            app:tabBackground="@drawable/rectangle"
             />
 
     </android.support.design.widget.AppBarLayout>
