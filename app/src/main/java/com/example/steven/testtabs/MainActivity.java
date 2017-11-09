@@ -39,6 +39,8 @@ import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
 public class MainActivity extends AppCompatActivity {
+
+    //!!----Variable section----!!
     private static final String TAG = "MainActivity";
     private static final int MY_PERMISSION_REQUEST = 1;
 
@@ -54,6 +56,12 @@ public class MainActivity extends AppCompatActivity {
     private String currentSongName;
     int currentTab = 0;
 
+    //!!----Functions Section----!!
+    /*******************************************************************************************
+     * onCreate() instantiates the services we need in order for android to play music files
+     * and Load a List of media from the device.
+     * @param savedInstanceState
+     ******************************************************************************************/
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -71,6 +79,11 @@ public class MainActivity extends AppCompatActivity {
 
     }
 
+    /*******************************************************************************************
+     * onPause() is called when you have navigated away from mainActivity
+     * At the moment all this is doing is testing our Shared Preferences implementation
+     ******************************************************************************************/
+
     @Override
     protected void onPause() {
         super.onPause();
@@ -80,6 +93,11 @@ public class MainActivity extends AppCompatActivity {
         editor.apply();
     }
 
+    /******************************************************************************************
+     * onResume() is called when user navigates back to mainActivity
+     *
+     ******************************************************************************************/
+
     @Override
     protected void onResume() {
         super.onResume();
@@ -87,7 +105,12 @@ public class MainActivity extends AppCompatActivity {
         currentSongName = getSharedPreferences("text", 0).getString("Song Title", null);
     }
 
-    //Create the Tab Layout
+    /*******************************************************************************************
+     *  setupTabLayout() is called in the onCreate function.
+     *  Create the Tab Layout is set up through a series of listeners waiting for the tab to
+     *  be clicked.
+     ******************************************************************************************/
+
     private void setupTabLayout() {
         tabLayout = (TabLayout) findViewById(R.id.tabs);
         tabLayout.setupWithViewPager(viewPager);
@@ -98,7 +121,7 @@ public class MainActivity extends AppCompatActivity {
             public void onTabSelected(TabLayout.Tab tab) {
                 currentTab = tabLayout.getSelectedTabPosition();
 
-                //For debugging
+                //For debugging will remove this later
                 Toast.makeText(getApplicationContext(),"Switched to tab: " + currentTab,Toast.LENGTH_SHORT).show();
             }
 
@@ -123,19 +146,36 @@ public class MainActivity extends AppCompatActivity {
 
     }
 
-    //For managing fragment tabs
-    private void setupViewPager() {
-        pagerAdapter.addFragment(new SongListFragment(), "Title sort",  allLists.get(0));
-        pagerAdapter.addFragment(new SongListFragment(), "Artist sort", allLists.get(1));
-        pagerAdapter.addFragment(new SongListFragment(), "Album sort",  allLists.get(2));
-        pagerAdapter.addFragment(new SongListFragment(), "Playlist sort", new ArrayList<Song>());
-        pagerAdapter.setupSettings();
+    /**********************************************************************************************
+     * Sends lists of songs from the media stores to the Tabs. This function is creashing the program
+     * Alex is going to add an if statement that checks to see if lists are empty. If they are it
+     * will insert a no media into the list.
+     *********************************************************************************************/
 
-        //Set adapter for viewPager
-        viewPager.setAdapter(pagerAdapter);
+    private void setupViewPager() {
+        //checking for empty Lists
+        if (allLists.isEmpty()) {
+            Toast.makeText(getApplicationContext(), "No Media!", Toast.LENGTH_SHORT).show();
+            //Maybe add something here later.... Ask if it is ok to just make default values
+
+        }
+
+        else {
+            //These four functions pass the information to the Tabs
+            pagerAdapter.addFragment(new SongListFragment(), "Title sort", allLists.get(0));
+            pagerAdapter.addFragment(new SongListFragment(), "Artist sort", allLists.get(1));
+            pagerAdapter.addFragment(new SongListFragment(), "Album sort", allLists.get(2));
+            pagerAdapter.addFragment(new SongListFragment(), "Playlist sort", new ArrayList<Song>());
+            viewPager.setAdapter(pagerAdapter);
+        }
     }
 
-    //Start the service
+    /*******************************************************************************************
+     * startService() is called in the onCreate() function.
+     * Starts up the Music playing service built into android at the start of the program.
+     * Not sure if we need to pass the service between activities....
+     *******************************************************************************************/
+
     private void startService() {
         musicConnection = new ServiceConnection() {
 
@@ -156,6 +196,13 @@ public class MainActivity extends AppCompatActivity {
         };
     }
 
+    /*******************************************************************************************
+     * onStart() is called after onCreate(). when User navigates away from the application
+     * onStop() is called. When user navigates back to the application onStart is called.
+     * onStart() makes sure that the music playing service is passed the right info
+     * I think.
+     ******************************************************************************************/
+
     @Override
     protected void onStart() {
         super.onStart();
@@ -166,12 +213,24 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
+    /*************************************************************************************
+     * onDestroy() Stops music when application is closed.
+     * seems to be a glitch when the application is exited. Investigate further.
+     ************************************************************************************/
+
     @Override
     protected void onDestroy() {
         stopService(playIntent);
         musicSrv = null;
         super.onDestroy();
     }
+
+    /********************************************************************************************
+     * onOptionsItemSelected(item) I think this function sheck to see if shuffle is on or not.
+     * Could someone please clarify?
+     * @param item
+     * @return
+     *******************************************************************************************/
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
@@ -189,6 +248,13 @@ public class MainActivity extends AppCompatActivity {
         return super.onOptionsItemSelected(item);
     }
 
+    /**********************************************************************************************
+     * I think this function checks to see if permissions have been granted to the application
+     * if not it displays a message that no permissions have been granted.
+     * @param requestCode
+     * @param permissions
+     * @param grantResults
+     *********************************************************************************************/
     @Override
     public void onRequestPermissionsResult(int requestCode, String[] permissions, int[] grantResults) {
         switch(requestCode) {
@@ -209,7 +275,13 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
-    //Permission handling
+    /*************************************************************************************
+     * User Permissions Function getPermission()
+     * prompts user if needs be for permission to access SD Card. No Params
+     * We seem to have an odd bug with the permissions function. Program crashes when
+     * it is being opened for the first time.
+     ************************************************************************************/
+
     private void getPermissions() {
         //Permissions stuff to access the external SDCard
         if(ContextCompat.checkSelfPermission(MainActivity.this, Manifest.permission.READ_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED) {
@@ -223,16 +295,26 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
-    //On item click on listView
+    /**********************************************************************************************
+     * songPicked(view)
+     * When music is selected in the Tab it passes which song has been slected to the music service
+     * @param view
+     *********************************************************************************************/
     public void songPicked(View view) {
         musicSrv.setSong(allLists.get(currentTab).get(Integer.parseInt(view.getTag().toString())));
         musicSrv.playSong();
     }
 
-    //Grabs music from external content
+    /********************************************************************************************
+     * getMusic() retrieves a list of music files from the android device and puts them into a String
+     * It inserts the track lists into the variable allLists. all Lists tabs correspond to an
+     * integer. Artist tab is allLists(1).
+     *******************************************************************************************/
+
     public void getMusic() {
         ContentResolver musicResolver = getContentResolver();
         Uri songUri = MediaStore.Audio.Media.EXTERNAL_CONTENT_URI;
+        //I believe that this is the function that puts the files into a string....
         String selection = MediaStore.Audio.Media.IS_MUSIC + " != 0";
         Cursor songCursor = musicResolver.query(songUri, null, selection, null, null);
 
