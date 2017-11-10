@@ -29,6 +29,41 @@
         android:id="@+id/container"
         android:layout_width="match_parent"
         android:layout_height="fill_parent"
-        android:layout_below="@id/appbar"/>
+        android:layout_below="@id/appbar">
+
+    </android.support.v4.view.ViewPager>
+
+    <Button
+        android:id="@+id/play_pause"
+        android:background="@drawable/android_music_player_play"
+        android:onClick="playPause"
+        android:layout_width="64dp"
+        android:layout_height="64dp"
+        android:layout_alignParentStart="false"
+        android:layout_centerHorizontal="true"
+        android:layout_alignParentBottom="true"
+        android:layout_margin="16dp"/>
+
+    <Button
+        android:id="@+id/prev"
+        android:background="@drawable/android_music_player_play"
+        android:onClick="prevSong"
+        android:layout_width="64dp"
+        android:layout_height="64dp"
+        android:layout_alignParentStart="false"
+        android:layout_toLeftOf="@id/play_pause"
+        android:layout_alignParentBottom="true"
+        android:layout_margin="16dp"/>
+
+    <Button
+        android:id="@+id/next"
+        android:background="@drawable/android_music_player_play"
+        android:onClick="nextSong"
+        android:layout_width="64dp"
+        android:layout_height="64dp"
+        android:layout_alignParentStart="false"
+        android:layout_toRightOf="@id/play_pause"
+        android:layout_alignParentBottom="true"
+        android:layout_margin="16dp"/>
 
 </RelativeLayout>

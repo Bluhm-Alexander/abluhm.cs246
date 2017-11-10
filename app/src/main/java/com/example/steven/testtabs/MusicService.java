@@ -11,6 +11,7 @@ import android.os.IBinder;
 import android.os.PowerManager;
 import android.support.annotation.Nullable;
 import android.util.Log;
+import android.widget.Toast;
 
 import java.util.ArrayList;
 
@@ -23,6 +24,9 @@ public class MusicService extends Service implements
     private ArrayList<Song> songs;
     private int songPosn;
     private final IBinder musicBind = new MusicBinder();
+
+    private boolean loopOn = false;
+    private boolean shuffleOn = false;
 
     public void onCreate(){
         super.onCreate();
@@ -73,7 +77,9 @@ public class MusicService extends Service implements
     }
 
     @Override
-    public void onCompletion(MediaPlayer mediaPlayer) { }
+    public void onCompletion(MediaPlayer mediaPlayer) {
+        nextSong();
+    }
 
     @Override
     public boolean onError(MediaPlayer mediaPlayer, int i, int i1) {
@@ -85,17 +91,95 @@ public class MusicService extends Service implements
         mediaPlayer.start();
     }
 
+    //On press prevSong button
+    public void prevSong() {
+        //Repeat song if past 2.5 seconds
+        if(player.getCurrentPosition() > 2500) {
+            Toast.makeText(this, "Restarting song", Toast.LENGTH_SHORT).show();
+            player.seekTo(0);
+            return;
+        }
+
+        //Otherwise, go back a song
+        //If at the end of the queue, check if loop is on
+        else if(songPosn == 0) {
+            if(loopOn) {
+                songPosn = songs.size() - 1;
+            }
+            else {
+                Toast.makeText(this, "End of queue (prev)", Toast.LENGTH_SHORT).show();
+                player.reset();
+                return;
+            }
+        }
+        else
+            songPosn--;
+
+        playSong();
+        Toast.makeText(this, "Skipped to previous song", Toast.LENGTH_SHORT).show();
+    }
+
+    //On press nextSong button
+    public void nextSong() {
+        //If at the end of the queue, check if loop is on
+        if(songPosn == songs.size() - 1) {
+            if(loopOn) {
+                songPosn = 0;
+            }
+            else {
+                Toast.makeText(this, "End of queue (next)", Toast.LENGTH_SHORT).show();
+                player.reset();
+                return;
+            }
+        }
+        else
+            songPosn++;
+
+        playSong();
+        Toast.makeText(this, "Skipped to next song", Toast.LENGTH_SHORT).show();
+    }
+
+    //On press playPause button
+    public void playPause() {
+        if(player.isPlaying()) {
+            player.pause();
+            Toast.makeText(this, "Pausing music", Toast.LENGTH_SHORT).show();
+        }
+        else {
+            player.start();
+            Toast.makeText(this, "Playing music", Toast.LENGTH_SHORT).show();
+        }
+    }
+
+    public void toggleShuffle() {
+        shuffleOn = !shuffleOn;
+        if(shuffleOn)
+            Toast.makeText(this, "Shuffle: On", Toast.LENGTH_SHORT).show();
+        else
+            Toast.makeText(this, "Shuffle: Off", Toast.LENGTH_SHORT).show();
+    }
+
+    public void toggleLoop() {
+        loopOn = !loopOn;
+        if(loopOn)
+            Toast.makeText(this, "Loop: On", Toast.LENGTH_SHORT).show();
+        else
+            Toast.makeText(this, "Loop: Off", Toast.LENGTH_SHORT).show();
+    }
+
     //Play song
     public void playSong(){
         player.reset();
-        //get song
+
+        //Get song
         Song playSong = songs.get(songPosn);
-        //get id
+
+        //Get id
         long currSong = playSong.getID();
-        //get uri
+
+        //Get uri
         Uri trackUri = ContentUris.withAppendedId(
                 android.provider.MediaStore.Audio.Media.EXTERNAL_CONTENT_URI, currSong);
-
         try{
             player.setDataSource(getApplicationContext(), trackUri);
         }

@@ -305,6 +305,21 @@ public class MainActivity extends AppCompatActivity {
         musicSrv.playSong();
     }
 
+    //On press play/pause
+    public void playPause(View view) {
+        musicSrv.playPause();
+    }
+
+    //On press prev song button
+    public void prevSong(View view) {
+        musicSrv.prevSong();
+    }
+
+    //On press next song button
+    public void nextSong(View view) {
+        musicSrv.nextSong();
+    }
+
     /********************************************************************************************
      * getMusic() retrieves a list of music files from the android device and puts them into a String
      * It inserts the track lists into the variable allLists. all Lists tabs correspond to an
