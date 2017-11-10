@@ -15,7 +15,7 @@
         <android.support.design.widget.TabLayout
             android:id="@+id/tabs"
             android:layout_width="match_parent"
-            android:layout_height="133dp"
+            android:layout_height="60dp"
             android:layout_alignParentEnd="true"
             android:layout_below="@+id/appbar"
             app:tabBackground="@drawable/rectangle"
