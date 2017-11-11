@@ -3,6 +3,7 @@ package com.example.steven.testtabs;
 import android.app.Service;
 import android.content.ContentUris;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.media.AudioManager;
 import android.media.MediaPlayer;
 import android.net.Uri;
@@ -32,6 +33,10 @@ public class MusicService extends Service implements
         super.onCreate();
         songPosn = 0;
         player = new MediaPlayer();
+
+        //Get the same values as we left them
+        shuffleOn = getSharedPreferences("mediaPlayer", 0).getBoolean("shuffle", false);
+        loopOn    = getSharedPreferences("mediaPlayer", 0).getBoolean("loop",    false);
 
         initMusicPlayer();
     }
@@ -70,9 +75,17 @@ public class MusicService extends Service implements
     }
 
     @Override
-    public boolean onUnbind(Intent intent){
+    public boolean onUnbind(Intent intent) {
         player.stop();
         player.release();
+
+        //Save preferences for looping and shuffle
+        SharedPreferences preferences = getSharedPreferences("mediaPlayer", 0);
+        SharedPreferences.Editor editor = preferences.edit();
+        editor.putBoolean("loop", loopOn);
+        editor.putBoolean("shuffle", shuffleOn);
+        editor.apply();
+
         return false;
     }
 

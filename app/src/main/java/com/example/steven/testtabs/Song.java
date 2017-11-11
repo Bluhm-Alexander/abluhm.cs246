@@ -13,6 +13,8 @@ public class Song {
         album  = songAlbum;
     }
 
+
+
     long getID()             { return id;     }
     public String getTitle() { return title;  }
     String getArtist()       { return artist; }
