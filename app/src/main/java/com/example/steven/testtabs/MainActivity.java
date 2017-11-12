@@ -47,14 +47,12 @@ public class MainActivity extends AppCompatActivity {
     private ViewPager viewPager;
     private PagerAdapter pagerAdapter;
     private TabLayout tabLayout;
-    private ArrayList<Song> songList = new ArrayList<>();
-    private ArrayList<ArrayList<Song>> allLists = new ArrayList<>();
-    private MusicService musicSrv;
-    private Intent playIntent;
-    private boolean musicBound = false;
-    private ServiceConnection musicConnection;
-    private String currentSongName;
+
+
+
     int currentTab = 0;
+    //context of MainActivity
+    private Context mContext;
 
     //!!----Functions Section----!!
     /*******************************************************************************************
@@ -69,14 +67,20 @@ public class MainActivity extends AppCompatActivity {
         setContentView(R.layout.activity_main);
         Log.d(TAG, "onCreate: Starting.");
 
+
+
         getPermissions();
         pagerAdapter = new PagerAdapter(getSupportFragmentManager());
         viewPager = (ViewPager) findViewById(R.id.container);
         setupViewPager();
         setupTabLayout();
-        startService();
+
+        //Going to AppCore to Start our music Service
+        AppCore.getInstance().startService();
 
 
+        //set up context
+        mContext = getApplicationContext();
     }
 
     /*******************************************************************************************
@@ -87,10 +91,12 @@ public class MainActivity extends AppCompatActivity {
     @Override
     protected void onPause() {
         super.onPause();
-        currentSongName = musicSrv.getNowPlaying().getTitle();
-        SharedPreferences.Editor editor = getSharedPreferences("text", 0).edit();
-        editor.putString("Song Title", currentSongName);
-        editor.apply();
+        if (AppCore.getInstance().musicSrv != null) {
+            AppCore.getInstance().currentSongName = AppCore.getInstance().musicSrv.getNowPlaying().getTitle();
+            SharedPreferences.Editor editor = getSharedPreferences("text", 0).edit();
+            editor.putString("Song Title", AppCore.getInstance().currentSongName);
+            editor.apply();
+        }
     }
 
     /******************************************************************************************
@@ -102,7 +108,7 @@ public class MainActivity extends AppCompatActivity {
     protected void onResume() {
         super.onResume();
         SharedPreferences.Editor editor = getSharedPreferences("text", 0).edit();
-        currentSongName = getSharedPreferences("text", 0).getString("Song Title", null);
+        AppCore.getInstance().currentSongName = getSharedPreferences("text", 0).getString("Song Title", null);
     }
 
     /*******************************************************************************************
@@ -154,7 +160,7 @@ public class MainActivity extends AppCompatActivity {
 
     private void setupViewPager() {
         //checking for empty Lists
-        if (allLists.isEmpty()) {
+        if (AppCore.getInstance().allLists.isEmpty()) {
             Toast.makeText(getApplicationContext(), "No Media!", Toast.LENGTH_SHORT).show();
             //Maybe add something here later.... Ask if it is ok to just make default values
 
@@ -162,38 +168,12 @@ public class MainActivity extends AppCompatActivity {
 
         else {
             //These four functions pass the information to the Tabs
-            pagerAdapter.addFragment(new SongListFragment(), "Title sort", allLists.get(0));
-            pagerAdapter.addFragment(new SongListFragment(), "Artist sort", allLists.get(1));
-            pagerAdapter.addFragment(new SongListFragment(), "Album sort", allLists.get(2));
+            pagerAdapter.addFragment(new SongListFragment(), "Title sort", AppCore.getInstance().allLists.get(0));
+            pagerAdapter.addFragment(new SongListFragment(), "Artist sort", AppCore.getInstance().allLists.get(1));
+            pagerAdapter.addFragment(new SongListFragment(), "Album sort", AppCore.getInstance().allLists.get(2));
             pagerAdapter.addFragment(new SongListFragment(), "Playlist sort", new ArrayList<Song>());
             viewPager.setAdapter(pagerAdapter);
         }
-    }
-
-    /*******************************************************************************************
-     * startService() is called in the onCreate() function.
-     * Starts up the Music playing service built into android at the start of the program.
-     * Not sure if we need to pass the service between activities....
-     *******************************************************************************************/
-
-    private void startService() {
-        musicConnection = new ServiceConnection() {
-
-            @Override
-            public void onServiceConnected(ComponentName name, IBinder service) {
-                MusicService.MusicBinder binder = (MusicService.MusicBinder)service;
-                //get service
-                musicSrv = binder.getService();
-                //pass list
-                musicSrv.setList(songList);
-                musicBound = true;
-            }
-
-            @Override
-            public void onServiceDisconnected(ComponentName name) {
-                musicBound = false;
-            }
-        };
     }
 
     /*******************************************************************************************
@@ -206,10 +186,10 @@ public class MainActivity extends AppCompatActivity {
     @Override
     protected void onStart() {
         super.onStart();
-        if(playIntent == null){
-            playIntent = new Intent(this, MusicService.class);
-            bindService(playIntent, musicConnection, Context.BIND_AUTO_CREATE);
-            startService(playIntent);
+        if(AppCore.getInstance().playIntent == null){
+            AppCore.getInstance().playIntent = new Intent(this, MusicService.class);
+            bindService(AppCore.getInstance().playIntent, AppCore.getInstance().musicConnection, Context.BIND_AUTO_CREATE);
+            startService(AppCore.getInstance().playIntent);
         }
     }
 
@@ -220,14 +200,18 @@ public class MainActivity extends AppCompatActivity {
 
     @Override
     protected void onDestroy() {
-        stopService(playIntent);
-        musicSrv = null;
+        stopService(AppCore.getInstance().playIntent);
+        AppCore.getInstance().musicSrv = null;
         super.onDestroy();
     }
 
     /********************************************************************************************
-     * onOptionsItemSelected(item) I think this function sheck to see if shuffle is on or not.
+     * onOptionsItemSelected(item) I think this function checks to see if shuffle is on or not.
      * Could someone please clarify?
+     *
+     * I think this function is useless here. Possibly for testing purposes I will keep it here
+     * until I know better.
+     *
      * @param item
      * @return
      *******************************************************************************************/
@@ -240,8 +224,8 @@ public class MainActivity extends AppCompatActivity {
                 //shuffle
                 break;
             case R.id.action_end:
-                stopService(playIntent);
-                musicSrv = null;
+                stopService(AppCore.getInstance().playIntent);
+                AppCore.getInstance().musicSrv = null;
                 System.exit(0);
                 break;
         }
@@ -298,32 +282,41 @@ public class MainActivity extends AppCompatActivity {
     /**********************************************************************************************
      * songPicked(view)
      * When music is selected in the Tab it passes which song has been slected to the music service
+     * Alex is modifying this function so that Music Service is passed to the NowPlaying Activity.
      * @param view
      *********************************************************************************************/
     public void songPicked(View view) {
-        musicSrv.setSong(allLists.get(currentTab).get(Integer.parseInt(view.getTag().toString())));
-        musicSrv.playSong();
+        AppCore.getInstance().musicSrv.setSong(AppCore.getInstance().allLists.get(currentTab).get(Integer.parseInt(view.getTag().toString())));
+        AppCore.getInstance().musicSrv.playSong();
+        //making new intent to switch to NowPlaying Activity
+        Intent nowPlaying = new Intent(mContext, NowPlaying.class);
+
+        mContext.startActivity(nowPlaying);
+
     }
 
     //On press play/pause
     public void playPause(View view) {
-        musicSrv.playPause();
+        AppCore.getInstance().musicSrv.playPause();
     }
 
     //On press prev song button
     public void prevSong(View view) {
-        musicSrv.prevSong();
+        AppCore.getInstance().musicSrv.prevSong();
     }
 
     //On press next song button
     public void nextSong(View view) {
-        musicSrv.nextSong();
+        AppCore.getInstance().musicSrv.nextSong();
     }
 
     /********************************************************************************************
      * getMusic() retrieves a list of music files from the android device and puts them into a String
      * It inserts the track lists into the variable allLists. all Lists tabs correspond to an
      * integer. Artist tab is allLists(1).
+     *
+     * This Function I think needs to be modified so we can move necessary components to appCore
+     * AppCore.getInstance().
      *******************************************************************************************/
 
     public void getMusic() {
@@ -345,29 +338,29 @@ public class MainActivity extends AppCompatActivity {
                 String thisAlbum  = songCursor.getString(albumColumn);
                 long thisId       = songCursor.getLong(idColumn);
 
-                songList.add(new Song(thisId, thisTitle, thisArtist, thisAlbum));
+                AppCore.getInstance().songList.add(new Song(thisId, thisTitle, thisArtist, thisAlbum));
             }
             while (songCursor.moveToNext());
             songCursor.close();
 
             //Default sorting
-            Collections.sort(songList, new Comparator<Song>(){
+            Collections.sort(AppCore.getInstance().songList, new Comparator<Song>(){
                 public int compare(Song a, Song b){
                     return a.getTitle().compareTo(b.getTitle());
                 }
             });
 
-            allLists.add(new ArrayList<Song>(songList));
-            allLists.add(new ArrayList<Song>(songList));
-            allLists.add(new ArrayList<Song>(songList));
+            AppCore.getInstance().allLists.add(new ArrayList<Song>(AppCore.getInstance().songList));
+            AppCore.getInstance().allLists.add(new ArrayList<Song>(AppCore.getInstance().songList));
+            AppCore.getInstance().allLists.add(new ArrayList<Song>(AppCore.getInstance().songList));
 
-            Collections.sort(allLists.get(1), new Comparator<Song>(){
+            Collections.sort(AppCore.getInstance().allLists.get(1), new Comparator<Song>(){
                 public int compare(Song a, Song b){
                     return a.getArtist().compareTo(b.getArtist());
                 }
             });
 
-            Collections.sort(allLists.get(2), new Comparator<Song>(){
+            Collections.sort(AppCore.getInstance().allLists.get(2), new Comparator<Song>(){
                 public int compare(Song a, Song b){
                     return a.getAlbum().compareTo(b.getAlbum());
                 }

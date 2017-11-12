@@ -19,7 +19,10 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-        <service android:name="com.example.steven.testtabs.MusicService" />
+
+        <service android:name=".MusicService" />
+
+        <activity android:name=".NowPlaying"></activity>
     </application>
 
 </manifest>

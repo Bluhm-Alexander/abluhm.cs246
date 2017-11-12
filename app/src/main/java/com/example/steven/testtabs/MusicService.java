@@ -29,6 +29,10 @@ public class MusicService extends Service implements
     private boolean loopOn = false;
     private boolean shuffleOn = false;
 
+    public Song getSong(){
+        return songs.get(songPosn);
+    }
+
     public void onCreate(){
         super.onCreate();
         songPosn = 0;

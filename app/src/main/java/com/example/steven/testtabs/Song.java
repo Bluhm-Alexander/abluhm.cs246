@@ -17,6 +17,6 @@ public class Song {
 
     long getID()             { return id;     }
     public String getTitle() { return title;  }
-    String getArtist()       { return artist; }
-    String getAlbum()        { return album;  }
+    public String getArtist()       { return artist; }
+    public String getAlbum()        { return album;  }
 }

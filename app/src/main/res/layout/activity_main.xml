@@ -64,6 +64,7 @@
         android:layout_alignParentStart="false"
         android:layout_toRightOf="@id/play_pause"
         android:layout_alignParentBottom="true"
-        android:layout_margin="16dp"/>
+        android:layout_margin="16dp"
+        />
 
 </RelativeLayout>
