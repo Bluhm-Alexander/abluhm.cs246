@@ -35,7 +35,7 @@
 
     <Button
         android:id="@+id/play_pause"
-        android:background="@drawable/android_music_player_play"
+        android:background="@drawable/play"
         android:onClick="playPause"
         android:layout_width="64dp"
         android:layout_height="64dp"
@@ -46,7 +46,7 @@
 
     <Button
         android:id="@+id/prev"
-        android:background="@drawable/android_music_player_play"
+        android:background="@drawable/previous"
         android:onClick="prevSong"
         android:layout_width="64dp"
         android:layout_height="64dp"
@@ -57,7 +57,7 @@
 
     <Button
         android:id="@+id/next"
-        android:background="@drawable/android_music_player_play"
+        android:background="@drawable/next"
         android:onClick="nextSong"
         android:layout_width="64dp"
         android:layout_height="64dp"
