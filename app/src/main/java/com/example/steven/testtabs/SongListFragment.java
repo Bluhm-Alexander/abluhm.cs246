@@ -14,7 +14,7 @@ import java.util.Collections;
 import java.util.Comparator;
 
 public class SongListFragment extends ListFragment {
-    ArrayList<Song> songList = new ArrayList<>();
+    private Playlist songList;
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle saveInstanceState) {
@@ -28,8 +28,12 @@ public class SongListFragment extends ListFragment {
         return rootView;
     }
 
-    public void setSongs(ArrayList<Song> arrayList) {
-        //Get songs
-        songList = arrayList;
+    public void setSongs(Playlist playlist) {
+        //Sets songs
+        songList = playlist;
+    }
+
+    public String getPlaylistName() {
+        return songList.getPlaylistName();
     }
 }

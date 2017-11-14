@@ -8,16 +8,17 @@ import android.widget.TextView;
 public class NowPlaying extends AppCompatActivity {
 
     public TextView textView;
-    public String title;
+    //Got rid of title and added the Song object instead.
+    //(Can change back later, just testing for now)
+    public Song nowPlaying;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_now_playing);
-
         textView = (TextView) findViewById(R.id.title);
-        title = AppCore.getInstance().currentSongName;
-        textView.setText(title);
+
+        updateTrackInfo();
     }
 
     //On press play/pause
@@ -38,9 +39,8 @@ public class NowPlaying extends AppCompatActivity {
     }
 
     public void updateTrackInfo() {
-        textView = (TextView) findViewById(R.id.title);
-        title = AppCore.getInstance().getSongName();
-        textView.setText(title);
+        //textView = (TextView) findViewById(R.id.title);
+        nowPlaying = AppCore.getInstance().musicSrv.getNowPlaying();
+        textView.setText(nowPlaying.getTitle());
     }
-
 }

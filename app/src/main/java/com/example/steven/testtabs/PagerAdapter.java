@@ -11,7 +11,6 @@ import java.util.List;
 
 public class PagerAdapter extends FragmentPagerAdapter {
     private static final String TAG = "PagerAdapter";
-
     private final List<Fragment> fragmentList = new ArrayList<>();
     private final List<String> fragmentTitleList = new ArrayList<>();
 
@@ -19,14 +18,14 @@ public class PagerAdapter extends FragmentPagerAdapter {
         super(fm);
     }
 
-    public void addFragment(SongListFragment fragment, String title, ArrayList<Song> list) {
+    public void addFragment(SongListFragment fragment, Playlist list) {
         fragmentList.add(fragment);
-        fragmentTitleList.add(title);
+        fragmentTitleList.add(list.getPlaylistName());
         fragment.setSongs(list);
     }
 
     //Create settings tab
-    public void setupSettings() {
+    public void setupSettingsTab() {
         fragmentList.add(new Fragment());
         fragmentTitleList.add("Settings");
     }

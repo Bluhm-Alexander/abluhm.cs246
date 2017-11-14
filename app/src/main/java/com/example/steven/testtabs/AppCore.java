@@ -33,7 +33,7 @@ public class AppCore {
 
     //List of Variables
     public ArrayList<Song> songList = new ArrayList<>();
-    public ArrayList<ArrayList<Song>> allLists = new ArrayList<>();
+    public ArrayList<Playlist> allLists = new ArrayList<>();
     public MusicService musicSrv;
     public Intent playIntent;
     public ServiceConnection musicConnection;

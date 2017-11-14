@@ -1,6 +1,8 @@
 package com.example.steven.testtabs;
 
-public class Song {
+import android.util.Log;
+
+class Song {
     private long id;
     private String title;
     private String artist;
@@ -13,10 +15,11 @@ public class Song {
         album  = songAlbum;
     }
 
+    long getID()              { return id;     }
+    String getTitle()  { return title;  }
+    String getArtist() { return artist; }
+    String getAlbum()  { return album;  }
+    String getSongInfo() { return (getTitle() + " - " + getArtist() + " - " + getAlbum() + " - " + getID() + "\n"); }
 
-
-    long getID()             { return id;     }
-    public String getTitle() { return title;  }
-    public String getArtist()       { return artist; }
-    public String getAlbum()        { return album;  }
+    void logSongInfo() { Log.d("Song class", getSongInfo()); }
 }

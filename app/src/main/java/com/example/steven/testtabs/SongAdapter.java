@@ -11,10 +11,10 @@ import android.widget.TextView;
 import java.util.ArrayList;
 
 public class SongAdapter extends BaseAdapter {
-    private ArrayList<Song> songs;
+    private Playlist songs;
     private LayoutInflater songInf;
 
-    SongAdapter(Context c, ArrayList<Song> theSongs){
+    SongAdapter(Context c, Playlist theSongs){
         songs = theSongs;
         songInf = LayoutInflater.from(c);
     }

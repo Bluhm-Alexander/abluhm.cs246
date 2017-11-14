@@ -84,34 +84,6 @@ public class MainActivity extends AppCompatActivity {
     }
 
     /*******************************************************************************************
-     * onPause() is called when you have navigated away from mainActivity
-     * At the moment all this is doing is testing our Shared Preferences implementation
-     ******************************************************************************************/
-
-    @Override
-    protected void onPause() {
-        super.onPause();
-        if (AppCore.getInstance().musicSrv != null) {
-            AppCore.getInstance().currentSongName = AppCore.getInstance().musicSrv.getNowPlaying().getTitle();
-            SharedPreferences.Editor editor = getSharedPreferences("text", 0).edit();
-            editor.putString("Song Title", AppCore.getInstance().currentSongName);
-            editor.apply();
-        }
-    }
-
-    /******************************************************************************************
-     * onResume() is called when user navigates back to mainActivity
-     *
-     ******************************************************************************************/
-
-    @Override
-    protected void onResume() {
-        super.onResume();
-        SharedPreferences.Editor editor = getSharedPreferences("text", 0).edit();
-        AppCore.getInstance().currentSongName = getSharedPreferences("text", 0).getString("Song Title", null);
-    }
-
-    /*******************************************************************************************
      *  setupTabLayout() is called in the onCreate function.
      *  Create the Tab Layout is set up through a series of listeners waiting for the tab to
      *  be clicked.
@@ -167,11 +139,10 @@ public class MainActivity extends AppCompatActivity {
         }
 
         else {
-            //These four functions pass the information to the Tabs
-            pagerAdapter.addFragment(new SongListFragment(), "Title sort", AppCore.getInstance().allLists.get(0));
-            pagerAdapter.addFragment(new SongListFragment(), "Artist sort", AppCore.getInstance().allLists.get(1));
-            pagerAdapter.addFragment(new SongListFragment(), "Album sort", AppCore.getInstance().allLists.get(2));
-            pagerAdapter.addFragment(new SongListFragment(), "Playlist sort", new ArrayList<Song>());
+            //Create default tabs for playlist
+            pagerAdapter.addFragment(new SongListFragment(), AppCore.getInstance().allLists.get(0));
+            pagerAdapter.addFragment(new SongListFragment(), AppCore.getInstance().allLists.get(1));
+            pagerAdapter.addFragment(new SongListFragment(), AppCore.getInstance().allLists.get(2));
             viewPager.setAdapter(pagerAdapter);
         }
     }
@@ -286,9 +257,13 @@ public class MainActivity extends AppCompatActivity {
      * @param view
      *********************************************************************************************/
     public void songPicked(View view) {
+        //Sets playlist that song was called from
+        AppCore.getInstance().musicSrv.setPlaylist(currentTab);
+        //Sets selected song to be played
         AppCore.getInstance().musicSrv.setSong(AppCore.getInstance().allLists.get(currentTab).get(Integer.parseInt(view.getTag().toString())));
+        //Play the song
         AppCore.getInstance().musicSrv.playSong();
-        //making new intent to switch to NowPlaying Activity
+        //Making new intent to switch to NowPlaying Activity
         Intent nowPlaying = new Intent(mContext, NowPlaying.class);
 
         mContext.startActivity(nowPlaying);
@@ -326,17 +301,17 @@ public class MainActivity extends AppCompatActivity {
         String selection = MediaStore.Audio.Media.IS_MUSIC + " != 0";
         Cursor songCursor = musicResolver.query(songUri, null, selection, null, null);
 
-        if(songCursor != null && songCursor.moveToFirst()) {
-            int titleColumn  = songCursor.getColumnIndex(MediaStore.Audio.Media.TITLE);
+        if (songCursor != null && songCursor.moveToFirst()) {
+            int titleColumn = songCursor.getColumnIndex(MediaStore.Audio.Media.TITLE);
             int artistColumn = songCursor.getColumnIndex(MediaStore.Audio.Media.ARTIST);
-            int albumColumn  = songCursor.getColumnIndex(MediaStore.Audio.Media.ALBUM);
-            int idColumn     = songCursor.getColumnIndex(MediaStore.Audio.Media._ID);
+            int albumColumn = songCursor.getColumnIndex(MediaStore.Audio.Media.ALBUM);
+            int idColumn = songCursor.getColumnIndex(MediaStore.Audio.Media._ID);
 
             do {
-                String thisTitle  = songCursor.getString(titleColumn);
+                String thisTitle = songCursor.getString(titleColumn);
                 String thisArtist = songCursor.getString(artistColumn);
-                String thisAlbum  = songCursor.getString(albumColumn);
-                long thisId       = songCursor.getLong(idColumn);
+                String thisAlbum = songCursor.getString(albumColumn);
+                long thisId = songCursor.getLong(idColumn);
 
                 AppCore.getInstance().songList.add(new Song(thisId, thisTitle, thisArtist, thisAlbum));
             }
@@ -350,21 +325,107 @@ public class MainActivity extends AppCompatActivity {
                 }
             });
 
-            AppCore.getInstance().allLists.add(new ArrayList<Song>(AppCore.getInstance().songList));
-            AppCore.getInstance().allLists.add(new ArrayList<Song>(AppCore.getInstance().songList));
-            AppCore.getInstance().allLists.add(new ArrayList<Song>(AppCore.getInstance().songList));
-
-            Collections.sort(AppCore.getInstance().allLists.get(1), new Comparator<Song>(){
-                public int compare(Song a, Song b){
-                    return a.getArtist().compareTo(b.getArtist());
-                }
-            });
-
-            Collections.sort(AppCore.getInstance().allLists.get(2), new Comparator<Song>(){
-                public int compare(Song a, Song b){
-                    return a.getAlbum().compareTo(b.getAlbum());
-                }
-            });
+            createDefaultPlaylists();
         }
+    }
+
+    //Create default playlists
+    private void createDefaultPlaylists() {
+        //Create new list of songs so order of original list of songs don't change when we sort it
+        ArrayList<Song> songs = new ArrayList<>();
+        songs.addAll(AppCore.getInstance().songList);
+
+        //Create playlist for title sort
+        Playlist titleSort  = new Playlist("Title Sort");
+        //Default list already sorted by title. Skip the sort for this
+        //Store into playlist
+        titleSort.addAll(songs);
+
+
+        //Create playlist for artist sort
+        Playlist artistSort = new Playlist("Artist Sort");
+        //Sort by artist
+        Collections.sort(songs, new Comparator<Song>(){
+            public int compare(Song a, Song b){
+                return a.getArtist().compareTo(b.getArtist());
+            }
+        });
+        //Store into playlist
+        artistSort.addAll(songs);
+
+
+        //Create playlist for album sort
+        Playlist albumSort = new Playlist("Album Sort");
+        //Sort by album
+        Collections.sort(songs, new Comparator<Song>(){
+            public int compare(Song a, Song b){
+                return a.getAlbum().compareTo(b.getAlbum());
+            }
+        });
+        //Store into playlist
+        albumSort.addAll(songs);
+
+
+        AppCore.getInstance().allLists.add(titleSort);
+        AppCore.getInstance().allLists.add(artistSort);
+        AppCore.getInstance().allLists.add(albumSort);
+    }
+
+    private void logSongsInPlaylist(ArrayList<Song> playlist) {
+        Log.d(TAG, " ");
+
+        for(int i = 0; i < playlist.size(); i++) {
+            Log.d(TAG, i + ": " + playlist.get(i).getSongInfo());
+        }
+
+        Log.d(TAG, " ");
+    }
+
+    //Create playlist from user
+    public boolean createUserPlaylist(String nameOfPlaylist) {
+        for(int i = 0; i < AppCore.getInstance().allLists.size(); i++) {
+            if(nameOfPlaylist == AppCore.getInstance().allLists.get(i).playlistName) {
+                Toast.makeText(mContext, "Playlist already exists with that name", Toast.LENGTH_SHORT).show();
+                Log.d(TAG, "Attempted to create playlist with already existing name");
+                return false;
+            }
+        }
+        Playlist newPlaylist = new Playlist(nameOfPlaylist);
+        AppCore.getInstance().allLists.add(newPlaylist);
+        return true;
+    }
+
+    //Create tab for selected playlist
+    public boolean createTabForPlaylist(Playlist playlist) {
+        if(playlist.isEmpty()) {
+            Toast.makeText(mContext, "Cannot create new tab for empty playlist. For now..." , Toast.LENGTH_SHORT).show();
+            Log.d(TAG, "Attempted to create tab with empty playlist");
+            return false;
+        }
+        for(int i = 0; i < tabLayout.getChildCount(); i++) {
+            if(pagerAdapter.getPageTitle(i).equals(playlist.getPlaylistName())) {
+                Toast.makeText(mContext, "Tab already exists with that name", Toast.LENGTH_SHORT).show();
+                Log.d(TAG, "Attempted to create tab with already existing name");
+                return false;
+            }
+        }
+        //Create new tab with given playlist
+        pagerAdapter.addFragment(new SongListFragment(), playlist);
+        return true;
+    }
+
+    //Add to playlist
+    public boolean addToPlaylist(Playlist playlist, Song song) {
+        return AppCore.getInstance().musicSrv.addToPlaylist(playlist, song);
+    }
+
+    //Remove from playlist by index - returns removed song
+    public Song removeFromPlaylist(Playlist playlist, int index) {
+        return AppCore.getInstance().musicSrv.removeFromPlaylist(playlist, index);
+    }
+
+    //Removes from playlist by object - returns if successful
+    public boolean removeFromPlaylist(Playlist playlist, Song song) {
+        return removeFromPlaylist(playlist, song);
     }
 }
