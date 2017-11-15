@@ -39,7 +39,6 @@ public class NowPlaying extends AppCompatActivity {
     }
 
     public void updateTrackInfo() {
-        //textView = (TextView) findViewById(R.id.title);
         nowPlaying = AppCore.getInstance().musicSrv.getNowPlaying();
         textView.setText(nowPlaying.getTitle());
     }

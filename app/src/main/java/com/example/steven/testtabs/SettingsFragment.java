@@ -50,7 +50,6 @@ public class SettingsFragment extends ListFragment {
                 break;
             case 1:
                 AppCore.getInstance().musicSrv.toggleLoop();
-                Toast.makeText(getActivity(), "Looping: "  + AppCore.getInstance().musicSrv.getLoopOn(), Toast.LENGTH_SHORT).show();
                 break;
             case 2:
                 //Nothing for now

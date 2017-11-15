@@ -56,11 +56,11 @@ public class MusicService extends Service implements
 
     public Song getNowPlaying() {
         Log.d(TAG, "Playing " + currentSong.getTitle() + ". IndexInLibrary = " + indexInLibrary + ". IndexInPlaylist = " + indexInPlaylist);
-        return songs.get(indexInLibrary);
+        return currentSong;
     }
 
     private void setIndexInLibrary() {
-        currentSong = currentPlaylist.get(indexInPlaylist);
+        currentSong    = currentPlaylist.get(indexInPlaylist);
         indexInLibrary = songs.indexOf(currentSong);
     }
 
@@ -101,13 +101,6 @@ public class MusicService extends Service implements
     public boolean onUnbind(Intent intent) {
         player.stop();
         player.release();
-
-        //Save preferences for looping and shuffle
-        SharedPreferences preferences = getSharedPreferences("mediaPlayer", 0);
-        SharedPreferences.Editor editor = preferences.edit();
-        editor.putBoolean("loop", loopOn);
-        editor.putBoolean("shuffle", shuffleOn);
-        editor.apply();
 
         return false;
     }
@@ -171,6 +164,7 @@ public class MusicService extends Service implements
             else {
                 Toast.makeText(this, "End of queue (next)", Toast.LENGTH_SHORT).show();
                 player.reset();
+                currentSong = new Song();
                 return null;
             }
         }
@@ -200,6 +194,13 @@ public class MusicService extends Service implements
             Toast.makeText(this, "Shuffle: On", Toast.LENGTH_SHORT).show();
         else
             Toast.makeText(this, "Shuffle: Off", Toast.LENGTH_SHORT).show();
+
+        SharedPreferences preferences = getSharedPreferences("mediaPlayer", 0);
+        SharedPreferences.Editor editor = preferences.edit();
+        editor.putBoolean("shuffle", shuffleOn);
+        editor.apply();
+
+        Log.d(TAG, "Saving shuffle boolean to shared preferences. (" + shuffleOn + ")");
     }
 
     public void toggleLoop() {
@@ -208,6 +209,13 @@ public class MusicService extends Service implements
             Toast.makeText(this, "Loop: On", Toast.LENGTH_SHORT).show();
         else
             Toast.makeText(this, "Loop: Off", Toast.LENGTH_SHORT).show();
+
+        SharedPreferences preferences = getSharedPreferences("mediaPlayer", 0);
+        SharedPreferences.Editor editor = preferences.edit();
+        editor.putBoolean("loop", loopOn);
+        editor.apply();
+
+        Log.d(TAG, "Saving loop boolean to shared preferences. (" + loopOn + ")");
     }
 
     public boolean getShuffleOn() {
@@ -224,10 +232,10 @@ public class MusicService extends Service implements
 
         //Get song
         setIndexInLibrary();
-        Song playSong = songs.get(indexInLibrary);
+        currentSong = songs.get(indexInLibrary);
 
         //Get id
-        long currSong = playSong.getID();
+        long currSong = currentSong.getID();
 
         //Get uri
         Uri trackUri = ContentUris.withAppendedId(
@@ -242,16 +250,10 @@ public class MusicService extends Service implements
         player.prepareAsync(); //From the MediaPlayer class
     }
 
-    //Possibly unused right now
+    //Sets song by index
     public void setSong(int songIndex) {
         indexInPlaylist = songIndex;
         setIndexInLibrary();
-    }
-
-    //Sets song by obj. Finds pressed song in other sorted list and finds the index of it in THIS list
-    public void setSong(Song thisSong) {
-        indexInLibrary  = songs.indexOf(thisSong);
-        indexInPlaylist = currentPlaylist.indexOf(thisSong);
     }
 
     //Create playlist from user

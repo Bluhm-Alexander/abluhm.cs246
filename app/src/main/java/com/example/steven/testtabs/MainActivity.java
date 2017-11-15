@@ -265,7 +265,7 @@ public class MainActivity extends AppCompatActivity {
         //Sets playlist that song was called from
         AppCore.getInstance().musicSrv.setPlaylist(currentTab);
         //Sets selected song to be played
-        AppCore.getInstance().musicSrv.setSong(AppCore.getInstance().allLists.get(currentTab).get(Integer.parseInt(view.getTag().toString())));
+        AppCore.getInstance().musicSrv.setSong(Integer.parseInt(view.getTag().toString()));
         //Play the song
         AppCore.getInstance().musicSrv.playSong();
         //Making new intent to switch to NowPlaying Activity
