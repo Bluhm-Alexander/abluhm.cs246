@@ -15,11 +15,18 @@ class Song {
         album  = songAlbum;
     }
 
-    long getID()              { return id;     }
-    String getTitle()  { return title;  }
-    String getArtist() { return artist; }
-    String getAlbum()  { return album;  }
-    String getSongInfo() { return (getTitle() + " - " + getArtist() + " - " + getAlbum() + " - " + getID() + "\n"); }
+    Song () {
+        id = 0;
+        title  = "";
+        artist = "";
+        album  = "";
+    }
 
+    long getID()         { return id;     }
+    String getTitle()    { return title;  }
+    String getArtist()   { return artist; }
+    String getAlbum()    { return album;  }
+
+    String getSongInfo() { return (getTitle() + " - " + getArtist() + " - " + getAlbum() + " - " + getID() + "\n"); }
     void logSongInfo() { Log.d("Song class", getSongInfo()); }
 }
