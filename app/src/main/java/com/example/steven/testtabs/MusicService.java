@@ -21,7 +21,9 @@ public class MusicService extends Service implements
         MediaPlayer.OnPreparedListener,
         MediaPlayer.OnErrorListener,
         MediaPlayer.OnCompletionListener {
+
     private static final String TAG = "MusicService";
+
     private MediaPlayer player;
     private ArrayList<Song> songs;
     private ArrayList<Playlist> allPlaylists;
@@ -291,5 +293,10 @@ public class MusicService extends Service implements
     //Remove from playlist by index - returns removed song object
     public Song removeFromPlaylist(Playlist playlist, int index) {
         return playlist.remove(index);
+    }
+
+    //Returns isPlaying from mediaPlayer
+    public boolean isPlaying() {
+        return player.isPlaying();
     }
 }
