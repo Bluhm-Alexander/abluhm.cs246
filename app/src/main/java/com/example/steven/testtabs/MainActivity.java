@@ -97,10 +97,9 @@ public class MainActivity extends AppCompatActivity {
 
             @Override
             public void onTabSelected(TabLayout.Tab tab) {
+                int previousTab = currentTab;
                 currentTab = tabLayout.getSelectedTabPosition();
-
-                //For debugging will remove this later
-                Toast.makeText(getApplicationContext(),"Switched to tab: " + currentTab,Toast.LENGTH_SHORT).show();
+                Log.d(TAG, "Switched to tab: " + currentTab + " from: " + previousTab);
             }
 
             @Override
@@ -257,7 +256,7 @@ public class MainActivity extends AppCompatActivity {
 
     /**********************************************************************************************
      * songPicked(view)
-     * When music is selected in the Tab it passes which song has been slected to the music service
+     * When music is selected in the Tab it passes which song has been selected to the music service
      * Alex is modifying this function so that Music Service is passed to the NowPlaying Activity.
      * @param view
      *********************************************************************************************/
@@ -292,8 +291,8 @@ public class MainActivity extends AppCompatActivity {
 
     /********************************************************************************************
      * getMusic() retrieves a list of music files from the android device and puts them into a String
-     * It inserts the track lists into the variable allLists. all Lists tabs correspond to an
-     * integer. Artist tab is allLists(1).
+     * Default playlists are then created by a different sort type of this list and pushed into
+     * the MusicService class.
      *
      * This Function I think needs to be modified so we can move necessary components to appCore
      * AppCore.getInstance().
@@ -376,51 +375,22 @@ public class MainActivity extends AppCompatActivity {
         AppCore.getInstance().allLists.add(albumSort);
     }
 
-    //Create playlist from user
-    public boolean createUserPlaylist(String nameOfPlaylist) {
-        for(int i = 0; i < AppCore.getInstance().allLists.size(); i++) {
-            if(nameOfPlaylist == AppCore.getInstance().allLists.get(i).playlistName) {
-                Toast.makeText(mContext, "Playlist already exists with that name", Toast.LENGTH_SHORT).show();
-                Log.d(TAG, "Attempted to create playlist with already existing name");
-                return false;
-            }
-        }
-        Playlist newPlaylist = new Playlist(nameOfPlaylist);
-        AppCore.getInstance().allLists.add(newPlaylist);
-        return true;
-    }
-
     //Create tab for selected playlist
     public boolean createTabForPlaylist(Playlist playlist) {
         if(playlist.isEmpty()) {
             Toast.makeText(mContext, "Cannot create new tab for empty playlist. For now..." , Toast.LENGTH_SHORT).show();
-            Log.d(TAG, "Attempted to create tab with empty playlist");
+            Log.e(TAG, "Attempted to create tab with empty playlist");
             return false;
         }
         for(int i = 0; i < tabLayout.getChildCount(); i++) {
             if(pagerAdapter.getPageTitle(i).equals(playlist.getPlaylistName())) {
                 Toast.makeText(mContext, "Tab already exists with that name", Toast.LENGTH_SHORT).show();
-                Log.d(TAG, "Attempted to create tab with already existing name");
+                Log.e(TAG, "Attempted to create tab with already existing name");
                 return false;
             }
         }
         //Create new tab with given playlist
         pagerAdapter.addFragment(new SongListFragment(), playlist);
         return true;
-    }
-
-    //Add to playlist
-    public boolean addToPlaylist(Playlist playlist, Song song) {
-        return AppCore.getInstance().musicSrv.addToPlaylist(playlist, song);
-    }
-
-    //Remove from playlist by index - returns removed song
-    public Song removeFromPlaylist(Playlist playlist, int index) {
-        return AppCore.getInstance().musicSrv.removeFromPlaylist(playlist, index);
-    }
-
-    //Removes from playlist by object - returns if successful
-    public boolean removeFromPlaylist(Playlist playlist, Song song) {
-        return removeFromPlaylist(playlist, song);
     }
 }

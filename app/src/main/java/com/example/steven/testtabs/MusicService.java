@@ -137,6 +137,7 @@ public class MusicService extends Service implements
         //Repeat song if past 2.5 seconds
         if(player.getCurrentPosition() > 3000) {
             Toast.makeText(this, "Restarting song", Toast.LENGTH_SHORT).show();
+            Log.d(TAG, "Restarting song before 3 seconds while executing prevSong()");
             restartSong();
             return getNowPlaying();
         }
@@ -149,6 +150,7 @@ public class MusicService extends Service implements
             }
             else {
                 Toast.makeText(this, "Beginning of queue (prev)", Toast.LENGTH_SHORT).show();
+                Log.d(TAG, "Beginning of queue while executing prevSong(). Restarting song.");
                 restartSong();
                 return getNowPlaying();
             }
@@ -158,6 +160,7 @@ public class MusicService extends Service implements
 
         playSong();
         Toast.makeText(this, "Skipped to previous song", Toast.LENGTH_SHORT).show();
+        Log.d(TAG, "Skipped to previous song while executing prevSong()");
         return currentPlaylist.get(indexInPlaylist);
     }
 
@@ -170,6 +173,7 @@ public class MusicService extends Service implements
             }
             else {
                 Toast.makeText(this, "End of queue (next)", Toast.LENGTH_SHORT).show();
+                Log.d(TAG, "End of queue while executing nextSong()");
                 player.reset();
                 return null;
             }
@@ -179,6 +183,7 @@ public class MusicService extends Service implements
 
         playSong();
         Toast.makeText(this, "Skipped to next song", Toast.LENGTH_SHORT).show();
+        Log.d(TAG, "Skipped to next song while executing nextSong()");
         return currentPlaylist.get(indexInPlaylist);
     }
 
@@ -187,10 +192,12 @@ public class MusicService extends Service implements
         if(player.isPlaying()) {
             player.pause();
             Toast.makeText(this, "Pausing music", Toast.LENGTH_SHORT).show();
+            Log.d(TAG, "Pausing music while executing playPause()");
         }
         else {
             player.start();
             Toast.makeText(this, "Playing music", Toast.LENGTH_SHORT).show();
+            Log.d(TAG, "Playing music while executing playPause()");
         }
     }
 
@@ -259,7 +266,7 @@ public class MusicService extends Service implements
         for(int i = 0; i < allPlaylists.size(); i++) {
             if(nameOfPlaylist.equals(allPlaylists.get(i).playlistName)) {
                 Toast.makeText(this, "Playlist already exists with that name", Toast.LENGTH_SHORT).show();
-                Log.d(TAG, "Attempted to create playlist with already existing name");
+                Log.e(TAG, "Attempted to create playlist with already existing name");
                 return false;
             }
         }
