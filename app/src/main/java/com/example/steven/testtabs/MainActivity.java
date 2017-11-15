@@ -143,6 +143,11 @@ public class MainActivity extends AppCompatActivity {
             pagerAdapter.addFragment(new SongListFragment(), AppCore.getInstance().allLists.get(0));
             pagerAdapter.addFragment(new SongListFragment(), AppCore.getInstance().allLists.get(1));
             pagerAdapter.addFragment(new SongListFragment(), AppCore.getInstance().allLists.get(2));
+
+            //Add settings tab AFTER default tabs
+            pagerAdapter.setupSettingsTab();
+
+            //Set adapter
             viewPager.setAdapter(pagerAdapter);
         }
     }
@@ -369,16 +374,6 @@ public class MainActivity extends AppCompatActivity {
         AppCore.getInstance().allLists.add(titleSort);
         AppCore.getInstance().allLists.add(artistSort);
         AppCore.getInstance().allLists.add(albumSort);
-    }
-
-    private void logSongsInPlaylist(ArrayList<Song> playlist) {
-        Log.d(TAG, " ");
-
-        for(int i = 0; i < playlist.size(); i++) {
-            Log.d(TAG, i + ": " + playlist.get(i).getSongInfo());
-        }
-
-        Log.d(TAG, " ");
     }
 
     //Create playlist from user

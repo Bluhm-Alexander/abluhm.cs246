@@ -56,7 +56,6 @@ public class MusicService extends Service implements
 
     public Song getNowPlaying() {
         Log.d(TAG, "Playing " + currentSong.getTitle() + ". IndexInLibrary = " + indexInLibrary + ". IndexInPlaylist = " + indexInPlaylist);
-        Toast.makeText(this, "Now playing: " + currentSong.getTitle() + " at index: " + indexInLibrary + ", " + indexInPlaylist, Toast.LENGTH_SHORT).show();
         return songs.get(indexInLibrary);
     }
 
@@ -209,6 +208,14 @@ public class MusicService extends Service implements
             Toast.makeText(this, "Loop: On", Toast.LENGTH_SHORT).show();
         else
             Toast.makeText(this, "Loop: Off", Toast.LENGTH_SHORT).show();
+    }
+
+    public boolean getShuffleOn() {
+        return shuffleOn;
+    }
+
+    public boolean getLoopOn() {
+        return loopOn;
     }
 
     //Play song

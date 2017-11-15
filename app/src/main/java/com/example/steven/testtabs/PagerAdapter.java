@@ -14,20 +14,43 @@ public class PagerAdapter extends FragmentPagerAdapter {
     private final List<Fragment> fragmentList = new ArrayList<>();
     private final List<String> fragmentTitleList = new ArrayList<>();
 
-    public PagerAdapter(FragmentManager fm) {
+    private Fragment settingsFragment;
+    private int settingsIndex = 0;
+    PagerAdapter(FragmentManager fm) {
         super(fm);
     }
 
-    public void addFragment(SongListFragment fragment, Playlist list) {
+    void addFragment(SongListFragment fragment, Playlist list) {
         fragmentList.add(fragment);
         fragmentTitleList.add(list.getPlaylistName());
         fragment.setSongs(list);
+
+        if(settingsIndex > 0 && fragmentList.size() - 1 > settingsIndex)
+            moveSettingsTabToBack();
     }
 
     //Create settings tab
-    public void setupSettingsTab() {
-        fragmentList.add(new Fragment());
+    void setupSettingsTab() {
+        settingsFragment = new SettingsFragment();
+        fragmentList.add(settingsFragment);
         fragmentTitleList.add("Settings");
+        settingsIndex = fragmentList.size() - 1;
+    }
+
+    //Sets the settings tab as the back tab (in case tabs get added after settings)
+    private void moveSettingsTabToBack() {
+        //So we can add it back later
+        Fragment tmp = fragmentList.get(settingsIndex);
+
+        //Shift tabs over to the left
+        for(int i = settingsIndex; i < fragmentList.size(); i++) {
+            fragmentList.add(i, fragmentList.get(i + 1));
+        }
+        //Set to last index
+        settingsIndex = fragmentList.size() - 1;
+
+        //Set settings back as last tab
+        fragmentList.add(settingsIndex, tmp);
     }
 
     @Override
