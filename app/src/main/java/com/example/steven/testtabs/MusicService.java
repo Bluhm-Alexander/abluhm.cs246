@@ -83,6 +83,7 @@ public class MusicService extends Service implements
 
     public void setPlaylist(int index) {
         currentPlaylist = allPlaylists.get(index);
+        Log.d(TAG, "Switched playlist to " + currentPlaylist.getPlaylistName());
     }
 
     //Access this from MainActivity
