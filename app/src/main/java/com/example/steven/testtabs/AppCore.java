@@ -40,6 +40,11 @@ public class AppCore {
     public String currentSongName;
     public boolean musicBound = false;
 
+    /*********************************************************************************************
+     * Private constructor;
+     *********************************************************************************************/
+    private AppCore() {
+    }
 
     /********************************************************************************************
      * return the Instance of our Class.
@@ -55,6 +60,8 @@ public class AppCore {
      * Not sure if we need to pass the service between activities....
      *******************************************************************************************/
 
+
+    //tell java that this is synchronized
     public void startService() {
         musicConnection = new ServiceConnection() {
 
