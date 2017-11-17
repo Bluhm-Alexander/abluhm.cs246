@@ -143,7 +143,7 @@ public class MainActivity extends AppCompatActivity {
             pagerAdapter.addFragment(new SongListFragment(), AppCore.getInstance().allLists.get(0));
             pagerAdapter.addFragment(new SongListFragment(), AppCore.getInstance().allLists.get(1));
             pagerAdapter.addFragment(new SongListFragment(), AppCore.getInstance().allLists.get(2));
-
+            pagerAdapter.addFragment(new ExpandablePlaylistFragment(), AppCore.getInstance().allLists, "Test playlists");
             //Add settings tab AFTER default tabs
             pagerAdapter.setupSettingsTab();
 

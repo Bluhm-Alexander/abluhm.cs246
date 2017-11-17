@@ -31,8 +31,17 @@ public class PagerAdapter extends FragmentPagerAdapter {
             moveSettingsTabToBack();
         }
 
-        Log.d(TAG, "Added songFragment with name: " + list.getPlaylistName() + " and size of: " + list.size());
+        Log.d(TAG, "Added SongFragment with name: " + list.getPlaylistName() + " and size of: " + list.size());
     }
+
+    void addFragment(ExpandablePlaylistFragment fragment, ArrayList<Playlist> playlists, String tabName) {
+        fragmentList.add(fragment);
+        fragmentTitleList.add(tabName);
+        fragment.setSongs(playlists);
+
+        Log.d(TAG, "Added ExpandablePlaylistFragment with name: " + tabName + " and size of: " + playlists.size());
+    }
+
 
     //Create settings tab
     void setupSettingsTab() {

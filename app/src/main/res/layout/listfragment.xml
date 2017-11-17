@@ -2,7 +2,8 @@
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:orientation="vertical">
+    android:orientation="vertical"
+    android:background="#666666">
 
     <ListView
         android:id="@id/android:list"
@@ -11,5 +12,14 @@
         android:layout_height="wrap_content">
 
     </ListView>
+
+    <ExpandableListView
+        android:id="@+id/expandable_list"
+        android:layout_marginTop="0dp"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content">
+
+    </ExpandableListView>
+
 
 </RelativeLayout>
