@@ -3,6 +3,7 @@ package com.example.steven.testtabs;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.view.View;
+import android.widget.Button;
 import android.widget.TextView;
 
 public class NowPlaying extends AppCompatActivity {
@@ -24,6 +25,12 @@ public class NowPlaying extends AppCompatActivity {
     //On press play/pause
     public void playPause(View view) {
         AppCore.getInstance().musicSrv.playPause();
+
+        //Changes icon depending on play/pause state
+        if(AppCore.getInstance().musicSrv.isPlaying())
+            view.setBackgroundResource(R.drawable.play);
+        else
+            view.setBackgroundResource(R.drawable.pause);
     }
 
     //On press prev song button

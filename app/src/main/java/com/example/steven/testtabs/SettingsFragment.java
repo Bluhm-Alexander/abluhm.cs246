@@ -55,7 +55,6 @@ public class SettingsFragment extends ListFragment {
                 //Nothing for now
                 Toast.makeText(getActivity(), "Album art: Off", Toast.LENGTH_SHORT).show();
                 break;
-
         }
     }
 }

@@ -5,6 +5,7 @@ import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentPagerAdapter;
 import android.support.v4.app.ListFragment;
+import android.util.Log;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -25,8 +26,12 @@ public class PagerAdapter extends FragmentPagerAdapter {
         fragmentTitleList.add(list.getPlaylistName());
         fragment.setSongs(list);
 
-        if(settingsIndex > 0 && fragmentList.size() - 1 > settingsIndex)
+        if(settingsIndex > 0 && fragmentList.size() - 1 > settingsIndex) {
+            Log.d(TAG, "Creating a new fragment AFTER the settings tab was created. Moving settings tab to back");
             moveSettingsTabToBack();
+        }
+
+        Log.d(TAG, "Added songFragment with name: " + list.getPlaylistName() + " and size of: " + list.size());
     }
 
     //Create settings tab

@@ -27,6 +27,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
+import android.widget.ExpandableListView;
 import android.widget.ListView;
 import android.widget.Toast;
 import java.util.ArrayList;
@@ -306,10 +307,10 @@ public class MainActivity extends AppCompatActivity {
         Cursor songCursor = musicResolver.query(songUri, null, selection, null, null);
 
         if (songCursor != null && songCursor.moveToFirst()) {
-            int titleColumn = songCursor.getColumnIndex(MediaStore.Audio.Media.TITLE);
+            int titleColumn  = songCursor.getColumnIndex(MediaStore.Audio.Media.TITLE);
             int artistColumn = songCursor.getColumnIndex(MediaStore.Audio.Media.ARTIST);
-            int albumColumn = songCursor.getColumnIndex(MediaStore.Audio.Media.ALBUM);
-            int idColumn = songCursor.getColumnIndex(MediaStore.Audio.Media._ID);
+            int albumColumn  = songCursor.getColumnIndex(MediaStore.Audio.Media.ALBUM);
+            int idColumn     = songCursor.getColumnIndex(MediaStore.Audio.Media._ID);
 
             do {
                 String thisTitle = songCursor.getString(titleColumn);
@@ -328,7 +329,6 @@ public class MainActivity extends AppCompatActivity {
                     return a.getTitle().compareTo(b.getTitle());
                 }
             });
-
             createDefaultPlaylists();
         }
     }
