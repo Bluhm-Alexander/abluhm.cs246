@@ -37,7 +37,6 @@ public class AppCore {
     public MusicService musicSrv;
     public Intent playIntent;
     public ServiceConnection musicConnection;
-    public String currentSongName;
     public boolean musicBound = false;
 
     /*********************************************************************************************
