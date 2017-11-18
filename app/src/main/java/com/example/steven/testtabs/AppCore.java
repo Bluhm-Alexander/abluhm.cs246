@@ -30,16 +30,20 @@ public class AppCore {
      * the java garbage collection system! DON'T DO IT!!
      ********************************************************************************************/
     private final static AppCore singleInstance = new AppCore();
-
+    //Look up if this stuff is safe to be here
     //List of Variables
     public ArrayList<Song> songList = new ArrayList<>();
     public ArrayList<Playlist> allLists = new ArrayList<>();
     public MusicService musicSrv;
     public Intent playIntent;
     public ServiceConnection musicConnection;
-    public String currentSongName;
     public boolean musicBound = false;
 
+    /*********************************************************************************************
+     * Private constructor;
+     *********************************************************************************************/
+    private AppCore() {
+    }
 
     /********************************************************************************************
      * return the Instance of our Class.
@@ -55,6 +59,8 @@ public class AppCore {
      * Not sure if we need to pass the service between activities....
      *******************************************************************************************/
 
+
+    //tell java that this is synchronized
     public void startService() {
         musicConnection = new ServiceConnection() {
 
