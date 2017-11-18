@@ -8,6 +8,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
+import android.widget.ListView;
 import android.widget.Toast;
 
 import java.util.ArrayList;
@@ -28,7 +29,13 @@ public class SongListFragment extends ListFragment {
         setListAdapter(adapter);
 
         setRetainInstance(true);
+
         return rootView;
+    }
+
+    @Override
+    public void onListItemClick(ListView l, View v, int position, long id) {
+        super.onListItemClick(l, v, position, id);
     }
 
     public void setSongs(Playlist playlist) {

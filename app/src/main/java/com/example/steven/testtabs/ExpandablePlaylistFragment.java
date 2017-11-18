@@ -1,5 +1,6 @@
 package com.example.steven.testtabs;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.util.Log;
@@ -26,11 +27,31 @@ public class ExpandablePlaylistFragment extends Fragment {
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle saveInstanceState) {
         Log.d(TAG, "Creating ExpandableListFragment");
-        ViewGroup rootView = (ViewGroup) inflater.inflate(R.layout.listfragment, container, false);
+        final ViewGroup rootView = (ViewGroup) inflater.inflate(R.layout.listfragment, container, false);
 
         expandableListView = (ExpandableListView)rootView.findViewById(R.id.expandable_list);
         adapter = new ExpandablePlaylistAdapter(getActivity(), playlists);
         expandableListView.setAdapter(adapter);
+
+        expandableListView.setOnChildClickListener(new ExpandableListView.OnChildClickListener() {
+            @Override
+            public boolean onChildClick(ExpandableListView expandableListView, View view, int i, int i1, long l) {
+                Log.d(TAG, "Attempting to play song through onChildClick()");
+                Playlist currentPlaylist = playlists.get(i);
+                Song currentSong = currentPlaylist.get(i1);
+
+                AppCore.getInstance().musicSrv.setPlaylist
+                        (AppCore.getInstance().allLists.indexOf(currentPlaylist));
+
+                AppCore.getInstance().musicSrv.setSong(i1);
+
+                Intent nowPlaying = new Intent(getActivity(), NowPlaying.class);
+
+                getActivity().startActivity(nowPlaying);
+
+                return false;
+            }
+        });
 
         setRetainInstance(true);
 
