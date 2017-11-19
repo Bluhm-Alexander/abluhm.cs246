@@ -7,11 +7,8 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.ExpandableListAdapter;
 import android.widget.ExpandableListView;
-import android.widget.Toast;
 
-import java.lang.reflect.Array;
 import java.util.ArrayList;
 
 /**
@@ -19,9 +16,9 @@ import java.util.ArrayList;
  */
 
 public class ExpandablePlaylistFragment extends Fragment {
-    private final String TAG = "ExpandableListFragment";
+    private static final String TAG = "ExpandableListFragment";
     ExpandableListView expandableListView;
-    ArrayList<Playlist> playlists;
+    CompoundPlaylist playlists;
     ExpandablePlaylistAdapter adapter;
 
     @Override
@@ -35,21 +32,12 @@ public class ExpandablePlaylistFragment extends Fragment {
 
         expandableListView.setOnChildClickListener(new ExpandableListView.OnChildClickListener() {
             @Override
-            public boolean onChildClick(ExpandableListView expandableListView, View view, int i, int i1, long l) {
+            public boolean onChildClick(ExpandableListView expandableListView, View v, int i, int i1, long id) {
                 Log.d(TAG, "Attempting to play song through onChildClick()");
-                Playlist currentPlaylist = playlists.get(i);
-                Song currentSong = currentPlaylist.get(i1);
-
-                AppCore.getInstance().musicSrv.setPlaylist
-                        (AppCore.getInstance().allLists.indexOf(currentPlaylist));
-
-                AppCore.getInstance().musicSrv.setSong(i1);
-
-                Intent nowPlaying = new Intent(getActivity(), NowPlaying.class);
-
-                getActivity().startActivity(nowPlaying);
-
-                return false;
+                int parentIndex = playlists.get(i).getIndexInCollection();
+                int childIndex  = playlists.get(i).get(i1).getIndexInCollection();
+                AppCore.getInstance().musicSrv.onSongPicked(parentIndex, childIndex);
+                return true;
             }
         });
 
@@ -58,7 +46,7 @@ public class ExpandablePlaylistFragment extends Fragment {
         return rootView;
     }
 
-    public void setSongs(ArrayList<Playlist> p) {
+    public void setSongs(CompoundPlaylist p) {
         playlists = p;
     }
 }

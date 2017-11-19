@@ -20,8 +20,8 @@ import java.util.ArrayList;
  */
 
 public class SettingsFragment extends ListFragment {
-    private final String TAG = "SettingsFragment";
-    ArrayList<String> settingNames;
+    private static final String TAG = "SettingsFragment";
+    private static ArrayList<String> settingNames;
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle saveInstanceState) {
@@ -39,7 +39,7 @@ public class SettingsFragment extends ListFragment {
         return rootView;
     }
 
-    private void addSettings() {
+    private static void addSettings() {
         settingNames.add("Toggle on/off shuffle");
         settingNames.add("Toggle on/off looping");
         settingNames.add("Toggle on/off album art");

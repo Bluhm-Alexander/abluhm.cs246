@@ -11,8 +11,8 @@ import android.os.Binder;
 import android.os.IBinder;
 import android.os.PowerManager;
 import android.provider.MediaStore;
-import android.support.annotation.Nullable;
 import android.util.Log;
+import android.view.View;
 import android.widget.Toast;
 
 import java.util.ArrayList;
@@ -25,45 +25,31 @@ public class MusicService extends Service implements
     private static final String TAG = "MusicService";
 
     private MediaPlayer player;
-    private ArrayList<Song> songs;
-    private ArrayList<Playlist> allPlaylists;
-    private Playlist currentPlaylist;
-
     private final IBinder musicBind = new MusicBinder();
-    private Song currentSong;
+
+    private ArrayList<Song> musicLibrary;
+    private ArrayList<SimplePlaylist> allPlaylists;
+
+    private int currentPlaylist;
+    private int currentSong;
+
+    private Playlist currentOrder;
+
     private boolean loopOn = false;
     private boolean shuffleOn = false;
 
-    private int indexInPlaylist;
-    private int indexInLibrary;
-
-    public Song getSong(){
-        return songs.get(indexInLibrary);
-    }
-
-    public void onCreate(){
+    public void onCreate() {
         super.onCreate();
-        indexInLibrary = 0;
         player = new MediaPlayer();
-        allPlaylists = AppCore.getInstance().allLists;
-        setPlaylist(0);
 
         //Get the same values as we left them
         shuffleOn = getSharedPreferences("mediaPlayer", 0).getBoolean("shuffle", false);
         loopOn    = getSharedPreferences("mediaPlayer", 0).getBoolean("loop",    false);
-        //Same for playlists
+
+        //For each playlist after the defaults, save to preferences
+        //Same for playlists, but how?
 
         initMusicPlayer();
-    }
-
-    public Song getNowPlaying() {
-        Log.d(TAG, "Playing " + currentSong.getTitle() + ". IndexInLibrary = " + indexInLibrary + ". IndexInPlaylist = " + indexInPlaylist);
-        return currentSong;
-    }
-
-    private void setIndexInLibrary() {
-        currentSong    = currentPlaylist.get(indexInPlaylist);
-        indexInLibrary = songs.indexOf(currentSong);
     }
 
     //Initialize
@@ -78,14 +64,55 @@ public class MusicService extends Service implements
         player.setOnErrorListener(this);
     }
 
-    //Pass list of songs to MusicService
-    public void setList(ArrayList<Song> theSongs){
-        songs = theSongs;
+    public boolean onSongPicked(int playlistIndex, int songIndex) {
+        setSong(songIndex);
+        setPlaylist(playlistIndex);
+
+        Intent nowPlaying = new Intent(this, NowPlaying.class);
+
+        this.startActivity(nowPlaying);
+
+        return playSong();
     }
 
+    //Pass list of songs to MusicService
+    public void setSongList(ArrayList<Song> songList){
+        musicLibrary = songList;
+        setSong(0);
+    }
+
+    //Pass list of playlists to MusicService
+    public void setPlaylistList(ArrayList<SimplePlaylist> playlistList) {
+        allPlaylists = playlistList;
+        setPlaylist(0);
+    }
+
+    //Sets the playlist to play from
     public void setPlaylist(int index) {
-        currentPlaylist = allPlaylists.get(index);
-        Log.d(TAG, "Switched playlist to " + currentPlaylist.getPlaylistName());
+        Log.d(TAG, "Setting current playlist to " + allPlaylists.get(index).getNameOfPlaylist());
+        currentPlaylist = index;
+        setSong(0); //By default
+    }
+
+    //Sets the next song
+    public void setSong(int index) {
+        Log.d(TAG, "Setting current song to " + musicLibrary.get(index).getTitle());
+        currentSong = index;
+    }
+
+    public SimplePlaylist getCurrentPlaylist() {
+        return allPlaylists.get(currentPlaylist);
+    }
+
+    public Song getCurrentSong() {
+        if(currentSong < 0)
+            return null;
+        return musicLibrary.get(currentSong);
+    }
+
+    //Alias of getCurrentSong()
+    public Song getNowPlaying() {
+        return getCurrentSong();
     }
 
     //Access this from MainActivity
@@ -110,7 +137,9 @@ public class MusicService extends Service implements
 
     @Override
     public void onCompletion(MediaPlayer mediaPlayer) {
-        nextSong();
+        /*currentSong++;
+
+        playSong();*/
     }
 
     @Override
@@ -129,73 +158,84 @@ public class MusicService extends Service implements
     }
 
     //On press prevSong button
-    public Song prevSong() {
-        //Repeat song if past 2.5 seconds
+    public int prevSong() {
+        //Repeat song if past 3 seconds
         if(player.getCurrentPosition() > 3000) {
-            Toast.makeText(this, "Restarting song", Toast.LENGTH_SHORT).show();
             Log.d(TAG, "Restarting song before 3 seconds while executing prevSong()");
             restartSong();
-            return getNowPlaying();
+            return currentSong;
         }
 
         //Otherwise, go back a song
         //If at the end of the queue, check if loop is on
-        else if(indexInPlaylist == 0) {
+        else if(currentSong == 0) {
             if(loopOn) {
-                indexInPlaylist = songs.size() - 1;
+                Log.d(TAG, "Setting currentSong index to " + (getCurrentPlaylist().size() - 1) + ", from: " + currentSong);
+                currentSong = getCurrentPlaylist().size() - 1;
             }
             else {
-                Toast.makeText(this, "Beginning of queue (prev)", Toast.LENGTH_SHORT).show();
                 Log.d(TAG, "Beginning of queue while executing prevSong(). Restarting song.");
                 restartSong();
-                return getNowPlaying();
+                return currentSong;
             }
         }
         else
-            indexInPlaylist--;
+            currentSong--;
 
         playSong();
-        Toast.makeText(this, "Skipped to previous song", Toast.LENGTH_SHORT).show();
         Log.d(TAG, "Skipped to previous song while executing prevSong()");
-        return currentPlaylist.get(indexInPlaylist);
+        return currentSong;
     }
 
     //On press nextSong button
-    public Song nextSong() {
+    public int nextSong() {
         //If at the end of the queue, check if loop is on
-        if(indexInPlaylist == currentPlaylist.size() - 1) {
+        if(currentSong == getCurrentPlaylist().size() - 1) {
             if(loopOn) {
-                indexInPlaylist = 0;
+                currentSong = 0;
             }
             else {
-                Toast.makeText(this, "End of queue (next)", Toast.LENGTH_SHORT).show();
                 Log.d(TAG, "End of queue while executing nextSong()");
                 player.reset();
-                currentSong = new Song();
-                return null;
+                currentSong = -1;
+                return currentSong;
             }
         }
         else
-            indexInPlaylist++;
+            currentSong++;
 
         playSong();
-        Toast.makeText(this, "Skipped to next song", Toast.LENGTH_SHORT).show();
         Log.d(TAG, "Skipped to next song while executing nextSong()");
-        return currentPlaylist.get(indexInPlaylist);
+        return currentSong;
     }
 
     //On press playPause button
-    public void playPause() {
+    public boolean playPause() {
         if(player.isPlaying()) {
+            Log.d(TAG, "Pausing music in playPause()");
             player.pause();
-            Toast.makeText(this, "Pausing music", Toast.LENGTH_SHORT).show();
-            Log.d(TAG, "Pausing music while executing playPause()");
+            return false;
         }
         else {
+            Log.d(TAG, "Playing music in playPause()");
             player.start();
-            Toast.makeText(this, "Playing music", Toast.LENGTH_SHORT).show();
-            Log.d(TAG, "Playing music while executing playPause()");
+            return true;
         }
+    }
+
+    //On press play/pause
+    public void playPause(View view) {
+        AppCore.getInstance().musicSrv.playPause();
+    }
+
+    //On press prev song button
+    public void prevSong(View view) {
+        AppCore.getInstance().musicSrv.prevSong();
+    }
+
+    //On press next song button
+    public void nextSong(View view) {
+        AppCore.getInstance().musicSrv.nextSong();
     }
 
     public void toggleShuffle() {
@@ -237,20 +277,24 @@ public class MusicService extends Service implements
     }
 
     //Play song
-    public void playSong() {
+    public boolean playSong() {
+        Log.d(TAG, "Attempting to play song in playSong()");
         player.reset();
 
-        //Get song
-        setIndexInLibrary();
-        currentSong = songs.get(indexInLibrary);
+        if(currentSong < 0) {
+            Log.d(TAG, "Current song index = " + currentSong);
+            return false;
+        }
 
-        //Get id
-        long currSong = currentSong.getID();
+        //Get id of current song
+        long songID = getCurrentSong().getID();
+        Log.d(TAG, "Next song = " + getCurrentSong().getTitle() + "\n" +
+                "from playlist: " + getCurrentPlaylist().getNameOfPlaylist() + " at index: " + currentSong);
 
         //Get uri
         Uri trackUri = ContentUris.withAppendedId(
-                MediaStore.Audio.Media.EXTERNAL_CONTENT_URI, currSong);
-        try{
+                MediaStore.Audio.Media.EXTERNAL_CONTENT_URI, songID);
+        try {
             player.setDataSource(getApplicationContext(), trackUri);
         }
         catch(Exception e){
@@ -258,40 +302,35 @@ public class MusicService extends Service implements
         }
 
         player.prepareAsync(); //From the MediaPlayer class
-    }
-
-    //Sets song by index
-    public void setSong(int songIndex) {
-        indexInPlaylist = songIndex;
-        setIndexInLibrary();
+        return true;
     }
 
     //Create playlist from user
     public boolean createUserPlaylist(String nameOfPlaylist) {
         for(int i = 0; i < allPlaylists.size(); i++) {
-            if(nameOfPlaylist.equals(allPlaylists.get(i).playlistName)) {
+            if(nameOfPlaylist.equals(allPlaylists.get(i).getNameOfPlaylist())) {
                 Toast.makeText(this, "Playlist already exists with that name", Toast.LENGTH_SHORT).show();
                 Log.e(TAG, "Attempted to create playlist with already existing name");
                 return false;
             }
         }
-        Playlist newPlaylist = new Playlist(nameOfPlaylist);
-        AppCore.getInstance().allLists.add(newPlaylist);
+        SimplePlaylist newPlaylist = new SimplePlaylist(nameOfPlaylist);
+        AppCore.getInstance().allPlaylists.add(newPlaylist);
         return true;
     }
 
     //Add to playlist
-    public boolean addToPlaylist(Playlist playlist, Song song) {
+    public boolean addToPlaylist(SimplePlaylist playlist, Song song) {
         return playlist.add(song);
     }
 
     //Removes from playlist by object - returns true if successful
-    public boolean removeFromPlaylist(Playlist playlist, Song song) {
+    public boolean removeFromPlaylist(SimplePlaylist playlist, Song song) {
         return playlist.remove(song);
     }
 
     //Remove from playlist by index - returns removed song object
-    public Song removeFromPlaylist(Playlist playlist, int index) {
+    public Song removeFromPlaylist(SimplePlaylist playlist, int index) {
         return playlist.remove(index);
     }
 

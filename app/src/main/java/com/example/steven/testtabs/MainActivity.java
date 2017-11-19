@@ -1,39 +1,27 @@
 package com.example.steven.testtabs;
 
 import android.Manifest;
-import android.content.ComponentName;
 import android.content.ContentResolver;
 import android.content.Context;
 import android.content.Intent;
-import android.content.ServiceConnection;
-import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.database.Cursor;
-import android.media.MediaPlayer;
 import android.net.Uri;
 import android.os.Bundle;
-import android.os.IBinder;
-import android.preference.Preference;
 import android.provider.MediaStore;
 import android.support.design.widget.TabLayout;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
 import android.support.v4.view.ViewPager;
 import android.support.v7.app.AppCompatActivity;
-import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.AdapterView;
-import android.widget.ArrayAdapter;
-import android.widget.ExpandableListView;
-import android.widget.ListView;
 import android.widget.Toast;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
-import java.util.regex.Pattern;
 
 import static junit.framework.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
@@ -48,8 +36,6 @@ public class MainActivity extends AppCompatActivity {
     private ViewPager viewPager;
     private PagerAdapter pagerAdapter;
     private TabLayout tabLayout;
-
-
 
     int currentTab = 0;
     //context of MainActivity
@@ -132,7 +118,7 @@ public class MainActivity extends AppCompatActivity {
 
     private void setupViewPager() {
         //checking for empty Lists
-        if (AppCore.getInstance().allLists.isEmpty()) {
+        if (AppCore.getInstance().songLibrary.isEmpty()) {
             Toast.makeText(getApplicationContext(), "No Media!", Toast.LENGTH_SHORT).show();
             //Maybe add something here later.... Ask if it is ok to just make default values
 
@@ -140,10 +126,16 @@ public class MainActivity extends AppCompatActivity {
 
         else {
             //Create default tabs for playlist
-            pagerAdapter.addFragment(new SongListFragment(), AppCore.getInstance().allLists.get(0));
-            pagerAdapter.addFragment(new SongListFragment(), AppCore.getInstance().allLists.get(1));
-            pagerAdapter.addFragment(new SongListFragment(), AppCore.getInstance().allLists.get(2));
-            pagerAdapter.addFragment(new ExpandablePlaylistFragment(), AppCore.getInstance().allLists, "Test playlists");
+
+            //Single playlist tabs
+            pagerAdapter.addFragment(new SongListFragment(), AppCore.getInstance().allPlaylists.get(0));
+            pagerAdapter.addFragment(new SongListFragment(), AppCore.getInstance().allPlaylists.get(1));
+            pagerAdapter.addFragment(new SongListFragment(), AppCore.getInstance().allPlaylists.get(2));
+
+            //Collection of playlist tabs (Expanded)
+            pagerAdapter.addFragment(new ExpandablePlaylistFragment(), AppCore.getInstance().artistCollections);
+            pagerAdapter.addFragment(new ExpandablePlaylistFragment(), AppCore.getInstance().albumCollections);
+
             //Add settings tab AFTER default tabs
             pagerAdapter.setupSettingsTab();
 
@@ -226,7 +218,8 @@ public class MainActivity extends AppCompatActivity {
 
                         getMusic();
                     }
-                } else {
+                }
+                else {
                     Toast.makeText(this, "No permission granted!", Toast.LENGTH_SHORT).show();
                     finish();
                 }
@@ -253,26 +246,6 @@ public class MainActivity extends AppCompatActivity {
         } else {
             getMusic();
         }
-    }
-
-    /**********************************************************************************************
-     * songPicked(view)
-     * When music is selected in the Tab it passes which song has been selected to the music service
-     * Alex is modifying this function so that Music Service is passed to the NowPlaying Activity.
-     * @param view
-     *********************************************************************************************/
-    public void songPicked(View view) {
-        //Sets playlist that song was called from
-        AppCore.getInstance().musicSrv.setPlaylist(currentTab);
-        //Sets selected song to be played
-        AppCore.getInstance().musicSrv.setSong(Integer.parseInt(view.getTag().toString()));
-        //Play the song
-        AppCore.getInstance().musicSrv.playSong();
-        //Making new intent to switch to NowPlaying Activity
-        Intent nowPlaying = new Intent(mContext, NowPlaying.class);
-
-        mContext.startActivity(nowPlaying);
-
     }
 
     //On press play/pause
@@ -312,19 +285,18 @@ public class MainActivity extends AppCompatActivity {
             int albumColumn  = songCursor.getColumnIndex(MediaStore.Audio.Media.ALBUM);
             int idColumn     = songCursor.getColumnIndex(MediaStore.Audio.Media._ID);
 
-            do {
+            for(int i = 0; songCursor.moveToNext(); i++) {
                 String thisTitle = songCursor.getString(titleColumn);
                 String thisArtist = songCursor.getString(artistColumn);
                 String thisAlbum = songCursor.getString(albumColumn);
                 long thisId = songCursor.getLong(idColumn);
 
-                AppCore.getInstance().songList.add(new Song(thisId, thisTitle, thisArtist, thisAlbum));
+                AppCore.getInstance().songLibrary.add(new Song(thisId, thisTitle, thisArtist, thisAlbum, i));
             }
-            while (songCursor.moveToNext());
             songCursor.close();
 
             //Default sorting
-            Collections.sort(AppCore.getInstance().songList, new Comparator<Song>(){
+            Collections.sort(AppCore.getInstance().songLibrary, new Comparator<Song>(){
                 public int compare(Song a, Song b){
                     return a.getTitle().compareTo(b.getTitle());
                 }
@@ -333,57 +305,109 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
-    //Create default playlists
+    /********************************************************************************************
+     * createDefaultPlaylists() creates the default playlists to be added into the Media Player
+     * App. The default playlists are made into their own tabs.
+     *
+     * Add default playlists here with given sort type.
+     *******************************************************************************************/
+
     private void createDefaultPlaylists() {
         //Create new list of songs so order of original list of songs don't change when we sort it
         ArrayList<Song> songs = new ArrayList<>();
-        songs.addAll(AppCore.getInstance().songList);
+        songs.addAll(AppCore.getInstance().songLibrary);
+        CompoundPlaylist defaultPlaylists = new CompoundPlaylist("Collection of all playlists");
 
-        //Create playlist for title sort
-        Playlist titleSort  = new Playlist("Title Sort");
-        //Default list already sorted by title. Skip the sort for this
-        //Store into playlist
+
+        //Default single playlists
+
+        //TITLE SORT
+        SimplePlaylist titleSort  = new SimplePlaylist("Title Sort", defaultPlaylists.size());
+        //Sort by title
+        Collections.sort(songs, new Comparator<Song>(){
+            public int compare(Song a, Song b){
+                return a.getTitle().compareTo(b.getTitle());
+            }});
         titleSort.addAll(songs);
+        defaultPlaylists.add(titleSort);
 
 
-        //Create playlist for artist sort
-        Playlist artistSort = new Playlist("Artist Sort");
+        //ARTIST SORT
+        SimplePlaylist artistSort = new SimplePlaylist("Artist Sort");
         //Sort by artist
         Collections.sort(songs, new Comparator<Song>(){
             public int compare(Song a, Song b){
                 return a.getArtist().compareTo(b.getArtist());
-            }
-        });
-        //Store into playlist
+            }});
         artistSort.addAll(songs);
+        defaultPlaylists.add(artistSort);
 
 
-        //Create playlist for album sort
-        Playlist albumSort = new Playlist("Album Sort");
+        //ALBUM SORT
+        SimplePlaylist albumSort = new SimplePlaylist("Album Sort");
         //Sort by album
         Collections.sort(songs, new Comparator<Song>(){
             public int compare(Song a, Song b){
                 return a.getAlbum().compareTo(b.getAlbum());
-            }
-        });
-        //Store into playlist
+            }});
         albumSort.addAll(songs);
+        defaultPlaylists.add(albumSort);
+
+        AppCore.getInstance().allPlaylists = defaultPlaylists;
+        //End of default (single) playlists
 
 
-        AppCore.getInstance().allLists.add(titleSort);
-        AppCore.getInstance().allLists.add(artistSort);
-        AppCore.getInstance().allLists.add(albumSort);
+        //Default collection of playlists (For expandable list views)
+
+        //SimplePlaylist of artists
+        CompoundPlaylist artistCollection = new CompoundPlaylist("Artists");
+        SimplePlaylist currentArtistPlaylist = null;
+        String previousArtist = null;
+
+        for(int i = 0; i < songs.size(); i++) {
+            Song currentSong = songs.get(i);
+            if(!currentSong.getArtist().equals(previousArtist)) {
+                if(i == 0)
+                    artistCollection.add(currentArtistPlaylist);
+                currentArtistPlaylist = new SimplePlaylist(currentSong.getArtist());
+            }
+            currentArtistPlaylist.add(currentSong);
+            previousArtist = currentSong.getArtist();
+        }
+        //Add last artist playlist
+        artistCollection.add(currentArtistPlaylist);
+        AppCore.getInstance().artistCollections = artistCollection;
+
+
+        //SimplePlaylist of albums
+        CompoundPlaylist albumCollection = new CompoundPlaylist("Albums");
+        SimplePlaylist currentAlbumPlaylist= null;
+        String previousAlbum = null;
+
+        for(int i = 0; i < songs.size(); i++) {
+            Song currentSong = songs.get(i);
+            if(!currentSong.getAlbum().equals(previousAlbum)) {
+                if(i == 0)
+                    albumCollection.add(currentAlbumPlaylist);
+                currentAlbumPlaylist = new SimplePlaylist(currentSong.getAlbum());
+            }
+            currentAlbumPlaylist.add(currentSong);
+            previousAlbum = currentSong.getAlbum();
+        }
+        //Add last album playlist
+        albumCollection.add(currentAlbumPlaylist);
+        AppCore.getInstance().albumCollections = albumCollection;
     }
 
     //Create tab for selected playlist
-    public boolean createTabForPlaylist(Playlist playlist) {
+    public boolean createTabForPlaylist(SimplePlaylist playlist) {
         if(playlist.isEmpty()) {
             Toast.makeText(mContext, "Cannot create new tab for empty playlist. For now..." , Toast.LENGTH_SHORT).show();
             Log.e(TAG, "Attempted to create tab with empty playlist");
             return false;
         }
         for(int i = 0; i < tabLayout.getChildCount(); i++) {
-            if(pagerAdapter.getPageTitle(i).equals(playlist.getPlaylistName())) {
+            if(pagerAdapter.getPageTitle(i).equals(playlist.getNameOfPlaylist())) {
                 Toast.makeText(mContext, "Tab already exists with that name", Toast.LENGTH_SHORT).show();
                 Log.e(TAG, "Attempted to create tab with already existing name");
                 return false;

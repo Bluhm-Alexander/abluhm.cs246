@@ -2,16 +2,13 @@ package com.example.steven.testtabs;
 
 import android.content.Context;
 import android.graphics.Typeface;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.BaseExpandableListAdapter;
 import android.widget.TextView;
 
-import java.lang.reflect.Array;
 import java.util.ArrayList;
-import java.util.HashMap;
 
 /**
  * Created by Flip on 11/15/2017.
@@ -19,9 +16,9 @@ import java.util.HashMap;
 
 public class ExpandablePlaylistAdapter extends BaseExpandableListAdapter {
     private Context context;
-    private ArrayList<Playlist> playlists;
+    private CompoundPlaylist playlists;
 
-    ExpandablePlaylistAdapter(Context c, ArrayList<Playlist> p) {
+    ExpandablePlaylistAdapter(Context c, CompoundPlaylist p) {
         context = c;
         playlists = p;
     }
@@ -37,7 +34,7 @@ public class ExpandablePlaylistAdapter extends BaseExpandableListAdapter {
     }
 
     @Override
-    public Playlist getGroup(int parent) {
+    public SimplePlaylist getGroup(int parent) {
         return playlists.get(parent);
     }
 
@@ -63,7 +60,7 @@ public class ExpandablePlaylistAdapter extends BaseExpandableListAdapter {
 
     @Override
     public View getGroupView(int parent, boolean isExpanded, View convertView, ViewGroup parentView) {
-        Playlist currentPlaylist = getGroup(parent);
+        SimplePlaylist currentPlaylist = getGroup(parent);
         if(convertView == null) {
             LayoutInflater inflater = (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
             convertView = inflater.inflate(R.layout.playlist, parentView, false);
@@ -73,7 +70,7 @@ public class ExpandablePlaylistAdapter extends BaseExpandableListAdapter {
         TextView songCountView = convertView.findViewById(R.id.playlist_songCount);
 
         playlistView.setTypeface(null, Typeface.BOLD);
-        playlistView.setText(currentPlaylist.getPlaylistName());
+        playlistView.setText(currentPlaylist.getNameOfPlaylist());
         songCountView.setText(currentPlaylist.size() + " songs");
 
         return convertView;

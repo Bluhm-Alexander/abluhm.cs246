@@ -8,13 +8,11 @@ import android.widget.BaseAdapter;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
-import java.util.ArrayList;
-
 public class SongAdapter extends BaseAdapter {
-    private Playlist songs;
+    private SimplePlaylist songs;
     private LayoutInflater songInf;
 
-    SongAdapter(Context c, Playlist theSongs){
+    SongAdapter(Context c, SimplePlaylist theSongs){
         songs = theSongs;
         songInf = LayoutInflater.from(c);
     }

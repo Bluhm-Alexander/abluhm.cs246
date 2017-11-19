@@ -4,9 +4,7 @@ import android.content.ComponentName;
 import android.content.Intent;
 import android.content.ServiceConnection;
 import android.os.IBinder;
-import android.view.MenuItem;
-
-import java.util.ArrayList;
+import android.util.Log;
 
 /********************************************************************************************
  * Created by okoboji on 11/11/17.
@@ -32,8 +30,11 @@ public class AppCore {
     private final static AppCore singleInstance = new AppCore();
     //Look up if this stuff is safe to be here
     //List of Variables
-    public ArrayList<Song> songList = new ArrayList<>();
-    public ArrayList<Playlist> allLists = new ArrayList<>();
+    private static final String TAG = "AppCore";
+    public SimplePlaylist songLibrary = new SimplePlaylist("Collection of all songs");
+    public CompoundPlaylist allPlaylists = new CompoundPlaylist("Collection of all playlists");
+    public CompoundPlaylist artistCollections;
+    public CompoundPlaylist albumCollections;
     public MusicService musicSrv;
     public Intent playIntent;
     public ServiceConnection musicConnection;
@@ -69,8 +70,11 @@ public class AppCore {
                 MusicService.MusicBinder binder = (MusicService.MusicBinder)service;
                 //get service
                 musicSrv = binder.getService();
+                if(musicSrv == null)
+                    Log.e(TAG, "Music service is null!");
                 //pass list
-                musicSrv.setList(songList);
+                musicSrv.setSongList(songLibrary);
+                musicSrv.setPlaylistList(allPlaylists);
                 musicBound = true;
             }
 
@@ -82,6 +86,6 @@ public class AppCore {
     }
 
     public String getSongName() {
-        return musicSrv.getSong().getTitle();
+        return musicSrv.getCurrentSong().getTitle();
     }
 }

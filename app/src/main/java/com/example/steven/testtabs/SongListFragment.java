@@ -1,23 +1,17 @@
 package com.example.steven.testtabs;
 
-import android.media.MediaPlayer;
 import android.os.Bundle;
 import android.support.v4.app.ListFragment;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.AdapterView;
 import android.widget.ListView;
-import android.widget.Toast;
-
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Comparator;
 
 public class SongListFragment extends ListFragment {
-    private final String TAG = "SongListFragment";
-    private Playlist songList;
+    private static final String TAG = "SongListFragment";
+    private SimplePlaylist songList;
+    private int playlistIndex;
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle saveInstanceState) {
@@ -34,16 +28,21 @@ public class SongListFragment extends ListFragment {
     }
 
     @Override
-    public void onListItemClick(ListView l, View v, int position, long id) {
-        super.onListItemClick(l, v, position, id);
+    public void onListItemClick(ListView listView, View v, int i, long id) {
+        Log.d(TAG, "Attempting to play song through onListItemClick()");
+        super.onListItemClick(listView, v, i, id);
+        int playlistIndex = songList.getIndexInCollection();
+        int songIndex = songList.get(i).getIndexInCollection();
+
+        AppCore.getInstance().musicSrv.onSongPicked(playlistIndex, songIndex);
     }
 
-    public void setSongs(Playlist playlist) {
+    public void setSongs(SimplePlaylist playlist) {
         //Sets songs
         songList = playlist;
     }
 
     public String getPlaylistName() {
-        return songList.getPlaylistName();
+        return songList.getNameOfPlaylist();
     }
 }

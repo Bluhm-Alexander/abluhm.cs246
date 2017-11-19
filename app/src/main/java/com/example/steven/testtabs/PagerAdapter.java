@@ -1,10 +1,8 @@
 package com.example.steven.testtabs;
 
-import android.media.MediaPlayer;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentPagerAdapter;
-import android.support.v4.app.ListFragment;
 import android.util.Log;
 
 import java.util.ArrayList;
@@ -21,25 +19,44 @@ public class PagerAdapter extends FragmentPagerAdapter {
         super(fm);
     }
 
-    void addFragment(SongListFragment fragment, Playlist list) {
-        fragmentList.add(fragment);
-        fragmentTitleList.add(list.getPlaylistName());
-        fragment.setSongs(list);
-
-        if(settingsIndex > 0 && fragmentList.size() - 1 > settingsIndex) {
-            Log.d(TAG, "Creating a new fragment AFTER the settings tab was created. Moving settings tab to back");
-            moveSettingsTabToBack();
+    boolean addFragment(SongListFragment fragment, SimplePlaylist playlist) {
+        Log.d(TAG, "Adding new SongListFragment with name: " + playlist.getNameOfPlaylist() + " and size of: " + playlist.size());
+        if(fragmentList.contains(fragment)) {
+            Log.e(TAG, "Attempted to add a new songListFragment that matches an already existing fragment");
+            return false;
         }
 
-        Log.d(TAG, "Added SongFragment with name: " + list.getPlaylistName() + " and size of: " + list.size());
+        fragmentList.add(fragment);
+        fragmentTitleList.add(playlist.getNameOfPlaylist());
+        fragment.setSongs(playlist);
+
+        if(settingsIndex > 0 && fragmentList.size() - 1 > settingsIndex) {
+            Log.d(TAG, "Creating a new songListFragment AFTER the settings tab was created. Moving settings tab to back");
+            moveSettingsTabToBack();
+        }
+        return true;
     }
 
-    void addFragment(ExpandablePlaylistFragment fragment, ArrayList<Playlist> playlists, String tabName) {
+    boolean addFragment(ExpandablePlaylistFragment fragment, CompoundPlaylist playlists) {
+        Log.d(TAG, "Adding ExpandablePlaylistFragment with name: " + playlists.getNameOfPlaylist() + " and size of: " + playlists.size());
+        if(fragmentList.contains(fragment)) {
+            Log.e(TAG, "Attempted to add a new expandedPlaylistFragment that matches an already existing fragment");
+            return false;
+        }
+        if(playlists.size() == 0)
+            Log.e(TAG, "Playlist is empty!");
+        if(playlists == null)
+            Log.e(TAG, "Playlist is null!");
+
         fragmentList.add(fragment);
-        fragmentTitleList.add(tabName);
+        fragmentTitleList.add(playlists.getNameOfPlaylist());
         fragment.setSongs(playlists);
 
-        Log.d(TAG, "Added ExpandablePlaylistFragment with name: " + tabName + " and size of: " + playlists.size());
+        if(settingsIndex > 0 && fragmentList.size() - 1 > settingsIndex) {
+            Log.d(TAG, "Creating a new expandedPlaylistFragment AFTER the settings tab was created. Moving settings tab to back");
+            moveSettingsTabToBack();
+        }
+        return true;
     }
 
 
