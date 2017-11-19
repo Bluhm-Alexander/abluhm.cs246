@@ -364,10 +364,10 @@ public class MainActivity extends AppCompatActivity {
         SimplePlaylist currentArtistPlaylist = null;
         String previousArtist = null;
 
-        for(int i = 0; i < songs.size(); i++) {
-            Song currentSong = songs.get(i);
+        for(int i = 0; i < artistSort.size(); i++) {
+            Song currentSong = artistSort.get(i);
             if(!currentSong.getArtist().equals(previousArtist)) {
-                if(i == 0)
+                if(i > 0)
                     artistCollection.add(currentArtistPlaylist);
                 currentArtistPlaylist = new SimplePlaylist(currentSong.getArtist());
             }
@@ -381,13 +381,13 @@ public class MainActivity extends AppCompatActivity {
 
         //SimplePlaylist of albums
         CompoundPlaylist albumCollection = new CompoundPlaylist("Albums");
-        SimplePlaylist currentAlbumPlaylist= null;
+        SimplePlaylist currentAlbumPlaylist = null;
         String previousAlbum = null;
 
-        for(int i = 0; i < songs.size(); i++) {
-            Song currentSong = songs.get(i);
+        for(int i = 0; i < albumSort.size(); i++) {
+            Song currentSong = albumSort.get(i);
             if(!currentSong.getAlbum().equals(previousAlbum)) {
-                if(i == 0)
+                if(i > 0)
                     albumCollection.add(currentAlbumPlaylist);
                 currentAlbumPlaylist = new SimplePlaylist(currentSong.getAlbum());
             }

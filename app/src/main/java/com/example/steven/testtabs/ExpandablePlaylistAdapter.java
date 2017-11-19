@@ -67,9 +67,10 @@ public class ExpandablePlaylistAdapter extends BaseExpandableListAdapter {
         }
 
         TextView playlistView = convertView.findViewById(R.id.playlist_title);
-        TextView songCountView = convertView.findViewById(R.id.playlist_songCount);
+        TextView songCountView = convertView.findViewById(R.id.playlist_song_count);
 
         playlistView.setTypeface(null, Typeface.BOLD);
+
         playlistView.setText(currentPlaylist.getNameOfPlaylist());
         songCountView.setText(currentPlaylist.size() + " songs");
 

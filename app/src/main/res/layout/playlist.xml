@@ -16,7 +16,7 @@
         android:paddingTop="10dp"/>
 
     <TextView
-        android:id="@+id/playlist_songCount"
+        android:id="@+id/playlist_song_count"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:textColor="#e6e6e6"
