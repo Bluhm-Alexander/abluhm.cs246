@@ -129,8 +129,8 @@ public class MainActivity extends AppCompatActivity {
 
             //Single playlist tabs
             pagerAdapter.addFragment(new SongListFragment(), AppCore.getInstance().allPlaylists.get(0));
-            pagerAdapter.addFragment(new SongListFragment(), AppCore.getInstance().allPlaylists.get(1));
-            pagerAdapter.addFragment(new SongListFragment(), AppCore.getInstance().allPlaylists.get(2));
+            //pagerAdapter.addFragment(new SongListFragment(), AppCore.getInstance().allPlaylists.get(1));
+            //pagerAdapter.addFragment(new SongListFragment(), AppCore.getInstance().allPlaylists.get(2));
 
             //Collection of playlist tabs (Expanded)
             pagerAdapter.addFragment(new ExpandablePlaylistFragment(), AppCore.getInstance().artistCollections);
@@ -322,7 +322,7 @@ public class MainActivity extends AppCompatActivity {
         //Default single playlists
 
         //TITLE SORT
-        SimplePlaylist titleSort  = new SimplePlaylist("Title Sort", defaultPlaylists.size());
+        SimplePlaylist titleSort  = new SimplePlaylist("All songs", defaultPlaylists.size());
         //Sort by title
         Collections.sort(songs, new Comparator<Song>(){
             public int compare(Song a, Song b){
