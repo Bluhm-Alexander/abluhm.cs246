@@ -73,8 +73,8 @@ public class AppCore {
                 if(musicSrv == null)
                     Log.e(TAG, "Music service is null!");
                 //pass list
-                musicSrv.setSongList(songLibrary);
                 musicSrv.setPlaylistList(allPlaylists);
+                musicSrv.setSongList(songLibrary);
                 musicBound = true;
             }
 

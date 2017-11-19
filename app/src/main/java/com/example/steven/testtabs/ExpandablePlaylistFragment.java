@@ -33,10 +33,11 @@ public class ExpandablePlaylistFragment extends Fragment {
         expandableListView.setOnChildClickListener(new ExpandableListView.OnChildClickListener() {
             @Override
             public boolean onChildClick(ExpandableListView expandableListView, View v, int i, int i1, long id) {
-                Log.d(TAG, "Attempting to play song through onChildClick()");
-                int parentIndex = playlists.get(i).getIndexInCollection();
-                int childIndex  = playlists.get(i).get(i1).getIndexInCollection();
-                AppCore.getInstance().musicSrv.onSongPicked(parentIndex, childIndex);
+                Log.d(TAG, "Pressed song at index: " + i1 + " of playlist at index: " + playlists.get(i).getIndexInCollection());
+                Log.d(TAG, "Song at: " + i1 + " = " + playlists.get(i).get(i1).getTitle());
+                //int parentIndex = playlists.get(i).getIndexInCollection();
+                //int childIndex  = playlists.get(i).get(i1).getIndexInCollection();
+                AppCore.getInstance().musicSrv.onSongPicked(playlists.get(i).getIndexInCollection(), i1);
                 return true;
             }
         });

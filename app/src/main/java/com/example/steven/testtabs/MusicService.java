@@ -65,9 +65,11 @@ public class MusicService extends Service implements
     }
 
     public boolean onSongPicked(int playlistIndex, int songIndex) {
-        setSong(songIndex);
         setPlaylist(playlistIndex);
+        setSong(songIndex);
 
+        Log.d(TAG, "Song at: " + songIndex + " = " + allPlaylists.get(playlistIndex).get(songIndex).getTitle());
+        Log.d(TAG, "Next song: " + getCurrentSong().getTitle());
         Intent nowPlaying = new Intent(this, NowPlaying.class);
 
         this.startActivity(nowPlaying);
@@ -89,14 +91,14 @@ public class MusicService extends Service implements
 
     //Sets the playlist to play from
     public void setPlaylist(int index) {
-        Log.d(TAG, "Setting current playlist to " + allPlaylists.get(index).getNameOfPlaylist());
+        Log.d(TAG, "Setting current playlist to " + allPlaylists.get(index).getNameOfPlaylist() + " at index: " + index);
         currentPlaylist = index;
-        setSong(0); //By default
+        currentSong = 0; //By default
     }
 
     //Sets the next song
     public void setSong(int index) {
-        Log.d(TAG, "Setting current song to " + musicLibrary.get(index).getTitle());
+        Log.d(TAG, "Setting current song to " + getCurrentPlaylist().get(index).getTitle());
         currentSong = index;
     }
 
@@ -107,7 +109,8 @@ public class MusicService extends Service implements
     public Song getCurrentSong() {
         if(currentSong < 0)
             return null;
-        return musicLibrary.get(currentSong);
+        else
+            return getCurrentPlaylist().get(currentSong);
     }
 
     //Alias of getCurrentSong()
@@ -116,7 +119,7 @@ public class MusicService extends Service implements
     }
 
     //Access this from MainActivity
-    public class MusicBinder extends Binder {
+    class MusicBinder extends Binder {
         MusicService getService() {
             return MusicService.this;
         }

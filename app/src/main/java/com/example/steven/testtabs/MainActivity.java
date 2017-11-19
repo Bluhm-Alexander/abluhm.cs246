@@ -333,7 +333,7 @@ public class MainActivity extends AppCompatActivity {
 
 
         //ARTIST SORT
-        SimplePlaylist artistSort = new SimplePlaylist("Artist Sort");
+        SimplePlaylist artistSort = new SimplePlaylist("Artist Sort", defaultPlaylists.size());
         //Sort by artist
         Collections.sort(songs, new Comparator<Song>(){
             public int compare(Song a, Song b){
@@ -344,7 +344,7 @@ public class MainActivity extends AppCompatActivity {
 
 
         //ALBUM SORT
-        SimplePlaylist albumSort = new SimplePlaylist("Album Sort");
+        SimplePlaylist albumSort = new SimplePlaylist("Album Sort", defaultPlaylists.size());
         //Sort by album
         Collections.sort(songs, new Comparator<Song>(){
             public int compare(Song a, Song b){
@@ -353,9 +353,13 @@ public class MainActivity extends AppCompatActivity {
         albumSort.addAll(songs);
         defaultPlaylists.add(albumSort);
 
-        AppCore.getInstance().allPlaylists = defaultPlaylists;
-        //End of default (single) playlists
 
+        AppCore.getInstance().allPlaylists = defaultPlaylists;
+        Log.d(TAG, "Finished creating default playlists with a size of: " +
+                AppCore.getInstance().allPlaylists.size());
+        //End of default (single) playlists
+        //Run this line so the pagerAdapter won't create a tab for future playlists after this point
+        AppCore.getInstance().allPlaylists.setFinishedAddingDefaultPlaylists(true);
 
         //Default collection of playlists (For expandable list views)
 
@@ -367,15 +371,19 @@ public class MainActivity extends AppCompatActivity {
         for(int i = 0; i < artistSort.size(); i++) {
             Song currentSong = artistSort.get(i);
             if(!currentSong.getArtist().equals(previousArtist)) {
-                if(i > 0)
+                if(i > 0) {
                     artistCollection.add(currentArtistPlaylist);
-                currentArtistPlaylist = new SimplePlaylist(currentSong.getArtist());
+                    defaultPlaylists.add(currentArtistPlaylist);
+                }
+                currentArtistPlaylist = new SimplePlaylist(currentSong.getArtist(), defaultPlaylists.size());
             }
             currentArtistPlaylist.add(currentSong);
             previousArtist = currentSong.getArtist();
         }
         //Add last artist playlist
         artistCollection.add(currentArtistPlaylist);
+        defaultPlaylists.add(currentArtistPlaylist);
+
         AppCore.getInstance().artistCollections = artistCollection;
 
 
@@ -387,16 +395,22 @@ public class MainActivity extends AppCompatActivity {
         for(int i = 0; i < albumSort.size(); i++) {
             Song currentSong = albumSort.get(i);
             if(!currentSong.getAlbum().equals(previousAlbum)) {
-                if(i > 0)
+                if(i > 0) {
                     albumCollection.add(currentAlbumPlaylist);
-                currentAlbumPlaylist = new SimplePlaylist(currentSong.getAlbum());
+                    defaultPlaylists.add(currentAlbumPlaylist);
+                }
+                currentAlbumPlaylist = new SimplePlaylist(currentSong.getAlbum(), defaultPlaylists.size());
             }
             currentAlbumPlaylist.add(currentSong);
             previousAlbum = currentSong.getAlbum();
         }
         //Add last album playlist
         albumCollection.add(currentAlbumPlaylist);
+        defaultPlaylists.add(currentAlbumPlaylist);
+
         AppCore.getInstance().albumCollections = albumCollection;
+
+        AppCore.getInstance().allPlaylists = defaultPlaylists;
     }
 
     //Create tab for selected playlist

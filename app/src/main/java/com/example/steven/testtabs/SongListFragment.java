@@ -11,7 +11,6 @@ import android.widget.ListView;
 public class SongListFragment extends ListFragment {
     private static final String TAG = "SongListFragment";
     private SimplePlaylist songList;
-    private int playlistIndex;
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle saveInstanceState) {
@@ -29,16 +28,17 @@ public class SongListFragment extends ListFragment {
 
     @Override
     public void onListItemClick(ListView listView, View v, int i, long id) {
-        Log.d(TAG, "Attempting to play song through onListItemClick()");
-        super.onListItemClick(listView, v, i, id);
-        int playlistIndex = songList.getIndexInCollection();
-        int songIndex = songList.get(i).getIndexInCollection();
+        Log.d(TAG, "Pressed song at index: " + i);
 
-        AppCore.getInstance().musicSrv.onSongPicked(playlistIndex, songIndex);
+        super.onListItemClick(listView, v, i, id);
+
+        AppCore.getInstance().musicSrv.onSongPicked(songList.getIndexInCollection(), i);
     }
 
     public void setSongs(SimplePlaylist playlist) {
         //Sets songs
+        Log.d(TAG, "Setting playlist with name: " + playlist.getNameOfPlaylist() + ".\n" +
+                "Playlist's index inside of playlist collection: " + playlist.getIndexInCollection());
         songList = playlist;
     }
 
