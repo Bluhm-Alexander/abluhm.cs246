@@ -14,9 +14,9 @@ public class PagerAdapter extends FragmentPagerAdapter {
     private final List<String> fragmentTitleList = new ArrayList<>();
 
     private Fragment settingsFragment;
-    private int settingsIndex = 0;
     PagerAdapter(FragmentManager fm) {
         super(fm);
+        settingsFragment = new SettingsFragment();
     }
 
     /**
@@ -42,10 +42,6 @@ public class PagerAdapter extends FragmentPagerAdapter {
         fragmentTitleList.add(playlist.getNameOfPlaylist());
         fragment.setSongs(playlist);
 
-        if(settingsIndex > 0 && fragmentList.size() - 1 > settingsIndex) {
-            Log.d(TAG, "Creating a new songListFragment AFTER the settings tab was created. Moving settings tab to back");
-            moveSettingsTabToBack();
-        }
         return true;
     }
 
@@ -72,27 +68,7 @@ public class PagerAdapter extends FragmentPagerAdapter {
         fragmentTitleList.add(playlists.getNameOfPlaylist());
         fragment.setSongs(playlists);
 
-        if(settingsIndex > 0 && fragmentList.size() - 1 > settingsIndex) {
-            Log.d(TAG, "Creating a new expandedPlaylistFragment AFTER the settings tab was created. Moving settings tab to back");
-            moveSettingsTabToBack();
-        }
         return true;
-    }
-
-    //Sets the settings tab as the back tab (in case tabs get added after settings)
-    private void moveSettingsTabToBack() {
-        //So we can add it back later
-        Fragment tmp = fragmentList.get(settingsIndex);
-
-        //Shift tabs over to the left
-        for(int i = settingsIndex; i < fragmentList.size(); i++) {
-            fragmentList.add(i, fragmentList.get(i + 1));
-        }
-        //Set to last index
-        settingsIndex = fragmentList.size() - 1;
-
-        //Set settings back as last tab
-        fragmentList.add(settingsIndex, tmp);
     }
 
     /**
@@ -103,6 +79,8 @@ public class PagerAdapter extends FragmentPagerAdapter {
      */
     @Override
     public CharSequence getPageTitle(int position) {
+        if(position == fragmentList.size())
+            return "Settings";
         return fragmentTitleList.get(position);
     }
 
@@ -114,6 +92,8 @@ public class PagerAdapter extends FragmentPagerAdapter {
      */
     @Override
     public Fragment getItem(int position) {
+        if(position == fragmentList.size())
+            return settingsFragment;
         return fragmentList.get(position);
     }
 

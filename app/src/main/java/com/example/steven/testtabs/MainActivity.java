@@ -38,6 +38,7 @@ public class MainActivity extends AppCompatActivity {
     private TabLayout tabLayout;
 
     int currentTab = 0;
+    int sizeOfDefaultPlaylists; //For adding only the default tabs to our PagerAdapter
     //context of MainActivity
     private Context mContext;
 
@@ -127,17 +128,13 @@ public class MainActivity extends AppCompatActivity {
         else {
             //Create default tabs for playlist
 
-            //Single playlist tabs
-            pagerAdapter.addFragment(new SongListFragment(), AppCore.getInstance().allPlaylists.get(0));
-            //pagerAdapter.addFragment(new SongListFragment(), AppCore.getInstance().allPlaylists.get(1));
-            //pagerAdapter.addFragment(new SongListFragment(), AppCore.getInstance().allPlaylists.get(2));
+            //SimplePlaylist tabs - Single playlist tabs
+            for(int i = 0; i < sizeOfDefaultPlaylists; i++)
+                pagerAdapter.addFragment(new SongListFragment(), AppCore.getInstance().allPlaylists.get(i));
 
-            //Collection of playlist tabs (Expanded)
-            pagerAdapter.addFragment(new ExpandablePlaylistFragment(), AppCore.getInstance().artistCollections);
-            pagerAdapter.addFragment(new ExpandablePlaylistFragment(), AppCore.getInstance().albumCollections);
-
-            //Add settings tab AFTER default tabs
-            pagerAdapter.setupSettingsTab();
+            //CompoundPlaylist tabs - Collection of playlist tabs (Expanded)
+            for(int i = 0; i < AppCore.getInstance().allCompoundPlaylists.size(); i++)
+                pagerAdapter.addFragment(new ExpandablePlaylistFragment(), AppCore.getInstance().allCompoundPlaylists.get(i));
 
             //Set adapter
             viewPager.setAdapter(pagerAdapter);
@@ -340,7 +337,7 @@ public class MainActivity extends AppCompatActivity {
                 return a.getArtist().compareTo(b.getArtist());
             }});
         artistSort.addAll(songs);
-        defaultPlaylists.add(artistSort);
+        //defaultPlaylists.add(artistSort); Not a default playlist
 
 
         //ALBUM SORT
@@ -351,7 +348,7 @@ public class MainActivity extends AppCompatActivity {
                 return a.getAlbum().compareTo(b.getAlbum());
             }});
         albumSort.addAll(songs);
-        defaultPlaylists.add(albumSort);
+        //defaultPlaylists.add(albumSort); Not a default playlist
 
 
         AppCore.getInstance().allPlaylists = defaultPlaylists;
@@ -359,7 +356,7 @@ public class MainActivity extends AppCompatActivity {
                 AppCore.getInstance().allPlaylists.size());
         //End of default (single) playlists
         //Run this line so the pagerAdapter won't create a tab for future playlists after this point
-        AppCore.getInstance().allPlaylists.setFinishedAddingDefaultPlaylists(true);
+        sizeOfDefaultPlaylists = defaultPlaylists.size();
 
         //Default collection of playlists (For expandable list views)
 
@@ -384,7 +381,7 @@ public class MainActivity extends AppCompatActivity {
         artistCollection.add(currentArtistPlaylist);
         defaultPlaylists.add(currentArtistPlaylist);
 
-        AppCore.getInstance().artistCollections = artistCollection;
+        AppCore.getInstance().allCompoundPlaylists.add(artistCollection);
 
 
         //SimplePlaylist of albums
@@ -408,7 +405,7 @@ public class MainActivity extends AppCompatActivity {
         albumCollection.add(currentAlbumPlaylist);
         defaultPlaylists.add(currentAlbumPlaylist);
 
-        AppCore.getInstance().albumCollections = albumCollection;
+        AppCore.getInstance().allCompoundPlaylists.add(albumCollection);
 
         AppCore.getInstance().allPlaylists = defaultPlaylists;
     }

@@ -6,6 +6,8 @@ import android.content.ServiceConnection;
 import android.os.IBinder;
 import android.util.Log;
 
+import java.util.ArrayList;
+
 /********************************************************************************************
  * Created by okoboji on 11/11/17.
  * I'm so sorry guys but I have to do this. I see no other way of sharing our music Service
@@ -33,8 +35,7 @@ public class AppCore {
     private static final String TAG = "AppCore";
     public SimplePlaylist songLibrary = new SimplePlaylist("Collection of all songs");
     public CompoundPlaylist allPlaylists = new CompoundPlaylist("Collection of all playlists");
-    public CompoundPlaylist artistCollections;
-    public CompoundPlaylist albumCollections;
+    public ArrayList<CompoundPlaylist> allCompoundPlaylists = new ArrayList<>();
     public MusicService musicSrv;
     public Intent playIntent;
     public ServiceConnection musicConnection;

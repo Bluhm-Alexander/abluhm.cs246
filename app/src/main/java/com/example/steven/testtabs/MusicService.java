@@ -33,8 +33,6 @@ public class MusicService extends Service implements
     private int currentPlaylist;
     private int currentSong;
 
-    private Playlist currentOrder;
-
     private boolean loopOn = false;
     private boolean shuffleOn = false;
 
