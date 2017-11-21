@@ -29,7 +29,6 @@ public class SongListFragment extends ListFragment {
     @Override
     public void onListItemClick(ListView listView, View v, int i, long id) {
         Log.d(TAG, "Pressed song at index: " + i);
-
         super.onListItemClick(listView, v, i, id);
 
         AppCore.getInstance().musicSrv.onSongPicked(songList.getIndexInCollection(), i);

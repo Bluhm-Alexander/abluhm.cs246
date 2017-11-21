@@ -33,9 +33,9 @@ public class AppCore {
     //Look up if this stuff is safe to be here
     //List of Variables
     private static final String TAG = "AppCore";
-    public SimplePlaylist songLibrary = new SimplePlaylist("Collection of all songs");
-    public CompoundPlaylist allPlaylists = new CompoundPlaylist("Collection of all playlists");
-    public ArrayList<CompoundPlaylist> allCompoundPlaylists = new ArrayList<>();
+
+    public MediaStorage mediaStorage = new MediaStorage();
+
     public MusicService musicSrv;
     public Intent playIntent;
     public ServiceConnection musicConnection;
@@ -74,8 +74,7 @@ public class AppCore {
                 if(musicSrv == null)
                     Log.e(TAG, "Music service is null!");
                 //pass list
-                musicSrv.setPlaylistList(allPlaylists);
-                musicSrv.setSongList(songLibrary);
+                musicSrv.setMediaStorage(mediaStorage);
                 musicBound = true;
             }
 
@@ -84,9 +83,5 @@ public class AppCore {
                 musicBound = false;
             }
         };
-    }
-
-    public String getSongName() {
-        return musicSrv.getCurrentSong().getTitle();
     }
 }

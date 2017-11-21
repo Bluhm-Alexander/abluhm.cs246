@@ -27,8 +27,7 @@ public class MusicService extends Service implements
     private MediaPlayer player;
     private final IBinder musicBind = new MusicBinder();
 
-    private ArrayList<Song> musicLibrary;
-    private ArrayList<SimplePlaylist> allPlaylists;
+    private MediaStorage mediaStorage;
 
     private int currentPlaylist;
     private int currentSong;
@@ -39,6 +38,7 @@ public class MusicService extends Service implements
     public void onCreate() {
         super.onCreate();
         player = new MediaPlayer();
+        mediaStorage = new MediaStorage();
 
         //Get the same values as we left them
         shuffleOn = getSharedPreferences("mediaPlayer", 0).getBoolean("shuffle", false);
@@ -66,7 +66,7 @@ public class MusicService extends Service implements
         setPlaylist(playlistIndex);
         setSong(songIndex);
 
-        Log.d(TAG, "Song at: " + songIndex + " = " + allPlaylists.get(playlistIndex).get(songIndex).getTitle());
+        Log.d(TAG, "Song at: " + songIndex + " = " + AppCore.getInstance().mediaStorage.getSimplePlaylists().get(playlistIndex).get(songIndex).getTitle());
         Log.d(TAG, "Next song: " + getCurrentSong().getTitle());
         Intent nowPlaying = new Intent(this, NowPlaying.class);
 
@@ -76,32 +76,28 @@ public class MusicService extends Service implements
     }
 
     //Pass list of songs to MusicService
-    public void setSongList(ArrayList<Song> songList){
-        musicLibrary = songList;
+    public void setMediaStorage(MediaStorage storage){
+        mediaStorage = storage;
         setSong(0);
-    }
-
-    //Pass list of playlists to MusicService
-    public void setPlaylistList(ArrayList<SimplePlaylist> playlistList) {
-        allPlaylists = playlistList;
-        setPlaylist(0);
     }
 
     //Sets the playlist to play from
     public void setPlaylist(int index) {
-        Log.d(TAG, "Setting current playlist to " + allPlaylists.get(index).getNameOfPlaylist() + " at index: " + index);
+        Log.d(TAG, "Setting current playlist to "
+                + mediaStorage.getSimplePlaylists().get(index).getNameOfPlaylist() + " at index: " + index);
         currentPlaylist = index;
         currentSong = 0; //By default
     }
 
     //Sets the next song
     public void setSong(int index) {
-        Log.d(TAG, "Setting current song to " + getCurrentPlaylist().get(index).getTitle());
+        Log.d(TAG, "Setting current song to "
+                + getCurrentPlaylist().get(index).getTitle());
         currentSong = index;
     }
 
     public SimplePlaylist getCurrentPlaylist() {
-        return allPlaylists.get(currentPlaylist);
+        return mediaStorage.getSimplePlaylists().get(currentPlaylist);
     }
 
     public Song getCurrentSong() {
@@ -304,35 +300,6 @@ public class MusicService extends Service implements
 
         player.prepareAsync(); //From the MediaPlayer class
         return true;
-    }
-
-    //Create playlist from user
-    public boolean createUserPlaylist(String nameOfPlaylist) {
-        for(int i = 0; i < allPlaylists.size(); i++) {
-            if(nameOfPlaylist.equals(allPlaylists.get(i).getNameOfPlaylist())) {
-                Toast.makeText(this, "Playlist already exists with that name", Toast.LENGTH_SHORT).show();
-                Log.e(TAG, "Attempted to create playlist with already existing name");
-                return false;
-            }
-        }
-        SimplePlaylist newPlaylist = new SimplePlaylist(nameOfPlaylist);
-        AppCore.getInstance().allPlaylists.add(newPlaylist);
-        return true;
-    }
-
-    //Add to playlist
-    public boolean addToPlaylist(SimplePlaylist playlist, Song song) {
-        return playlist.add(song);
-    }
-
-    //Removes from playlist by object - returns true if successful
-    public boolean removeFromPlaylist(SimplePlaylist playlist, Song song) {
-        return playlist.remove(song);
-    }
-
-    //Remove from playlist by index - returns removed song object
-    public Song removeFromPlaylist(SimplePlaylist playlist, int index) {
-        return playlist.remove(index);
     }
 
     //Returns isPlaying from mediaPlayer

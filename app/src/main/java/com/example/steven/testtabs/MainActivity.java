@@ -38,7 +38,7 @@ public class MainActivity extends AppCompatActivity {
     private TabLayout tabLayout;
 
     int currentTab = 0;
-    int sizeOfDefaultPlaylists; //For adding only the default tabs to our PagerAdapter
+    int sizeOfDefaultPlaylists = 1; //For adding only the default tabs to our PagerAdapter
     //context of MainActivity
     private Context mContext;
 
@@ -119,7 +119,7 @@ public class MainActivity extends AppCompatActivity {
 
     private void setupViewPager() {
         //checking for empty Lists
-        if (AppCore.getInstance().songLibrary.isEmpty()) {
+        if (AppCore.getInstance().mediaStorage.getSongs().isEmpty()) {
             Toast.makeText(getApplicationContext(), "No Media!", Toast.LENGTH_SHORT).show();
             //Maybe add something here later.... Ask if it is ok to just make default values
 
@@ -130,11 +130,11 @@ public class MainActivity extends AppCompatActivity {
 
             //SimplePlaylist tabs - Single playlist tabs
             for(int i = 0; i < sizeOfDefaultPlaylists; i++)
-                pagerAdapter.addFragment(new SongListFragment(), AppCore.getInstance().allPlaylists.get(i));
+                pagerAdapter.addFragment(new SongListFragment(), AppCore.getInstance().mediaStorage.getSimplePlaylists().get(i));
 
             //CompoundPlaylist tabs - Collection of playlist tabs (Expanded)
-            for(int i = 0; i < AppCore.getInstance().allCompoundPlaylists.size(); i++)
-                pagerAdapter.addFragment(new ExpandablePlaylistFragment(), AppCore.getInstance().allCompoundPlaylists.get(i));
+            for(int i = 0; i < AppCore.getInstance().mediaStorage.getCompoundPlaylists().size(); i++)
+                pagerAdapter.addFragment(new ExpandablePlaylistFragment(), AppCore.getInstance().mediaStorage.getCompoundPlaylists().get(i));
 
             //Set adapter
             viewPager.setAdapter(pagerAdapter);
@@ -288,12 +288,13 @@ public class MainActivity extends AppCompatActivity {
                 String thisAlbum = songCursor.getString(albumColumn);
                 long thisId = songCursor.getLong(idColumn);
 
-                AppCore.getInstance().songLibrary.add(new Song(thisId, thisTitle, thisArtist, thisAlbum, i));
+                Song newSong = AppCore.getInstance().mediaStorage.createSong
+                        (thisId, thisTitle, thisArtist, thisAlbum);
             }
             songCursor.close();
 
             //Default sorting
-            Collections.sort(AppCore.getInstance().songLibrary, new Comparator<Song>(){
+            Collections.sort(AppCore.getInstance().mediaStorage.getSongs(), new Comparator<Song>(){
                 public int compare(Song a, Song b){
                     return a.getTitle().compareTo(b.getTitle());
                 }
@@ -312,56 +313,49 @@ public class MainActivity extends AppCompatActivity {
     private void createDefaultPlaylists() {
         //Create new list of songs so order of original list of songs don't change when we sort it
         ArrayList<Song> songs = new ArrayList<>();
-        songs.addAll(AppCore.getInstance().songLibrary);
-        CompoundPlaylist defaultPlaylists = new CompoundPlaylist("Collection of all playlists");
-
+        songs.addAll(AppCore.getInstance().mediaStorage.getSongs());
 
         //Default single playlists
 
         //TITLE SORT
-        SimplePlaylist titleSort  = new SimplePlaylist("All songs", defaultPlaylists.size());
+        SimplePlaylist titleSort = AppCore.getInstance().mediaStorage.createSimplePlaylist
+                ("All songs");
         //Sort by title
         Collections.sort(songs, new Comparator<Song>(){
             public int compare(Song a, Song b){
                 return a.getTitle().compareTo(b.getTitle());
             }});
         titleSort.addAll(songs);
-        defaultPlaylists.add(titleSort);
-
 
         //ARTIST SORT
-        SimplePlaylist artistSort = new SimplePlaylist("Artist Sort", defaultPlaylists.size());
+        SimplePlaylist artistSort = AppCore.getInstance().mediaStorage.createSimplePlaylist
+                ("Artist Sort");
         //Sort by artist
         Collections.sort(songs, new Comparator<Song>(){
             public int compare(Song a, Song b){
                 return a.getArtist().compareTo(b.getArtist());
             }});
         artistSort.addAll(songs);
-        //defaultPlaylists.add(artistSort); Not a default playlist
 
 
         //ALBUM SORT
-        SimplePlaylist albumSort = new SimplePlaylist("Album Sort", defaultPlaylists.size());
+        SimplePlaylist albumSort = AppCore.getInstance().mediaStorage.createSimplePlaylist
+                ("Album Sort");
         //Sort by album
         Collections.sort(songs, new Comparator<Song>(){
             public int compare(Song a, Song b){
                 return a.getAlbum().compareTo(b.getAlbum());
             }});
         albumSort.addAll(songs);
-        //defaultPlaylists.add(albumSort); Not a default playlist
 
-
-        AppCore.getInstance().allPlaylists = defaultPlaylists;
-        Log.d(TAG, "Finished creating default playlists with a size of: " +
-                AppCore.getInstance().allPlaylists.size());
         //End of default (single) playlists
-        //Run this line so the pagerAdapter won't create a tab for future playlists after this point
-        sizeOfDefaultPlaylists = defaultPlaylists.size();
+
 
         //Default collection of playlists (For expandable list views)
 
-        //SimplePlaylist of artists
-        CompoundPlaylist artistCollection = new CompoundPlaylist("Artists");
+        //CompoundPlaylist of artists
+        CompoundPlaylist artistCollection = AppCore.getInstance().mediaStorage.createCompoundPlaylist
+                ("Artists");
         SimplePlaylist currentArtistPlaylist = null;
         String previousArtist = null;
 
@@ -370,22 +364,20 @@ public class MainActivity extends AppCompatActivity {
             if(!currentSong.getArtist().equals(previousArtist)) {
                 if(i > 0) {
                     artistCollection.add(currentArtistPlaylist);
-                    defaultPlaylists.add(currentArtistPlaylist);
                 }
-                currentArtistPlaylist = new SimplePlaylist(currentSong.getArtist(), defaultPlaylists.size());
+                currentArtistPlaylist = AppCore.getInstance().mediaStorage.createSimplePlaylist
+                        (currentSong.getArtist());
             }
             currentArtistPlaylist.add(currentSong);
             previousArtist = currentSong.getArtist();
         }
         //Add last artist playlist
         artistCollection.add(currentArtistPlaylist);
-        defaultPlaylists.add(currentArtistPlaylist);
-
-        AppCore.getInstance().allCompoundPlaylists.add(artistCollection);
 
 
-        //SimplePlaylist of albums
-        CompoundPlaylist albumCollection = new CompoundPlaylist("Albums");
+        //CompoundPlaylist of albums
+        CompoundPlaylist albumCollection = AppCore.getInstance().mediaStorage.createCompoundPlaylist
+                ("Albums");
         SimplePlaylist currentAlbumPlaylist = null;
         String previousAlbum = null;
 
@@ -394,20 +386,14 @@ public class MainActivity extends AppCompatActivity {
             if(!currentSong.getAlbum().equals(previousAlbum)) {
                 if(i > 0) {
                     albumCollection.add(currentAlbumPlaylist);
-                    defaultPlaylists.add(currentAlbumPlaylist);
                 }
-                currentAlbumPlaylist = new SimplePlaylist(currentSong.getAlbum(), defaultPlaylists.size());
+                currentAlbumPlaylist = AppCore.getInstance().mediaStorage.createSimplePlaylist(currentSong.getAlbum());
             }
             currentAlbumPlaylist.add(currentSong);
             previousAlbum = currentSong.getAlbum();
         }
         //Add last album playlist
         albumCollection.add(currentAlbumPlaylist);
-        defaultPlaylists.add(currentAlbumPlaylist);
-
-        AppCore.getInstance().allCompoundPlaylists.add(albumCollection);
-
-        AppCore.getInstance().allPlaylists = defaultPlaylists;
     }
 
     //Create tab for selected playlist

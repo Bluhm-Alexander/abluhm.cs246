@@ -29,19 +29,8 @@ class SimplePlaylist extends ArrayList<Song> {
      */
     SimplePlaylist(String nameOfPlaylist) {
         playlistName = nameOfPlaylist;
-        indexInCollection = -1;
+        indexInCollection = AppCore.getInstance().mediaStorage.getSimplePlaylists().size();
         Log.w(TAG, "Created simple playlist named: " + nameOfPlaylist + " with no initialized index. Setting to -1");
-    }
-
-    /**
-     * Default constructor
-     *
-     * @param nameOfPlaylist Specified name of playlist
-     * @param indexInCollection Holds in index of its position in Main Playlist Collection
-     */
-    SimplePlaylist(String nameOfPlaylist, int indexInCollection) {
-        playlistName = nameOfPlaylist;
-        this.indexInCollection = indexInCollection;
     }
 
     /**
@@ -69,7 +58,6 @@ class CompoundPlaylist extends ArrayList<SimplePlaylist> {
     private static final String TAG = "CompoundPlaylist";
     private String nameOfPlaylistCollection;
     private final int indexInCollection;
-    private int sizeOfDefaultPlaylists;
 
     /**
      * Default constructor
@@ -79,19 +67,7 @@ class CompoundPlaylist extends ArrayList<SimplePlaylist> {
     CompoundPlaylist(String name) {
         Log.d(TAG, "Creating object with name: " + name);
         nameOfPlaylistCollection = name;
-        indexInCollection = -1;
-    }
-
-    /**
-     * Non-default constructor
-     *
-     * @param name Name of Playlist
-     * @param indexInCollection Index of its position in Main Playlist Collection
-     */
-    public CompoundPlaylist(String name, int indexInCollection) {
-        Log.d(TAG, "Creating object with name: " + name);
-        nameOfPlaylistCollection = name;
-        this.indexInCollection = indexInCollection;
+        indexInCollection = AppCore.getInstance().mediaStorage.getCompoundPlaylists().size();
     }
 
     /**
