@@ -13,10 +13,14 @@ public class PagerAdapter extends FragmentPagerAdapter {
     private final List<Fragment> fragmentList = new ArrayList<>();
     private final List<String> fragmentTitleList = new ArrayList<>();
 
+
     private Fragment settingsFragment;
+    private Fragment playlistFragment;
+
     PagerAdapter(FragmentManager fm) {
         super(fm);
         settingsFragment = new SettingsFragment();
+        playlistFragment = new ExpandablePlaylistFragment();
     }
 
     /**
@@ -80,6 +84,8 @@ public class PagerAdapter extends FragmentPagerAdapter {
     @Override
     public CharSequence getPageTitle(int position) {
         if(position == fragmentList.size())
+            return "Playlists";
+        else if(position == fragmentList.size() + 1)
             return "Settings";
         return fragmentTitleList.get(position);
     }
@@ -93,6 +99,8 @@ public class PagerAdapter extends FragmentPagerAdapter {
     @Override
     public Fragment getItem(int position) {
         if(position == fragmentList.size())
+            return playlistFragment;
+        else if(position == fragmentList.size() + 1)
             return settingsFragment;
         return fragmentList.get(position);
     }
@@ -103,6 +111,6 @@ public class PagerAdapter extends FragmentPagerAdapter {
      */
     @Override
     public int getCount() {
-        return fragmentList.size();
+        return fragmentList.size() + 2;
     }
 }
