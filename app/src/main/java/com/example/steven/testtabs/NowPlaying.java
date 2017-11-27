@@ -57,6 +57,9 @@ public class NowPlaying extends AppCompatActivity {
 
     public void updateTrackInfo() {
         nowPlaying = AppCore.getInstance().musicSrv.getNowPlaying();
-        textView.setText(nowPlaying.getTitle());
+        if(nowPlaying != null)
+            textView.setText(nowPlaying.getTitle());
+        else
+            textView.setText("End of queue");
     }
 }

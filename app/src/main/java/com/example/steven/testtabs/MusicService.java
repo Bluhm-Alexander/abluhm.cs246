@@ -97,14 +97,15 @@ public class MusicService extends Service implements
     }
 
     public SimplePlaylist getCurrentPlaylist() {
+        if(currentPlaylist < 0 || currentPlaylist >= mediaStorage.getSimplePlaylists().size())
+            return null;
         return mediaStorage.getSimplePlaylists().get(currentPlaylist);
     }
 
     public Song getCurrentSong() {
-        if(currentSong < 0)
+        if(currentSong < 0 || currentSong >= getCurrentPlaylist().size())
             return null;
-        else
-            return getCurrentPlaylist().get(currentSong);
+        return getCurrentPlaylist().get(currentSong);
     }
 
     //Alias of getCurrentSong()
@@ -278,8 +279,8 @@ public class MusicService extends Service implements
         Log.d(TAG, "Attempting to play song in playSong()");
         player.reset();
 
-        if(currentSong < 0) {
-            Log.d(TAG, "Current song index = " + currentSong);
+        if(getCurrentSong() == null) {
+            Log.d(TAG, "Current song is null. Current song index = " + currentSong);
             return false;
         }
 
