@@ -30,22 +30,22 @@
         android:layout_width="match_parent"
         android:layout_height="fill_parent"
         android:layout_below="@id/appbar"
-        android:layout_marginBottom="48dp">
+        android:layout_marginBottom="56dp">
 
     </android.support.v4.view.ViewPager>
 
     <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
         android:id="@+id/bottom_bar"
         android:layout_width="match_parent"
-        android:layout_height="48dp"
+        android:layout_height="56dp"
         android:layout_alignParentBottom="true"
         android:background="@color/colorPrimary"
         tools:context=".MainActivity">
 
         <Button
             android:id="@+id/play_pause"
-            android:layout_width="48dp"
-            android:layout_height="48dp"
+            android:layout_width="56dp"
+            android:layout_height="56dp"
             android:layout_alignParentBottom="true"
             android:layout_alignParentEnd="true"
             android:layout_marginEnd="16dp"
@@ -53,7 +53,7 @@
             android:onClick="playPause" />
 
         <TextView
-            android:id="@+id/textView2"
+            android:id="@+id/currentSongName"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_alignBaseline="@+id/play_pause"

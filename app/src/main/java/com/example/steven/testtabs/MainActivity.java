@@ -18,6 +18,7 @@ import android.util.Log;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.TextView;
 import android.widget.Toast;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -36,6 +37,7 @@ public class MainActivity extends AppCompatActivity {
     private ViewPager viewPager;
     private PagerAdapter pagerAdapter;
     private TabLayout tabLayout;
+    private TextView currentSongName;
 
     int currentTab = 0;
     int sizeOfDefaultPlaylists = 1; //For adding only the default tabs to our PagerAdapter
@@ -60,6 +62,7 @@ public class MainActivity extends AppCompatActivity {
         getPermissions();
         pagerAdapter = new PagerAdapter(getSupportFragmentManager());
         viewPager = (ViewPager) findViewById(R.id.container);
+        currentSongName = (TextView) findViewById(R.id.currentSongName);
         setupViewPager();
         setupTabLayout();
 
@@ -156,6 +159,20 @@ public class MainActivity extends AppCompatActivity {
             bindService(AppCore.getInstance().playIntent, AppCore.getInstance().musicConnection, Context.BIND_AUTO_CREATE);
             startService(AppCore.getInstance().playIntent);
         }
+    }
+
+    /*************************************************************************************
+     * onResume() sets the name of the current song on the bottom bar.
+     ************************************************************************************/
+
+    @Override
+    protected void onResume() {
+        // Set the song title on the bottom bar
+        if (AppCore.getInstance().musicSrv != null)
+            //if(AppCore.getInstance().musicSrv.getNowPlaying() != null)
+            currentSongName.setText(AppCore.getInstance().musicSrv.getNowPlaying().getTitle());
+
+        super.onResume();
     }
 
     /*************************************************************************************
