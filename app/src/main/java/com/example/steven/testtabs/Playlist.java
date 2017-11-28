@@ -28,9 +28,12 @@ class SimplePlaylist extends ArrayList<Song> {
      * @param nameOfPlaylist Specified name of playlist
      */
     SimplePlaylist(String nameOfPlaylist) {
+        Log.d(TAG, "Creating SimplePlaylist with name: " + nameOfPlaylist);
         playlistName = nameOfPlaylist;
-        indexInCollection = AppCore.getInstance().mediaStorage.getSimplePlaylists().size();
-        Log.w(TAG, "Created simple playlist named: " + nameOfPlaylist + " with no initialized index. Setting to -1");
+        if(AppCore.getInstance().mediaStorage == null)
+            indexInCollection = -1;
+        else
+            indexInCollection = AppCore.getInstance().mediaStorage.getSimplePlaylists().size();
     }
 
     /**
@@ -57,17 +60,15 @@ class SimplePlaylist extends ArrayList<Song> {
 class CompoundPlaylist extends ArrayList<SimplePlaylist> {
     private static final String TAG = "CompoundPlaylist";
     private String nameOfPlaylistCollection;
-    private final int indexInCollection;
 
     /**
-     * Default constructor
+     * Non-default constructor
      *
      * @param name Name of Playlist
      */
     CompoundPlaylist(String name) {
-        Log.d(TAG, "Creating object with name: " + name);
+        Log.d(TAG, "Creating CompoundPlaylist with name: " + name);
         nameOfPlaylistCollection = name;
-        indexInCollection = AppCore.getInstance().mediaStorage.getCompoundPlaylists().size();
     }
 
     /**
@@ -75,12 +76,5 @@ class CompoundPlaylist extends ArrayList<SimplePlaylist> {
      */
     String getNameOfPlaylist() {
         return nameOfPlaylistCollection;
-    }
-
-    /**
-     * @return Returns index of its position in Main Playlist Collection
-     */
-    public int getIndexInCollection() {
-        return indexInCollection;
     }
 }

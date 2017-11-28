@@ -14,11 +14,13 @@ public class MediaStorage {
     private ArrayList<Song> songs;
     private ArrayList<SimplePlaylist> simplePlaylists;
     private ArrayList<CompoundPlaylist> compoundPlaylists;
+    private CompoundPlaylist userPlaylists;
 
     MediaStorage() {
         songs = new ArrayList<>();
         simplePlaylists = new ArrayList<>();
         compoundPlaylists = new ArrayList<>();
+        userPlaylists = new CompoundPlaylist("User Playlists");
     }
 
     ArrayList<Song> getSongs() {
@@ -33,6 +35,10 @@ public class MediaStorage {
         return compoundPlaylists;
     }
 
+    CompoundPlaylist getUserPlaylists() {
+        return userPlaylists;
+    }
+
     public Song getSong(int index) {
         return songs.get(index);
     }
@@ -43,6 +49,10 @@ public class MediaStorage {
 
     public CompoundPlaylist getCompoundPlaylist(int index) {
         return compoundPlaylists.get(index);
+    }
+
+    public SimplePlaylist getUserPlaylist(int index) {
+        return userPlaylists.get(index);
     }
 
     /**
@@ -103,5 +113,24 @@ public class MediaStorage {
             Log.w(TAG, "Previously existing playlist's index: " + compoundPlaylists.indexOf(newCompoundPlaylist));
         }
         return newCompoundPlaylist;
+    }
+
+    /**
+     * Used for creating new compound playlists.
+     * Automatically stores new compound playlist into compound playlist collection in AppCore
+     *
+     * @param playlistName Name of Compound Playlist
+     * @return returns new compound playlist
+     */
+    SimplePlaylist createUserPlaylist(String playlistName) {
+        SimplePlaylist newUserPlaylist = createSimplePlaylist(playlistName);
+        if(!userPlaylists.contains(newUserPlaylist))
+            userPlaylists.add(newUserPlaylist);
+        else {
+            Log.w(TAG, "Attempted to create duplicate User Playlist");
+            Log.w(TAG, "Playlist name was: " + playlistName);
+            Log.w(TAG, "Previously existing playlist's index: " + userPlaylists.indexOf(newUserPlaylist));
+        }
+        return newUserPlaylist;
     }
 }
