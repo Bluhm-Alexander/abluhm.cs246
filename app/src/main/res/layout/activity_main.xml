@@ -29,42 +29,42 @@
         android:id="@+id/container"
         android:layout_width="match_parent"
         android:layout_height="fill_parent"
-        android:layout_below="@id/appbar">
+        android:layout_below="@id/appbar"
+        android:layout_marginBottom="48dp">
 
     </android.support.v4.view.ViewPager>
 
-    <Button
-        android:id="@+id/play_pause"
-        android:background="@drawable/play"
-        android:onClick="playPause"
-        android:layout_width="64dp"
-        android:layout_height="64dp"
-        android:layout_alignParentStart="false"
-        android:layout_centerHorizontal="true"
+    <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+        android:id="@+id/bottom_bar"
+        android:layout_width="match_parent"
+        android:layout_height="48dp"
         android:layout_alignParentBottom="true"
-        android:layout_margin="16dp"/>
+        android:background="@color/colorPrimary"
+        tools:context=".MainActivity">
 
-    <Button
-        android:id="@+id/prev"
-        android:background="@drawable/previous"
-        android:onClick="prevSong"
-        android:layout_width="64dp"
-        android:layout_height="64dp"
-        android:layout_alignParentStart="false"
-        android:layout_toLeftOf="@id/play_pause"
-        android:layout_alignParentBottom="true"
-        android:layout_margin="16dp"/>
+        <Button
+            android:id="@+id/play_pause"
+            android:layout_width="48dp"
+            android:layout_height="48dp"
+            android:layout_alignParentBottom="true"
+            android:layout_alignParentEnd="true"
+            android:layout_marginEnd="16dp"
+            android:background="@drawable/play"
+            android:onClick="playPause" />
 
-    <Button
-        android:id="@+id/next"
-        android:background="@drawable/next"
-        android:onClick="nextSong"
-        android:layout_width="64dp"
-        android:layout_height="64dp"
-        android:layout_alignParentStart="false"
-        android:layout_toRightOf="@id/play_pause"
-        android:layout_alignParentBottom="true"
-        android:layout_margin="16dp"
-        />
+        <TextView
+            android:id="@+id/textView2"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignBaseline="@+id/play_pause"
+            android:layout_alignBottom="@+id/play_pause"
+            android:layout_alignParentStart="true"
+            android:layout_marginStart="19dp"
+            android:text="Not Playing"
+            android:textColor="@android:color/background_light"
+            android:textSize="18sp"
+            android:textStyle="bold" />
+
+    </RelativeLayout>
 
 </RelativeLayout>

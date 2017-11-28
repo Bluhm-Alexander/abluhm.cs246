@@ -247,7 +247,18 @@ public class MainActivity extends AppCompatActivity {
 
     //On press play/pause
     public void playPause(View view) {
-        AppCore.getInstance().musicSrv.playPause();
+        Log.d(TAG,"Attempting to play/pause music with play/pause button");
+
+        //Playing music
+        if(AppCore.getInstance().musicSrv.playPause()) {
+            Log.d(TAG, "Changing play/pause button to pause");
+            view.setBackgroundResource(R.drawable.pause);
+        }
+        //Pausing music
+        else {
+            view.setBackgroundResource(R.drawable.play);
+            Log.d(TAG, "Changing play/pause button to play");
+        }
     }
 
     //On press prev song button
