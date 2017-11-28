@@ -288,6 +288,12 @@ public class MainActivity extends AppCompatActivity {
         AppCore.getInstance().musicSrv.nextSong();
     }
 
+    // Tap the bottom bar
+    public void openNowPlaying(View view) {
+        Intent nowPlaying = new Intent(this, NowPlaying.class);
+        startActivity(nowPlaying);
+    }
+
     /********************************************************************************************
      * getMusic() retrieves a list of music files from the android device and puts them into a String
      * Default playlists are then created by a different sort type of this list and pushed into
