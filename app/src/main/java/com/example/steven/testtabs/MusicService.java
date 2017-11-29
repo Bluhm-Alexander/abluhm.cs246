@@ -76,7 +76,7 @@ public class MusicService extends Service implements
         setSong(songIndex);
 
         if(getNowPlaying() != null)
-            Log.d(TAG, "Pick song: " + getCurrentSong().getTitle());
+            Log.d(TAG, "Picked song: " + getCurrentSong().getTitle());
 
 
         //This is a slight problem. We really shouldn't be starting an activity outside the
@@ -159,10 +159,6 @@ public class MusicService extends Service implements
 
     @Override
     public void onCompletion(MediaPlayer mediaPlayer) {
-        //
-        currentSong++;
-
-        playSong();
     }
 
     @Override
