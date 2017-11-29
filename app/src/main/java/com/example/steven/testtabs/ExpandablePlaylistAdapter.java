@@ -61,11 +61,6 @@ public class ExpandablePlaylistAdapter extends BaseExpandableListAdapter {
 
     @Override
     public View getGroupView(int parent, boolean isExpanded, View convertView, ViewGroup parentView) {
-        Log.d("TMP", "Parent index: " + parent);
-        Log.d("TMP", "Parent size: " + getGroupCount());
-        if(playlists.get(0) == null)
-            Log.d("TMP", "NULL");
-
         SimplePlaylist currentPlaylist = getGroup(parent);
         if(convertView == null) {
             LayoutInflater inflater = (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);

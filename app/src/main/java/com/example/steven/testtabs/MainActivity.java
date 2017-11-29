@@ -177,6 +177,7 @@ public class MainActivity extends AppCompatActivity {
         if(AppCore.getInstance().musicSrv.getNowPlaying() != null) {
             bottomBar.setVisibility(View.VISIBLE);
 
+            //Change state of the play_pause button according to state of musicSrv
             if(AppCore.getInstance().musicSrv.isPlaying())
                 playPauseButton.setBackgroundResource(R.drawable.pause);
             else
