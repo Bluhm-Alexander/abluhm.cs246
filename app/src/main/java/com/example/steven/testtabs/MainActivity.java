@@ -79,7 +79,6 @@ public class MainActivity extends AppCompatActivity {
         //Going to AppCore to Start our music Service
         AppCore.getInstance().startService();
 
-
         //set up context
         mContext = getApplicationContext();
     }
@@ -325,7 +324,7 @@ public class MainActivity extends AppCompatActivity {
      *******************************************************************************************/
 
     public void getMusic() {
-        Log.d(TAG, "Getting music");
+        Log.d("getMusic()", "Getting music");
         ContentResolver musicResolver = getContentResolver();
         Uri songUri = MediaStore.Audio.Media.EXTERNAL_CONTENT_URI;
         //I believe that this is the function that puts the files into a string....
@@ -344,11 +343,12 @@ public class MainActivity extends AppCompatActivity {
             int albumID      = songCursor.getColumnIndex(MediaStore.Audio.Media.ALBUM_ID);
             int artColumn    = songCursor.getColumnIndex(MediaStore.Audio.Albums.ALBUM_ART);
 
-            int i;
-            for(i = 0; songCursor.moveToNext(); i++) {
+            int i = 0;
+            do {
                 String thisTitle = songCursor.getString(titleColumn);
                 String thisArtist = songCursor.getString(artistColumn);
                 String thisAlbum = songCursor.getString(albumColumn);
+                Log.d("getMusic()", "Found song: " + thisTitle + ". Index: " + i);
                 //This is where we will add Album Art to the song Class.
                 //We may need to reduce resolution in order to improve performance
                 //if we want to include the images in the main menu
@@ -369,10 +369,12 @@ public class MainActivity extends AppCompatActivity {
 
                 AppCore.getInstance().mediaStorage.createSong
                         (thisId, thisTitle, thisArtist, thisAlbum, coverPath, thisAlbumId);
+                i++;
             }
+            while(songCursor.moveToNext());
             songCursor.close();
 
-            Log.d(TAG, "Finished grabbing " + i + " songs");
+            Log.d("getMusic()", "Finished grabbing " + i + " songs");
             //Default sorting
             Collections.sort(AppCore.getInstance().mediaStorage.getSongs(), new Comparator<Song>(){
                 public int compare(Song a, Song b){
@@ -381,7 +383,7 @@ public class MainActivity extends AppCompatActivity {
             });
         }
         else
-            Log.w(TAG, "Found no songs");
+            Log.w("getMusic()", "Found no songs");
 
         createDefaultPlaylists();
     }
@@ -394,7 +396,7 @@ public class MainActivity extends AppCompatActivity {
      *******************************************************************************************/
 
     private void createDefaultPlaylists() {
-        Log.d(TAG, "Creating default playlists");
+        Log.d("defaultPlaylists()", "Creating default playlists");
         //Create new list of songs so order of original list of songs don't change when we sort it
         ArrayList<Song> songs = new ArrayList<>();
         songs.addAll(AppCore.getInstance().mediaStorage.getSongs());
