@@ -133,4 +133,13 @@ public class MediaStorage {
         }
         return newUserPlaylist;
     }
+
+    /**
+     * Checks to see if there are any stored songs
+     *
+     * @return returns true if songs exist in this container and vice versa
+     */
+    public boolean isEmpty() {
+        return songs.isEmpty();
+    }
 }

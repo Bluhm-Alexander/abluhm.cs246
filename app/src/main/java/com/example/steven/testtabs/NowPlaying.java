@@ -26,6 +26,7 @@ public class NowPlaying extends AppCompatActivity {
     //(Can change back later, just testing for now)
     public Song nowPlaying;
     private SeekBar songProgressBar;
+    Button playPauseButton;
     //Need to have a handler I'm not sure what this does but it interfaces with android thread handler
     //I think
     private Handler mHandler = new Handler();
@@ -34,13 +35,20 @@ public class NowPlaying extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_now_playing);
-
-        Button playPauseButton = (Button) findViewById(R.id.playPauseButton);
-        playPauseButton.setBackgroundResource(R.drawable.pause);
+        playPauseButton = (Button) findViewById(R.id.playPauseButton);
 
         updateTrackInfo();
     }
 
+    @Override
+    protected void onPostResume() {
+        Log.d(TAG, "Resuming");
+        super.onPostResume();
+        if(AppCore.getInstance().musicSrv.isPlaying())
+            playPauseButton.setBackgroundResource(R.drawable.pause);
+        else
+            playPauseButton.setBackgroundResource(R.drawable.play);
+    }
 
     //On press play/pause
     public void playPause(View view) {
@@ -179,4 +187,4 @@ public class NowPlaying extends AppCompatActivity {
         return percentage;
     }
 
-    }
+}

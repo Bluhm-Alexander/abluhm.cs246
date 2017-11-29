@@ -19,6 +19,9 @@ import android.util.Log;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Button;
+import android.widget.LinearLayout;
+import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 import java.util.ArrayList;
@@ -39,6 +42,8 @@ public class MainActivity extends AppCompatActivity {
     private PagerAdapter pagerAdapter;
     private TabLayout tabLayout;
     private TextView currentSongName;
+    private RelativeLayout bottomBar;
+    private Button playPauseButton;
 
     int currentTab = 0;
     int sizeOfDefaultPlaylists = 1; //For adding only the default tabs to our PagerAdapter
@@ -58,24 +63,16 @@ public class MainActivity extends AppCompatActivity {
         setContentView(R.layout.activity_main);
         Log.d(TAG, "onCreate: Starting.");
 
+        currentSongName = (TextView) findViewById(R.id.currentSongName);
+        bottomBar = (RelativeLayout) findViewById(R.id.bottom_bar);
 
-        //There is a permissions bug
-        //getPermissions();
-
-        //Permissions stuff to access the external SDCard
-        if(ContextCompat.checkSelfPermission(MainActivity.this, Manifest.permission.READ_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED) {
-            if(ActivityCompat.shouldShowRequestPermissionRationale(MainActivity.this, Manifest.permission.READ_EXTERNAL_STORAGE))
-                ActivityCompat.requestPermissions(MainActivity.this, new String[]{ Manifest.permission.READ_EXTERNAL_STORAGE }, MY_PERMISSION_REQUEST);
-            else {
-                ActivityCompat.requestPermissions(MainActivity.this, new String[]{ Manifest.permission.READ_EXTERNAL_STORAGE }, MY_PERMISSION_REQUEST);
-            }
-        } else {
-            getMusic();
-        }
+        //There is NOT(?) a permissions bug.
+        // I might have fixed it - Colton
+        getPermissions();
 
         pagerAdapter = new PagerAdapter(getSupportFragmentManager());
         viewPager = (ViewPager) findViewById(R.id.container);
-        currentSongName = (TextView) findViewById(R.id.currentSongName);
+        playPauseButton = (Button) findViewById(R.id.play_pause);
         setupViewPager();
         setupTabLayout();
 
@@ -134,27 +131,18 @@ public class MainActivity extends AppCompatActivity {
      *********************************************************************************************/
 
     private void setupViewPager() {
-        //checking for empty Lists
-        if (AppCore.getInstance().mediaStorage.getSongs().isEmpty()) {
-            Toast.makeText(getApplicationContext(), "No Media!", Toast.LENGTH_SHORT).show();
-            //Maybe add something here later.... Ask if it is ok to just make default values
+        //Create default tabs for playlist
 
-        }
+        //SimplePlaylist tabs - Single playlist tabs
+        for(int i = 0; i < sizeOfDefaultPlaylists && i < AppCore.getInstance().mediaStorage.getSimplePlaylists().size(); i++)
+            pagerAdapter.addFragment(new SongListFragment(), AppCore.getInstance().mediaStorage.getSimplePlaylist(i));
 
-        else {
-            //Create default tabs for playlist
+        //CompoundPlaylist tabs - Collection of playlist tabs (Expanded)
+        for(int i = 0; i < AppCore.getInstance().mediaStorage.getCompoundPlaylists().size(); i++)
+            pagerAdapter.addFragment(new ExpandablePlaylistFragment(), AppCore.getInstance().mediaStorage.getCompoundPlaylist(i));
 
-            //SimplePlaylist tabs - Single playlist tabs
-            for(int i = 0; i < sizeOfDefaultPlaylists; i++)
-                pagerAdapter.addFragment(new SongListFragment(), AppCore.getInstance().mediaStorage.getSimplePlaylists().get(i));
-
-            //CompoundPlaylist tabs - Collection of playlist tabs (Expanded)
-            for(int i = 0; i < AppCore.getInstance().mediaStorage.getCompoundPlaylists().size(); i++)
-                pagerAdapter.addFragment(new ExpandablePlaylistFragment(), AppCore.getInstance().mediaStorage.getCompoundPlaylists().get(i));
-
-            //Set adapter
-            viewPager.setAdapter(pagerAdapter);
-        }
+        //Set adapter
+        viewPager.setAdapter(pagerAdapter);
     }
 
     /*******************************************************************************************
@@ -180,12 +168,25 @@ public class MainActivity extends AppCompatActivity {
 
     @Override
     protected void onResume() {
-        // Set the song title on the bottom bar
-        if (AppCore.getInstance().musicSrv != null)
-            //if(AppCore.getInstance().musicSrv.getNowPlaying() != null)
-            currentSongName.setText(AppCore.getInstance().musicSrv.getNowPlaying().getTitle());
-
         super.onResume();
+
+        // Set the song title on the bottom bar
+        if (AppCore.getInstance().musicSrv == null)
+            return;
+
+        if(AppCore.getInstance().musicSrv.getNowPlaying() != null) {
+            bottomBar.setVisibility(View.VISIBLE);
+
+            if(AppCore.getInstance().musicSrv.isPlaying())
+                playPauseButton.setBackgroundResource(R.drawable.pause);
+            else
+                playPauseButton.setBackgroundResource(R.drawable.play);
+
+            currentSongName.setText(AppCore.getInstance().musicSrv.getNowPlaying().getTitle());
+        }
+        else {
+            bottomBar.setVisibility(View.INVISIBLE);
+        }
     }
 
     /*************************************************************************************
@@ -250,7 +251,6 @@ public class MainActivity extends AppCompatActivity {
                     Toast.makeText(this, "No permission granted!", Toast.LENGTH_SHORT).show();
                     finish();
                 }
-                return;
             }
         }
     }
@@ -270,7 +270,8 @@ public class MainActivity extends AppCompatActivity {
             else {
                 ActivityCompat.requestPermissions(MainActivity.this, new String[]{ Manifest.permission.READ_EXTERNAL_STORAGE }, MY_PERMISSION_REQUEST);
             }
-        } else {
+        }
+        else {
             getMusic();
         }
     }
@@ -279,16 +280,22 @@ public class MainActivity extends AppCompatActivity {
     public void playPause(View view) {
         Log.d(TAG,"Attempting to play/pause music with play/pause button");
 
+        if(AppCore.getInstance().musicSrv == null || AppCore.getInstance().musicSrv.getNowPlaying() == null)
+            return;
+
         //Playing music
-        if(AppCore.getInstance().musicSrv.playPause()) {
+        if(AppCore.getInstance().musicSrv.isPlaying()) {
             Log.d(TAG, "Changing play/pause button to pause");
-            view.setBackgroundResource(R.drawable.pause);
+            view.setBackgroundResource(R.drawable.play);
         }
+
         //Pausing music
         else {
-            view.setBackgroundResource(R.drawable.play);
+            view.setBackgroundResource(R.drawable.pause);
             Log.d(TAG, "Changing play/pause button to play");
         }
+
+        AppCore.getInstance().musicSrv.playPause();
     }
 
     //On press prev song button
@@ -317,13 +324,12 @@ public class MainActivity extends AppCompatActivity {
      *******************************************************************************************/
 
     public void getMusic() {
+        Log.d(TAG, "Getting music");
         ContentResolver musicResolver = getContentResolver();
         Uri songUri = MediaStore.Audio.Media.EXTERNAL_CONTENT_URI;
         //I believe that this is the function that puts the files into a string....
         String selection = MediaStore.Audio.Media.IS_MUSIC + " != 0";
         Cursor songCursor = musicResolver.query(songUri, null, selection, null, null);
-
-
 
 
         if (songCursor != null && songCursor.moveToFirst()) {
@@ -337,7 +343,8 @@ public class MainActivity extends AppCompatActivity {
             int albumID      = songCursor.getColumnIndex(MediaStore.Audio.Media.ALBUM_ID);
             int artColumn    = songCursor.getColumnIndex(MediaStore.Audio.Albums.ALBUM_ART);
 
-            for(int i = 0; songCursor.moveToNext(); i++) {
+            int i;
+            for(i = 0; songCursor.moveToNext(); i++) {
                 String thisTitle = songCursor.getString(titleColumn);
                 String thisArtist = songCursor.getString(artistColumn);
                 String thisAlbum = songCursor.getString(albumColumn);
@@ -359,19 +366,23 @@ public class MainActivity extends AppCompatActivity {
                 long thisAlbumId = songCursor.getLong(albumID);
                 long thisId = songCursor.getLong(idColumn);
 
-                Song newSong = AppCore.getInstance().mediaStorage.createSong
+                AppCore.getInstance().mediaStorage.createSong
                         (thisId, thisTitle, thisArtist, thisAlbum, coverPath, thisAlbumId);
             }
             songCursor.close();
 
+            Log.d(TAG, "Finished grabbing " + i + " songs");
             //Default sorting
             Collections.sort(AppCore.getInstance().mediaStorage.getSongs(), new Comparator<Song>(){
                 public int compare(Song a, Song b){
                     return a.getTitle().compareTo(b.getTitle());
                 }
             });
-            createDefaultPlaylists();
         }
+        else
+            Log.w(TAG, "Found no songs");
+
+        createDefaultPlaylists();
     }
 
     /********************************************************************************************
@@ -382,6 +393,7 @@ public class MainActivity extends AppCompatActivity {
      *******************************************************************************************/
 
     private void createDefaultPlaylists() {
+        Log.d(TAG, "Creating default playlists");
         //Create new list of songs so order of original list of songs don't change when we sort it
         ArrayList<Song> songs = new ArrayList<>();
         songs.addAll(AppCore.getInstance().mediaStorage.getSongs());
@@ -430,7 +442,8 @@ public class MainActivity extends AppCompatActivity {
         SimplePlaylist currentArtistPlaylist = null;
         String previousArtist = null;
 
-        for(int i = 0; i < artistSort.size(); i++) {
+        int i;
+        for(i = 0; i < artistSort.size(); i++) {
             Song currentSong = artistSort.get(i);
             if(!currentSong.getArtist().equals(previousArtist)) {
                 if(i > 0) {
@@ -443,7 +456,8 @@ public class MainActivity extends AppCompatActivity {
             previousArtist = currentSong.getArtist();
         }
         //Add last artist playlist
-        artistCollection.add(currentArtistPlaylist);
+        if(i > 0)
+            artistCollection.add(currentArtistPlaylist);
 
 
         //CompoundPlaylist of albums
@@ -452,7 +466,7 @@ public class MainActivity extends AppCompatActivity {
         SimplePlaylist currentAlbumPlaylist = null;
         String previousAlbum = null;
 
-        for(int i = 0; i < albumSort.size(); i++) {
+        for(i = 0; i < albumSort.size(); i++) {
             Song currentSong = albumSort.get(i);
             if(!currentSong.getAlbum().equals(previousAlbum)) {
                 if(i > 0) {
@@ -463,8 +477,10 @@ public class MainActivity extends AppCompatActivity {
             currentAlbumPlaylist.add(currentSong);
             previousAlbum = currentSong.getAlbum();
         }
-        //Add last album playlist
-        albumCollection.add(currentAlbumPlaylist);
+        //Just in case the "last playlist" isn't at index 0 (was never initialized)
+        if(i > 0)
+            //Add last album playlist
+            albumCollection.add(currentAlbumPlaylist);
     }
 
     //Create tab for selected playlist

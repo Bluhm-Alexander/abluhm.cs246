@@ -34,11 +34,15 @@ public class SongListFragment extends ListFragment {
         AppCore.getInstance().musicSrv.onSongPicked(songList.getIndexInCollection(), i);
     }
 
-    public void setSongs(SimplePlaylist playlist) {
+    public void setSongs(SimplePlaylist p) {
         //Sets songs
-        Log.d(TAG, "Setting playlist with name: " + playlist.getNameOfPlaylist() + ".\n" +
-                "Playlist's index inside of playlist collection: " + playlist.getIndexInCollection());
-        songList = playlist;
+        if(p == null)
+            Log.e(TAG, "Passing a null playlist to SongListFragment");
+        else {
+            Log.d(TAG, "Setting playlist with name: " + p.getNameOfPlaylist() + ".\n" +
+                    "Playlist's index inside of playlist collection: " + p.getIndexInCollection());
+        }
+        songList = p;
     }
 
     public String getPlaylistName() {

@@ -23,7 +23,6 @@ public class ExpandablePlaylistFragment extends Fragment {
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle saveInstanceState) {
-        Log.d(TAG, "Creating ExpandableListFragment");
         final ViewGroup rootView = (ViewGroup) inflater.inflate(R.layout.listfragment, container, false);
 
         expandableListView = (ExpandableListView)rootView.findViewById(R.id.expandable_list);
@@ -35,8 +34,7 @@ public class ExpandablePlaylistFragment extends Fragment {
             public boolean onChildClick(ExpandableListView expandableListView, View v, int i, int i1, long id) {
                 Log.d(TAG, "Pressed song at index: " + i1 + " of playlist at index: " + playlists.get(i).getIndexInCollection());
                 Log.d(TAG, "Song at: " + i1 + " = " + playlists.get(i).get(i1).getTitle());
-                //int parentIndex = playlists.get(i).getIndexInCollection();
-                //int childIndex  = playlists.get(i).get(i1).getIndexInCollection();
+
                 AppCore.getInstance().musicSrv.onSongPicked(playlists.get(i).getIndexInCollection(), i1);
                 return true;
             }
@@ -48,6 +46,12 @@ public class ExpandablePlaylistFragment extends Fragment {
     }
 
     public void setSongs(CompoundPlaylist p) {
+        //sets songs
+        if(p == null)
+            Log.e(TAG, "Passing a null CompoundPlaylist to ExpandablePlaylistFragment");
+        else {
+            Log.d(TAG, "Setting SimplePlaylist with name: " + p.getNameOfPlaylist() + ".\n");
+        }
         playlists = p;
     }
 }

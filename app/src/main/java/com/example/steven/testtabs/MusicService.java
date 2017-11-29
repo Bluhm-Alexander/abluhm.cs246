@@ -71,15 +71,20 @@ public class MusicService extends Service implements
     }
 
     public boolean onSongPicked(int playlistIndex, int songIndex) {
+        Log.d(TAG, "Song picked at playlist index: " + playlistIndex + " and song index: " + songIndex);
         setPlaylist(playlistIndex);
         setSong(songIndex);
 
-        Log.d(TAG, "Song at: " + songIndex + " = " + AppCore.getInstance().mediaStorage.getSimplePlaylists().get(playlistIndex).get(songIndex).getTitle());
-        Log.d(TAG, "Next song: " + getCurrentSong().getTitle());
+        if(getNowPlaying() != null)
+            Log.d(TAG, "Pick song: " + getCurrentSong().getTitle());
+
 
         //This is a slight problem. We really shouldn't be starting an activity outside the
         //the main activity class it causes problems with older versions of android. I'm going to
         //let this slide for now but we need to talk about it.
+
+        //This is only called here because the onItemClickListener in the fragments can't call methods
+        //from MainActivity since I
         Intent nowPlaying = new Intent(this, NowPlaying.class);
         //Have to set flag to fetch context outside of MainActivity Class
         nowPlaying.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
@@ -94,27 +99,24 @@ public class MusicService extends Service implements
                     "Bad MP3: " + AppCore.getInstance().mediaStorage.getSimplePlaylists().get(playlistIndex).get(songIndex).getTitle(), Toast.LENGTH_LONG).show();
             return false;
         }
-        //return playSong();
     }
 
     //Pass list of songs to MusicService
     public void setMediaStorage(MediaStorage storage){
         mediaStorage = storage;
-        setSong(0);
+        currentPlaylist = -1;
+        currentSong = -1;
     }
 
     //Sets the playlist to play from
     public void setPlaylist(int index) {
-        Log.d(TAG, "Setting current playlist to "
-                + mediaStorage.getSimplePlaylists().get(index).getNameOfPlaylist() + " at index: " + index);
+        Log.d(TAG, "Setting current playlist index to: " + index);
         currentPlaylist = index;
-        currentSong = 0; //By default
     }
 
     //Sets the next song
     public void setSong(int index) {
-        Log.d(TAG, "Setting current song to "
-                + getCurrentPlaylist().get(index).getTitle());
+        Log.d(TAG, "Setting current song index to: " + index);
         currentSong = index;
     }
 
