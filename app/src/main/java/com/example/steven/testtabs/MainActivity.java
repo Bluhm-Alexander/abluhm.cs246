@@ -6,6 +6,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.database.Cursor;
+import android.graphics.drawable.Drawable;
 import android.net.Uri;
 import android.os.Bundle;
 import android.provider.MediaStore;
@@ -58,8 +59,20 @@ public class MainActivity extends AppCompatActivity {
         Log.d(TAG, "onCreate: Starting.");
 
 
+        //There is a permissions bug
+        //getPermissions();
 
-        getPermissions();
+        //Permissions stuff to access the external SDCard
+        if(ContextCompat.checkSelfPermission(MainActivity.this, Manifest.permission.READ_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED) {
+            if(ActivityCompat.shouldShowRequestPermissionRationale(MainActivity.this, Manifest.permission.READ_EXTERNAL_STORAGE))
+                ActivityCompat.requestPermissions(MainActivity.this, new String[]{ Manifest.permission.READ_EXTERNAL_STORAGE }, MY_PERMISSION_REQUEST);
+            else {
+                ActivityCompat.requestPermissions(MainActivity.this, new String[]{ Manifest.permission.READ_EXTERNAL_STORAGE }, MY_PERMISSION_REQUEST);
+            }
+        } else {
+            getMusic();
+        }
+
         pagerAdapter = new PagerAdapter(getSupportFragmentManager());
         viewPager = (ViewPager) findViewById(R.id.container);
         currentSongName = (TextView) findViewById(R.id.currentSongName);
@@ -304,20 +317,44 @@ public class MainActivity extends AppCompatActivity {
         String selection = MediaStore.Audio.Media.IS_MUSIC + " != 0";
         Cursor songCursor = musicResolver.query(songUri, null, selection, null, null);
 
+
+
+
         if (songCursor != null && songCursor.moveToFirst()) {
             int titleColumn  = songCursor.getColumnIndex(MediaStore.Audio.Media.TITLE);
             int artistColumn = songCursor.getColumnIndex(MediaStore.Audio.Media.ARTIST);
             int albumColumn  = songCursor.getColumnIndex(MediaStore.Audio.Media.ALBUM);
             int idColumn     = songCursor.getColumnIndex(MediaStore.Audio.Media._ID);
+            //Adding ALBUM_ID apparently it is a lot more stable for pulling Album Art
+            //Also I may be using this later to search through songs because it is faster apparently
+            //because it is a hash
+            int albumID      = songCursor.getColumnIndex(MediaStore.Audio.Media.ALBUM_ID);
+            int artColumn    = songCursor.getColumnIndex(MediaStore.Audio.Albums.ALBUM_ART);
 
             for(int i = 0; songCursor.moveToNext(); i++) {
                 String thisTitle = songCursor.getString(titleColumn);
                 String thisArtist = songCursor.getString(artistColumn);
                 String thisAlbum = songCursor.getString(albumColumn);
+                //This is where we will add Album Art to the song Class.
+                //We may need to reduce resolution in order to improve performance
+                //if we want to include the images in the main menu
+                //for now the NowPlaying activity will retrieve and render these images based on
+                //their path for performance
+                String coverPath;
+                //Must check to see if the path to album art is empty
+                Log.d("getMusic()", "artColumn index is: " + artColumn);
+                if (artColumn < 0) {
+                    coverPath = "NA";
+                }
+                else {
+                    coverPath = songCursor.getString(artColumn);
+                }
+
+                long thisAlbumId = songCursor.getLong(albumID);
                 long thisId = songCursor.getLong(idColumn);
 
                 Song newSong = AppCore.getInstance().mediaStorage.createSong
-                        (thisId, thisTitle, thisArtist, thisAlbum);
+                        (thisId, thisTitle, thisArtist, thisAlbum, coverPath, thisAlbumId);
             }
             songCursor.close();
 

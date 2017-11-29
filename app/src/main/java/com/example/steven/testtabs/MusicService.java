@@ -68,11 +68,25 @@ public class MusicService extends Service implements
 
         Log.d(TAG, "Song at: " + songIndex + " = " + AppCore.getInstance().mediaStorage.getSimplePlaylists().get(playlistIndex).get(songIndex).getTitle());
         Log.d(TAG, "Next song: " + getCurrentSong().getTitle());
+
+        //This is a slight problem. We really shouldn't be starting an activity outside the
+        //the main activity class it causes problems with older versions of android. I'm going to
+        //let this slide for now but we need to talk about it.
         Intent nowPlaying = new Intent(this, NowPlaying.class);
+        //Have to set flag to fetch context outside of MainActivity Class
+        nowPlaying.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+        this.startActivity(nowPlaying); //taking out this variable
 
-        this.startActivity(nowPlaying);
-
-        return playSong();
+        //Display Toast if a bad mp3 is loaded!!!
+        if (playSong()) {
+            return true;
+        }
+        else {
+            Toast.makeText(this,
+                    "Bad MP3: " + AppCore.getInstance().mediaStorage.getSimplePlaylists().get(playlistIndex).get(songIndex).getTitle(), Toast.LENGTH_LONG).show();
+            return false;
+        }
+        //return playSong();
     }
 
     //Pass list of songs to MusicService
@@ -292,11 +306,18 @@ public class MusicService extends Service implements
         //Get uri
         Uri trackUri = ContentUris.withAppendedId(
                 MediaStore.Audio.Media.EXTERNAL_CONTENT_URI, songID);
+
+        //This Handles whether or not MP3s can be loaded skip track if bad MP3
+        //If the MP3 file is bad it will skip to the next track and exit the function
+        //with false.
         try {
             player.setDataSource(getApplicationContext(), trackUri);
         }
         catch(Exception e){
             Log.e("MUSIC SERVICE", "Error setting data source", e);
+
+            nextSong();
+            return false;
         }
 
         player.prepareAsync(); //From the MediaPlayer class

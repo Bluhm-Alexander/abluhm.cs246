@@ -65,8 +65,8 @@ public class MediaStorage {
      * @param album Song's album
      * @return returns the new song object
      */
-    Song createSong(Long songID, String songName, String artist, String album) {
-        Song newSong = new Song(songID, songName, artist, album);
+    Song createSong(Long songID, String songName, String artist, String album, String coverPath, Long albumID) {
+        Song newSong = new Song(songID, songName, artist, album, coverPath, albumID);
         if(!songs.contains(newSong))
             songs.add(newSong);
         else {

@@ -21,6 +21,7 @@ class SimplePlaylist extends ArrayList<Song> {
     private static final String TAG = "SimplePlaylist";
     private String playlistName;
     private final int indexInCollection;
+    private int numSongs;
 
     /**
      * Non-default constructor
@@ -35,6 +36,12 @@ class SimplePlaylist extends ArrayList<Song> {
         else
             indexInCollection = AppCore.getInstance().mediaStorage.getSimplePlaylists().size();
     }
+
+    /**
+   * Get number of songs in Playlist
+   * */
+
+
 
     /**
      * @return Returns name of playlist
