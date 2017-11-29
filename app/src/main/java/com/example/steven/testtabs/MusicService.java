@@ -50,6 +50,14 @@ public class MusicService extends Service implements
         initMusicPlayer();
     }
 
+    /*********************************************************************************************
+     * Need to return Player.
+     */
+
+    public MediaPlayer getPlayer() {
+        return player;
+    }
+
     //Initialize
     public void initMusicPlayer(){
         //set player properties
@@ -149,9 +157,10 @@ public class MusicService extends Service implements
 
     @Override
     public void onCompletion(MediaPlayer mediaPlayer) {
-        /*currentSong++;
+        //
+        currentSong++;
 
-        playSong();*/
+        playSong();
     }
 
     @Override

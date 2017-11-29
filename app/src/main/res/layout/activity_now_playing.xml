@@ -97,5 +97,39 @@
         app:layout_constraintTop_toBottomOf="@+id/artist"
         app:layout_constraintVertical_bias="0.225" />
 
+    <SeekBar
+        android:id="@+id/seekBar"
+        android:layout_width="344dp"
+        android:layout_height="17dp"
+        app:layout_constraintBottom_toTopOf="@+id/previous"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/albumArt"
+        app:layout_constraintVertical_bias="0.687" />
+
+    <TextView
+        android:id="@+id/CurrentTime"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="0:00"
+        app:layout_constraintBottom_toTopOf="@+id/seekBar"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.049"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/albumArt"
+        app:layout_constraintVertical_bias="1.0" />
+
+    <TextView
+        android:id="@+id/TotalTime"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="0:00"
+        app:layout_constraintBottom_toTopOf="@+id/seekBar"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.936"
+        app:layout_constraintStart_toEndOf="@+id/CurrentTime"
+        app:layout_constraintTop_toBottomOf="@+id/albumArt"
+        app:layout_constraintVertical_bias="1.0" />
+
 
 </android.support.constraint.ConstraintLayout>
