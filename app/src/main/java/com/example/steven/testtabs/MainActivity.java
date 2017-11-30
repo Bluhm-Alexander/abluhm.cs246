@@ -331,8 +331,8 @@ public class MainActivity extends AppCompatActivity {
         String selection = MediaStore.Audio.Media.IS_MUSIC + " != 0";
         Cursor songCursor = musicResolver.query(songUri, null, selection, null, null);
 
-
         if (songCursor != null && songCursor.moveToFirst()) {
+            Log.d("getMusic()", "Found music on device");
             int titleColumn  = songCursor.getColumnIndex(MediaStore.Audio.Media.TITLE);
             int artistColumn = songCursor.getColumnIndex(MediaStore.Audio.Media.ARTIST);
             int albumColumn  = songCursor.getColumnIndex(MediaStore.Audio.Media.ALBUM);
@@ -348,7 +348,6 @@ public class MainActivity extends AppCompatActivity {
                 String thisTitle = songCursor.getString(titleColumn);
                 String thisArtist = songCursor.getString(artistColumn);
                 String thisAlbum = songCursor.getString(albumColumn);
-                Log.d("getMusic()", "Found song: " + thisTitle + ". Index: " + i);
                 //This is where we will add Album Art to the song Class.
                 //We may need to reduce resolution in order to improve performance
                 //if we want to include the images in the main menu
@@ -383,7 +382,7 @@ public class MainActivity extends AppCompatActivity {
             });
         }
         else
-            Log.w("getMusic()", "Found no songs");
+            Log.w("getMusic()", "Found no songs on this device. Bug or is this okay?");
 
         createDefaultPlaylists();
     }
@@ -396,7 +395,7 @@ public class MainActivity extends AppCompatActivity {
      *******************************************************************************************/
 
     private void createDefaultPlaylists() {
-        Log.d("defaultPlaylists()", "Creating default playlists");
+        Log.d("createDefaultPlaylists", "Creating default playlists");
         //Create new list of songs so order of original list of songs don't change when we sort it
         ArrayList<Song> songs = new ArrayList<>();
         songs.addAll(AppCore.getInstance().mediaStorage.getSongs());
@@ -481,9 +480,16 @@ public class MainActivity extends AppCompatActivity {
             previousAlbum = currentSong.getAlbum();
         }
         //Just in case the "last playlist" isn't at index 0 (was never initialized)
+        //Add last album playlist
         if(i > 0)
-            //Add last album playlist
             albumCollection.add(currentAlbumPlaylist);
+
+        //Logging for each playlist to check if empty. Could be bad?
+        for(int index = 0; index < AppCore.getInstance().mediaStorage.getSimplePlaylists().size(); index++) {
+            SimplePlaylist simplePlaylist = AppCore.getInstance().mediaStorage.getSimplePlaylist(index);
+            if(simplePlaylist.isEmpty())
+                Log.w("createDefaultPlaylists", "Playlist : " + simplePlaylist.getNameOfPlaylist() + ". Bug or is this okay?");
+        }
     }
 
     //Create tab for selected playlist
