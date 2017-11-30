@@ -159,6 +159,13 @@ public class MusicService extends Service implements
 
     @Override
     public void onCompletion(MediaPlayer mediaPlayer) {
+        if(currentSong < 0)
+            setSong(0);
+
+        playSong();
+
+        if(!loopOn)
+            pause();
     }
 
     @Override
@@ -180,7 +187,7 @@ public class MusicService extends Service implements
     public int prevSong() {
         //Repeat song if past 3 seconds
         if(player.getCurrentPosition() > 3000) {
-            Log.d(TAG, "Restarting song before 3 seconds while executing prevSong()");
+            Log.d("prevSong()", "Restarting song before 3 seconds (" + player.getCurrentPosition() + ") while executing prevSong()");
             restartSong();
             return currentSong;
         }
@@ -189,11 +196,11 @@ public class MusicService extends Service implements
         //If at the end of the queue, check if loop is on
         else if(currentSong == 0) {
             if(loopOn) {
-                Log.d(TAG, "Setting currentSong index to " + (getCurrentPlaylist().size() - 1) + ", from: " + currentSong);
+                Log.d("prevSong()", "Setting currentSong index to " + (getCurrentPlaylist().size() - 1) + ", from: " + currentSong);
                 currentSong = getCurrentPlaylist().size() - 1;
             }
             else {
-                Log.d(TAG, "Beginning of queue while executing prevSong(). Restarting song.");
+                Log.d("prevSong()", "Beginning of queue while executing prevSong(). Restarting song.");
                 restartSong();
                 return currentSong;
             }
@@ -202,7 +209,7 @@ public class MusicService extends Service implements
             currentSong--;
 
         playSong();
-        Log.d(TAG, "Skipped to previous song while executing prevSong()");
+        Log.d("prevSong()", "Skipped to previous song while executing prevSong()");
         return currentSong;
     }
 
@@ -214,7 +221,7 @@ public class MusicService extends Service implements
                 currentSong = 0;
             }
             else {
-                Log.d(TAG, "End of queue while executing nextSong()");
+                Log.d("nextSong()", "End of queue while executing nextSong()");
                 player.reset();
                 currentSong = -1;
                 return currentSong;
@@ -224,7 +231,7 @@ public class MusicService extends Service implements
             currentSong++;
 
         playSong();
-        Log.d(TAG, "Skipped to next song while executing nextSong()");
+        Log.d("nextSong()", "Skipped to next song while executing nextSong()");
         return currentSong;
     }
 
@@ -242,19 +249,14 @@ public class MusicService extends Service implements
         }
     }
 
-    //On press play/pause
-    public void playPause(View view) {
-        AppCore.getInstance().musicSrv.playPause();
+    public void play() {
+        if(!isPlaying())
+            player.start();
     }
 
-    //On press prev song button
-    public void prevSong(View view) {
-        AppCore.getInstance().musicSrv.prevSong();
-    }
-
-    //On press next song button
-    public void nextSong(View view) {
-        AppCore.getInstance().musicSrv.nextSong();
+    public void pause() {
+        if(isPlaying())
+            player.pause();
     }
 
     public void toggleShuffle() {

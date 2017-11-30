@@ -103,8 +103,14 @@ public class NowPlaying extends AppCompatActivity {
             //This should update the progressBar every second
             updateProgressBar();
         }
-        else
-            textView.setText("End of queue");
+        else {
+            textView = (TextView) findViewById(R.id.title);
+            textView.setText("Stopped");
+            textView = (TextView) findViewById(R.id.album);
+            textView.setText("");
+            textView = (TextView) findViewById(R.id.artist);
+            textView.setText("");
+        }
     }
 
     /*********************************************************************************************
