@@ -185,7 +185,7 @@ public class MainActivity extends AppCompatActivity {
             currentSongName.setText(AppCore.getInstance().musicSrv.getNowPlaying().getTitle());
         }
         else {
-            bottomBar.setVisibility(View.INVISIBLE);
+            bottomBar.setVisibility(View.GONE);
         }
     }
 

@@ -30,8 +30,8 @@
         android:id="@+id/container"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:layout_below="@id/appbar"
-        android:layout_marginBottom="56dp">
+        android:layout_above="@id/bottom_bar"
+        android:layout_below="@id/appbar">
 
     </android.support.v4.view.ViewPager>
 
@@ -42,7 +42,7 @@
         android:layout_alignParentBottom="true"
         android:background="@color/colorPrimary"
         android:onClick="openNowPlaying"
-        android:visibility="invisible"
+        android:visibility="gone"
         tools:context=".MainActivity">
 
         <Button
