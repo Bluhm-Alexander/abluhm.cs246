@@ -18,6 +18,8 @@ import android.widget.TextView;
 
 import java.io.FileDescriptor;
 
+import static android.view.View.GONE;
+
 public class NowPlaying extends AppCompatActivity {
     private static final String TAG = "NowPlaying";
 
@@ -36,7 +38,6 @@ public class NowPlaying extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_now_playing);
         playPauseButton = (Button) findViewById(R.id.playPauseButton);
-
         updateTrackInfo();
     }
 
@@ -44,26 +45,26 @@ public class NowPlaying extends AppCompatActivity {
     protected void onPostResume() {
         Log.d(TAG, "Resuming");
         super.onPostResume();
-        if(AppCore.getInstance().musicSrv.isPlaying())
+        updatePlayPauseButton();
+    }
+
+    public void updatePlayPauseButton() {
+        if(AppCore.getInstance().musicSrv.isPlaying()) {
+            Log.d(TAG, "Setting button state to playing (pause icon)");
             playPauseButton.setBackgroundResource(R.drawable.pause);
-        else
+        }
+        else {
+            Log.d(TAG, "Setting button state to paused (play icon)");
             playPauseButton.setBackgroundResource(R.drawable.play);
+        }
     }
 
     //On press play/pause
     public void playPause(View view) {
         Log.d(TAG,"Attempting to play/pause music with play/pause button");
 
-        //Playing music
-        if(AppCore.getInstance().musicSrv.playPause()) {
-            Log.d(TAG, "Changing play/pause button to pause");
-            view.setBackgroundResource(R.drawable.pause);
-        }
-        //Pausing music
-        else {
-            view.setBackgroundResource(R.drawable.play);
-            Log.d(TAG, "Changing play/pause button to play");
-        }
+        AppCore.getInstance().musicSrv.playPause();
+        updatePlayPauseButton();
     }
 
     //On press prev song button
@@ -76,6 +77,7 @@ public class NowPlaying extends AppCompatActivity {
     public void nextSong(View view) {
         AppCore.getInstance().musicSrv.nextSong();
         updateTrackInfo();
+
     }
 
     /**********************************************************************************************
@@ -110,6 +112,7 @@ public class NowPlaying extends AppCompatActivity {
             textView.setText("");
             textView = (TextView) findViewById(R.id.artist);
             textView.setText("");
+            updatePlayPauseButton();
         }
     }
 
@@ -163,10 +166,10 @@ public class NowPlaying extends AppCompatActivity {
 
             TextView seekInfo = (TextView) findViewById(R.id.TotalTime);
             // Displaying Total Duration time
-            seekInfo.setText(""+convertMinutes(totalDuration));
+            seekInfo.setText("" + convertMinutes(totalDuration));
             // Displaying time completed playing
             seekInfo = (TextView) findViewById(R.id.CurrentTime);
-            seekInfo.setText(""+convertMinutes(currentDuration));
+            seekInfo.setText("" + convertMinutes(currentDuration));
 
             // Updating progress bar
             int progress = (int)(findPercentage(currentDuration, totalDuration));
@@ -183,8 +186,11 @@ public class NowPlaying extends AppCompatActivity {
         String output;
         long m = milliseconds / (60*1000);
         long s = (milliseconds / 1000) % 60;
-        output = m + ":" + s;
-
+        //For displaying 0:00 instead of 0:0
+        if(s < 10)
+            output = m + ":0" + s;
+        else
+            output = m + ":" + s;
         return output;
     }
 

@@ -78,7 +78,6 @@ public class MusicService extends Service implements
         if(getNowPlaying() != null)
             Log.d(TAG, "Picked song: " + getCurrentSong().getTitle());
 
-
         //This is a slight problem. We really shouldn't be starting an activity outside the
         //the main activity class it causes problems with older versions of android. I'm going to
         //let this slide for now but we need to talk about it.
@@ -96,7 +95,7 @@ public class MusicService extends Service implements
         }
         else {
             Toast.makeText(this,
-                    "Bad MP3: " + AppCore.getInstance().mediaStorage.getSimplePlaylists().get(playlistIndex).get(songIndex).getTitle(), Toast.LENGTH_LONG).show();
+                    "Bad MP3: " + getCurrentSong().getTitle(), Toast.LENGTH_LONG).show();
             return false;
         }
     }
@@ -159,13 +158,21 @@ public class MusicService extends Service implements
 
     @Override
     public void onCompletion(MediaPlayer mediaPlayer) {
-        if(currentSong < 0)
+        Log.d("onCompletion()", "Song finished.");
+        if(currentSong < 0) {
+            Log.d("onCompletion()", "Current song index: " + currentSong +
+                    ". Setting song to beginning of queue");
             setSong(0);
+        }
 
         playSong();
 
-        if(!loopOn)
+        if(!loopOn) {
+            Log.d("onCompletion()", "Looping is off. Pausing song.");
             pause();
+        }
+        else
+            Log.d("onCompletion()", "Looping is on. Continuing to play song at beginning of queue");
     }
 
     @Override
@@ -236,16 +243,14 @@ public class MusicService extends Service implements
     }
 
     //On press playPause button
-    public boolean playPause() {
+    public void playPause() {
         if(player.isPlaying()) {
             Log.d(TAG, "Pausing music in playPause()");
             player.pause();
-            return false;
         }
         else {
             Log.d(TAG, "Playing music in playPause()");
             player.start();
-            return true;
         }
     }
 
@@ -309,8 +314,8 @@ public class MusicService extends Service implements
 
         //Get id of current song
         long songID = getCurrentSong().getID();
-        Log.d(TAG, "Next song = " + getCurrentSong().getTitle() + "\n" +
-                "from playlist: " + getCurrentPlaylist().getNameOfPlaylist() + " at index: " + currentSong);
+        Log.d(TAG, "Now playing song: " + getCurrentSong().getTitle() + "\n" +
+                "from playlist: \"" + getCurrentPlaylist().getNameOfPlaylist() + "\" at index: " + currentSong);
 
         //Get uri
         Uri trackUri = ContentUris.withAppendedId(
