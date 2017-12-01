@@ -21,6 +21,28 @@
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintVertical_bias="0.06" />
 
+    <TextView
+        android:id="@+id/album"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Album Info"
+        app:layout_constraintBottom_toTopOf="@+id/playPauseButton"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/title"
+        app:layout_constraintVertical_bias="0.023" />
+
+    <TextView
+        android:id="@+id/artist"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Artist Info"
+        app:layout_constraintBottom_toTopOf="@+id/playPauseButton"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/album"
+        app:layout_constraintVertical_bias="0.022" />
+
     <Button
         android:id="@+id/playPauseButton"
         style="@style/Widget.AppCompat.Button"
@@ -37,7 +59,7 @@
         app:layout_constraintStart_toStartOf="parent" />
 
     <Button
-        android:id="@+id/button2"
+        android:id="@+id/next"
         android:layout_width="72dp"
         android:layout_height="72dp"
         android:layout_marginBottom="8dp"
@@ -64,27 +86,29 @@
         app:layout_constraintHorizontal_bias="1.0"
         app:layout_constraintStart_toStartOf="parent" />
 
-    <TextView
-        android:id="@+id/album"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="Album Info"
-        app:layout_constraintBottom_toTopOf="@+id/playPauseButton"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/title"
-        app:layout_constraintVertical_bias="0.023" />
+    <Button
+        android:id="@+id/shuffle"
+        android:onClick="shuffle"
+        android:layout_width="24dp"
+        android:layout_height="24dp"
+        android:layout_marginBottom="32dp"
+        android:layout_marginEnd="8dp"
+        android:background="@drawable/shuffle_unpressed"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toStartOf="@id/previous"
+        app:layout_constraintHorizontal_bias="1.0" />
 
-    <TextView
-        android:id="@+id/artist"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="Artist Info"
-        app:layout_constraintBottom_toTopOf="@+id/playPauseButton"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/album"
-        app:layout_constraintVertical_bias="0.022" />
+    <Button
+        android:id="@+id/loop"
+        android:onClick="loop"
+        android:layout_width="24dp"
+        android:layout_height="24dp"
+        android:layout_marginBottom="32dp"
+        android:layout_marginStart="8dp"
+        android:background="@drawable/loop_unpressed"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintStart_toEndOf="@id/next"
+        app:layout_constraintHorizontal_bias="1.0" />
 
     <ImageView
         android:id="@+id/albumArt"
@@ -108,7 +132,7 @@
         app:layout_constraintVertical_bias="0.687" />
 
     <TextView
-        android:id="@+id/CurrentTime"
+        android:id="@+id/currentTime"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="0:00"
@@ -120,14 +144,14 @@
         app:layout_constraintVertical_bias="1.0" />
 
     <TextView
-        android:id="@+id/TotalTime"
+        android:id="@+id/totalTime"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="0:00"
         app:layout_constraintBottom_toTopOf="@+id/seekBar"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.936"
-        app:layout_constraintStart_toEndOf="@+id/CurrentTime"
+        app:layout_constraintStart_toEndOf="@+id/currentTime"
         app:layout_constraintTop_toBottomOf="@+id/albumArt"
         app:layout_constraintVertical_bias="1.0" />
 

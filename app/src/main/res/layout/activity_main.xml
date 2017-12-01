@@ -53,7 +53,7 @@
             android:layout_alignParentEnd="true"
             android:layout_marginEnd="16dp"
             android:background="@drawable/play"
-            android:onClick="playPause" />
+            android:onClick="onPlayPausePress" />
 
         <TextView
             android:id="@+id/currentSongName"

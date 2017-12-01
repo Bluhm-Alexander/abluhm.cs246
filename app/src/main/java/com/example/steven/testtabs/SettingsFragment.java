@@ -40,8 +40,6 @@ public class SettingsFragment extends ListFragment {
     }
 
     private static void addSettings() {
-        settingNames.add("Toggle on/off shuffle");
-        settingNames.add("Toggle on/off looping");
         settingNames.add("Toggle on/off album art");
     }
 
@@ -51,12 +49,6 @@ public class SettingsFragment extends ListFragment {
 
         switch(position) {
             case 0:
-                AppCore.getInstance().musicSrv.toggleShuffle();
-                break;
-            case 1:
-                AppCore.getInstance().musicSrv.toggleLoop();
-                break;
-            case 2:
                 //Nothing for now
                 Toast.makeText(getActivity(), "Album art: Off", Toast.LENGTH_SHORT).show();
                 break;

@@ -35,6 +35,8 @@ public class MusicService extends Service implements
     private boolean loopOn = false;
     private boolean shuffleOn = false;
 
+    private boolean isPlaying = false;
+
     public void onCreate() {
         super.onCreate();
         player = new MediaPlayer();
@@ -75,9 +77,18 @@ public class MusicService extends Service implements
         setPlaylist(playlistIndex);
         setSong(songIndex);
 
-        if(getNowPlaying() != null)
-            Log.d(TAG, "Picked song: " + getCurrentSong().getTitle());
+        if(getNowPlaying() != null) {
+            Log.d("onSongPicked()", "Picked song: " + getCurrentSong().getTitle());
+            isPlaying = true;
+        }
+        else {
+            Log.w("onSongPicked()", "Current song is null!");
+            isPlaying = false;
+        }
 
+        Log.d("TEST", "Is playing: " + isPlaying());
+        boolean playing = playSong();
+        Log.d("TEST", "Is playing: " + isPlaying());
         //This is a slight problem. We really shouldn't be starting an activity outside the
         //the main activity class it causes problems with older versions of android. I'm going to
         //let this slide for now but we need to talk about it.
@@ -90,7 +101,7 @@ public class MusicService extends Service implements
         this.startActivity(nowPlaying); //taking out this variable
 
         //Display Toast if a bad mp3 is loaded!!!
-        if (playSong()) {
+        if (playing) {
             return true;
         }
         else {
@@ -205,6 +216,7 @@ public class MusicService extends Service implements
             if(loopOn) {
                 Log.d("prevSong()", "Setting currentSong index to " + (getCurrentPlaylist().size() - 1) + ", from: " + currentSong);
                 currentSong = getCurrentPlaylist().size() - 1;
+                isPlaying = false;
             }
             else {
                 Log.d("prevSong()", "Beginning of queue while executing prevSong(). Restarting song.");
@@ -231,6 +243,7 @@ public class MusicService extends Service implements
                 Log.d("nextSong()", "End of queue while executing nextSong()");
                 player.reset();
                 currentSong = -1;
+                isPlaying = false;
                 return currentSong;
             }
         }
@@ -247,21 +260,27 @@ public class MusicService extends Service implements
         if(player.isPlaying()) {
             Log.d(TAG, "Pausing music in playPause()");
             player.pause();
+            isPlaying = false;
         }
         else {
             Log.d(TAG, "Playing music in playPause()");
             player.start();
+            isPlaying = true;
         }
     }
 
     public void play() {
-        if(!isPlaying())
+        if(!isPlaying()) {
             player.start();
+            isPlaying = true;
+        }
     }
 
     public void pause() {
-        if(isPlaying())
+        if(isPlaying()) {
             player.pause();
+            isPlaying = false;
+        }
     }
 
     public void toggleShuffle() {
@@ -340,6 +359,9 @@ public class MusicService extends Service implements
 
     //Returns isPlaying from mediaPlayer
     public boolean isPlaying() {
-        return player.isPlaying();
+        if(player.isPlaying() != isPlaying)
+            Log.w("isPlaying()", "player.isPlaying() != isPlaying \'variable\'." +
+                    " This shouldn't happen, but \"should\" be fine.");
+        return (player.isPlaying() || isPlaying);
     }
 }

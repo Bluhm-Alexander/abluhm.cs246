@@ -201,33 +201,6 @@ public class MainActivity extends AppCompatActivity {
         super.onDestroy();
     }
 
-    /********************************************************************************************
-     * onOptionsItemSelected(item) I think this function checks to see if shuffle is on or not.
-     * Could someone please clarify?
-     *
-     * I think this function is useless here. Possibly for testing purposes I will keep it here
-     * until I know better.
-     *
-     * @param item
-     * @return
-     *******************************************************************************************/
-
-    @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
-        //menu item selected
-        switch (item.getItemId()) {
-            case R.id.action_shuffle:
-                //shuffle
-                break;
-            case R.id.action_end:
-                stopService(AppCore.getInstance().playIntent);
-                AppCore.getInstance().musicSrv = null;
-                System.exit(0);
-                break;
-        }
-        return super.onOptionsItemSelected(item);
-    }
-
     /**********************************************************************************************
      * I think this function checks to see if permissions have been granted to the application
      * if not it displays a message that no permissions have been granted.
@@ -276,36 +249,17 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
-    //On press play/pause
-    public void playPause(View view) {
-        Log.d(TAG,"Attempting to play/pause music with play/pause button");
-
-        if(AppCore.getInstance().musicSrv == null || AppCore.getInstance().musicSrv.getNowPlaying() == null)
+    public void onPlayPausePress(View view) {
+        if(AppCore.getInstance().musicSrv == null) {
+            Log.w(TAG, "playPause(): musicSrv == null!");
             return;
-
-        //Playing music
-        if(AppCore.getInstance().musicSrv.isPlaying()) {
-            Log.d(TAG, "Changing play/pause button to pause");
-            view.setBackgroundResource(R.drawable.play);
-        }
-
-        //Pausing music
-        else {
-            view.setBackgroundResource(R.drawable.pause);
-            Log.d(TAG, "Changing play/pause button to play");
         }
 
         AppCore.getInstance().musicSrv.playPause();
-    }
-
-    //On press prev song button
-    public void prevSong(View view) {
-        AppCore.getInstance().musicSrv.prevSong();
-    }
-
-    //On press next song button
-    public void nextSong(View view) {
-        AppCore.getInstance().musicSrv.nextSong();
+        if(AppCore.getInstance().musicSrv.isPlaying())
+            view.setBackgroundResource(R.drawable.pause);
+        else
+            view.setBackgroundResource(R.drawable.play);
     }
 
     // Tap the bottom bar

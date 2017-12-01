@@ -3,13 +3,17 @@ package com.example.steven.testtabs;
 import android.content.ContentUris;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.graphics.Color;
 import android.net.Uri;
 import android.os.Handler;
 import android.os.ParcelFileDescriptor;
+import android.support.annotation.AnimatorRes;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
+import android.view.animation.AlphaAnimation;
+import android.view.animation.Animation;
 import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.ProgressBar;
@@ -23,12 +27,25 @@ import static android.view.View.GONE;
 public class NowPlaying extends AppCompatActivity {
     private static final String TAG = "NowPlaying";
 
-    public TextView textView;
+    public TextView title;
+    public TextView artist;
+    public TextView album;
+    public TextView currentTime;
+    public TextView songLength;
+    public Button playPauseButton;
+    public Button previous;
+    public Button next;
+    public Button shuffle;
+    public Button loop;
+    public ImageView coverAlbum;
+
+    private AlphaAnimation buttonClick;
+
     //Got rid of title and added the Song object instead.
     //(Can change back later, just testing for now)
     public Song nowPlaying;
     private SeekBar songProgressBar;
-    Button playPauseButton;
+
     //Need to have a handler I'm not sure what this does but it interfaces with android thread handler
     //I think
     private Handler mHandler = new Handler();
@@ -37,7 +54,29 @@ public class NowPlaying extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_now_playing);
+
+        //Initializing all here so we don't have to every time we press a button
+          //multiple times without closing the nowPlaying fragment
+        title  = (TextView) findViewById(R.id.title);
+        artist = (TextView) findViewById(R.id.artist);
+        album  = (TextView) findViewById(R.id.album);
+
+        coverAlbum = (ImageView) findViewById(R.id.albumArt);
+
+        currentTime = (TextView) findViewById(R.id.currentTime);
+        songLength = (TextView) findViewById(R.id.totalTime);
+
         playPauseButton = (Button) findViewById(R.id.playPauseButton);
+        previous = (Button) findViewById(R.id.previous);
+        next = (Button) findViewById(R.id.next);
+
+        shuffle = (Button) findViewById(R.id.shuffle);
+        loop = (Button) findViewById(R.id.loop);
+
+        songProgressBar = (SeekBar) findViewById(R.id.seekBar);
+
+        buttonClick = new AlphaAnimation(1F, 0.8F);
+
         updateTrackInfo();
     }
 
@@ -45,39 +84,69 @@ public class NowPlaying extends AppCompatActivity {
     protected void onPostResume() {
         Log.d(TAG, "Resuming");
         super.onPostResume();
-        updatePlayPauseButton();
+        updateButtons();
+        updateTrackInfo();
     }
 
-    public void updatePlayPauseButton() {
+    public void updateButtons() {
         if(AppCore.getInstance().musicSrv.isPlaying()) {
-            Log.d(TAG, "Setting button state to playing (pause icon)");
+            Log.d(TAG, "Setting the \"play/pause\" button state to playing (paused icon)");
             playPauseButton.setBackgroundResource(R.drawable.pause);
         }
         else {
-            Log.d(TAG, "Setting button state to paused (play icon)");
+            Log.d(TAG, "Setting the \"play/pause\" button state to paused (play icon)");
             playPauseButton.setBackgroundResource(R.drawable.play);
+        }
+        if(AppCore.getInstance().musicSrv.getShuffleOn()) {
+            Log.d(TAG, "Setting the \"shuffle\" button state to ON");
+            shuffle.setBackgroundResource(R.drawable.shuffle_pressed);
+        }
+        else {
+            Log.d(TAG, "Setting the \"shuffle\" button state to OFF");
+            shuffle.setBackgroundResource(R.drawable.shuffle_unpressed);
+        }
+        if(AppCore.getInstance().musicSrv.getLoopOn()) {
+            loop.setBackgroundResource(R.drawable.loop_pressed);
+        }
+        else {
+            loop.setBackgroundResource(R.drawable.loop_unpressed);
         }
     }
 
     //On press play/pause
     public void playPause(View view) {
         Log.d(TAG,"Attempting to play/pause music with play/pause button");
-
         AppCore.getInstance().musicSrv.playPause();
-        updatePlayPauseButton();
+        view.startAnimation(buttonClick);
+        updateButtons();
     }
 
     //On press prev song button
     public void prevSong(View view) {
         AppCore.getInstance().musicSrv.prevSong();
+        view.startAnimation(buttonClick);
         updateTrackInfo();
+        updateButtons();
     }
 
     //On press next song button
     public void nextSong(View view) {
         AppCore.getInstance().musicSrv.nextSong();
+        view.startAnimation(buttonClick);
         updateTrackInfo();
+        updateButtons();
+    }
 
+    public void shuffle(View view) {
+        AppCore.getInstance().musicSrv.toggleShuffle();
+        //view.startAnimation(buttonClick);
+        updateButtons();
+    }
+
+    public void loop(View view) {
+        AppCore.getInstance().musicSrv.toggleLoop();
+        //view.startAnimation(buttonClick);
+        updateButtons();
     }
 
     /**********************************************************************************************
@@ -90,29 +159,21 @@ public class NowPlaying extends AppCompatActivity {
     public void updateTrackInfo() {
         nowPlaying = AppCore.getInstance().musicSrv.getNowPlaying();
         if(nowPlaying != null) {
-            textView = (TextView) findViewById(R.id.title);
-            textView.setText(nowPlaying.getTitle());
-            textView = (TextView) findViewById(R.id.album);
-            textView.setText(nowPlaying.getAlbum());
-            textView = (TextView) findViewById(R.id.artist);
-            textView.setText(nowPlaying.getArtist());
+            title.setText(nowPlaying.getTitle());
+            album.setText(nowPlaying.getAlbum());
+            artist.setText(nowPlaying.getArtist());
 
             //Log.d("updateTrackInfo()", "The album art path is: " + nowPlaying.getAlbumArt());
-            ImageView coverAlbum=(ImageView) findViewById(R.id.albumArt);
-
             coverAlbum.setImageBitmap(getAlbumart(nowPlaying.getAlbumID())); //was img
 
             //This should update the progressBar every second
             updateProgressBar();
         }
         else {
-            textView = (TextView) findViewById(R.id.title);
-            textView.setText("Stopped");
-            textView = (TextView) findViewById(R.id.album);
-            textView.setText("");
-            textView = (TextView) findViewById(R.id.artist);
-            textView.setText("");
-            updatePlayPauseButton();
+            title.setText("Stopped");
+            album.setText("");
+            artist.setText("");
+            updateButtons();
         }
     }
 
@@ -164,17 +225,14 @@ public class NowPlaying extends AppCompatActivity {
             long totalDuration = AppCore.getInstance().musicSrv.getPlayer().getDuration();
             long currentDuration = AppCore.getInstance().musicSrv.getPlayer().getCurrentPosition();
 
-            TextView seekInfo = (TextView) findViewById(R.id.TotalTime);
             // Displaying Total Duration time
-            seekInfo.setText("" + convertMinutes(totalDuration));
+            songLength.setText("" + convertMinutes(totalDuration));
             // Displaying time completed playing
-            seekInfo = (TextView) findViewById(R.id.CurrentTime);
-            seekInfo.setText("" + convertMinutes(currentDuration));
+            currentTime.setText("" + convertMinutes(currentDuration));
 
             // Updating progress bar
             int progress = (int)(findPercentage(currentDuration, totalDuration));
             //Log.d("Progress", ""+progress);
-            songProgressBar = (SeekBar) findViewById(R.id.seekBar);
             songProgressBar.setProgress(progress);
 
             // Running this thread after 100 milliseconds
@@ -198,5 +256,4 @@ public class NowPlaying extends AppCompatActivity {
         int percentage = (int)(current * 100.0 / total + 0.5);
         return percentage;
     }
-
 }
