@@ -123,15 +123,27 @@ public class MediaStorage {
      * @return returns new compound playlist
      */
     SimplePlaylist createUserPlaylist(String playlistName) {
-        SimplePlaylist newUserPlaylist = createSimplePlaylist(playlistName);
-        if(!userPlaylists.contains(newUserPlaylist))
+        boolean duplicate = false;
+        int index = 0;
+        for(int i = 0; i < userPlaylists.size(); i++) {
+            if(userPlaylists.get(i).getNameOfPlaylist() == playlistName) {
+                duplicate = true;
+                index = i;
+                break;
+            }
+        }
+        if(!duplicate) {
+            SimplePlaylist newUserPlaylist = createSimplePlaylist(playlistName);
             userPlaylists.add(newUserPlaylist);
+            return newUserPlaylist;
+        }
         else {
             Log.w(TAG, "Attempted to create duplicate User Playlist");
             Log.w(TAG, "Playlist name was: " + playlistName);
-            Log.w(TAG, "Previously existing playlist's index: " + userPlaylists.indexOf(newUserPlaylist));
+            Log.w(TAG, "Previously existing playlist's index: " + userPlaylists.get(index));
+            return null;
         }
-        return newUserPlaylist;
+
     }
 
     /**

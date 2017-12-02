@@ -20,14 +20,17 @@ public class ExpandablePlaylistFragment extends Fragment {
     ExpandableListView expandableListView;
     CompoundPlaylist playlists;
     ExpandablePlaylistAdapter adapter;
+    boolean canAddPlaylists = false;
+    ViewGroup rootView;
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle saveInstanceState) {
-        final ViewGroup rootView = (ViewGroup) inflater.inflate(R.layout.listfragment, container, false);
+        rootView = (ViewGroup) inflater.inflate(R.layout.listfragment, container, false);
 
         expandableListView = (ExpandableListView)rootView.findViewById(R.id.expandable_list);
-        adapter = new ExpandablePlaylistAdapter(getActivity(), playlists);
+        adapter = new ExpandablePlaylistAdapter(getActivity(), playlists, canAddPlaylists);
         expandableListView.setAdapter(adapter);
+        expandableListView.setGroupIndicator(null);
 
         expandableListView.setOnChildClickListener(new ExpandableListView.OnChildClickListener() {
             @Override
@@ -39,6 +42,29 @@ public class ExpandablePlaylistFragment extends Fragment {
                 return true;
             }
         });
+
+        if(canAddPlaylists) {
+            expandableListView.setOnGroupClickListener(new ExpandableListView.OnGroupClickListener() {
+                @Override
+                public boolean onGroupClick(ExpandableListView expandableListView, View view, int i, long l) {
+                    if (i > 0 && !playlists.get(i - 1).isEmpty()) {
+                        if (expandableListView.isGroupExpanded(i))
+                            expandableListView.collapseGroup(i);
+                        else {
+                            collapseAll();
+                            expandableListView.expandGroup(i);
+                        }
+                    }
+                    return true;
+                }
+
+                private void collapseAll() {
+                    for (int i = 1; i < adapter.getGroupCount(); i++) {
+                        expandableListView.collapseGroup(i);
+                    }
+                }
+            });
+        }
 
         setRetainInstance(true);
 
@@ -53,5 +79,14 @@ public class ExpandablePlaylistFragment extends Fragment {
             Log.d(TAG, "Setting SimplePlaylist with name: " + p.getNameOfPlaylist() + ".\n");
         }
         playlists = p;
+    }
+
+    public void setCanAddPlaylists(boolean b) {
+        canAddPlaylists = b;
+    }
+
+    public void updatePlaylists() {
+        Log.d("test", "groupCount: " + adapter.getGroupCount());
+        expandableListView.setAdapter(adapter);
     }
 }

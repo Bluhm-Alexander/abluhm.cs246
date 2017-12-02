@@ -189,6 +189,31 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
+    public void createPlaylist(View view) {
+
+        //Hardcoding names for now to test with
+        String playlistName = "tmp" + AppCore.getInstance().mediaStorage.getUserPlaylists().size();
+
+        //TODO:Get name of playlist somehow
+
+        SimplePlaylist userPlaylist = AppCore.getInstance().mediaStorage.createUserPlaylist(playlistName);
+
+        //TODO: Save to shared preferences
+
+        //I can't figure out a better way to refresh the list after adding a new playlist
+        ExpandablePlaylistFragment current = (ExpandablePlaylistFragment)pagerAdapter.getItem(currentTab);
+        current.updatePlaylists();
+
+    }
+
+    public void addToPlaylist(View view) {
+        //Create plus icons next to each song
+    }
+
+    public void finishedAddingToPlaylist(View view) {
+        //Remove plus icons next to each song
+    }
+
     /*************************************************************************************
      * onDestroy() Stops music when application is closed.
      * seems to be a glitch when the application is exited. Investigate further.

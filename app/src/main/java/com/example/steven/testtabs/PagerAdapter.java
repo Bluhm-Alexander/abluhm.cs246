@@ -23,8 +23,8 @@ public class PagerAdapter extends FragmentPagerAdapter {
 
         settingsFragment = new SettingsFragment();
         playlistFragment = new ExpandablePlaylistFragment();
-
         playlistFragment.setSongs(AppCore.getInstance().mediaStorage.getUserPlaylists());
+        playlistFragment.setCanAddPlaylists(true);
     }
 
     /**

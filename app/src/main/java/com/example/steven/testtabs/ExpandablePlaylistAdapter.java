@@ -18,30 +18,50 @@ import java.util.ArrayList;
 public class ExpandablePlaylistAdapter extends BaseExpandableListAdapter {
     private Context context;
     private CompoundPlaylist playlists;
+    private boolean canAddPlaylists;
 
-    ExpandablePlaylistAdapter(Context c, CompoundPlaylist p) {
+    ExpandablePlaylistAdapter(Context c, CompoundPlaylist p, boolean canAdd) {
         context = c;
         playlists = p;
+        canAddPlaylists = canAdd;
     }
 
     @Override
     public int getGroupCount() {
-        return playlists.size();
+        if(canAddPlaylists)
+            return playlists.size() + 1;
+        else
+            return playlists.size();
     }
 
     @Override
     public int getChildrenCount(int parent) {
-        return playlists.get(parent).size();
+        if(!canAddPlaylists)
+            return playlists.get(parent).size();
+        if(parent == 0)
+            return 0;
+        else
+            return playlists.get(parent - 1).size();
     }
 
     @Override
-    public SimplePlaylist getGroup(int parent) {
-        return playlists.get(parent);
+    public Object getGroup(int parent) {
+        if(!canAddPlaylists)
+            return playlists.get(parent);
+        if(parent == 0)
+            return "New Playlist";
+        else
+            return playlists.get(parent - 1);
     }
 
     @Override
     public Song getChild(int parent, int child) {
-        return playlists.get(parent).get(child);
+        if(!canAddPlaylists)
+            return playlists.get(parent).get(child);
+        if(parent == 0)
+            return null;
+        else
+            return playlists.get(parent - 1).get(child);
     }
 
     @Override
@@ -61,20 +81,30 @@ public class ExpandablePlaylistAdapter extends BaseExpandableListAdapter {
 
     @Override
     public View getGroupView(int parent, boolean isExpanded, View convertView, ViewGroup parentView) {
-        SimplePlaylist currentPlaylist = getGroup(parent);
-        if(convertView == null) {
-            LayoutInflater inflater = (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-            convertView = inflater.inflate(R.layout.playlist, parentView, false);
+        LayoutInflater inflater;
+
+        if(parent == 0 && canAddPlaylists) {
+            String string = (String) getGroup(parent);
+            inflater = (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+            convertView = inflater.inflate(R.layout.add_playlist, parentView, false);
+
+            TextView textView = (convertView.findViewById(R.id.new_playlist));
         }
+        else {
+            SimplePlaylist currentPlaylist = (SimplePlaylist) getGroup(parent);
 
-        TextView playlistView = convertView.findViewById(R.id.playlist_title);
-        TextView songCountView = convertView.findViewById(R.id.playlist_song_count);
+            inflater = (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+            convertView = inflater.inflate(R.layout.playlist, parentView, false);
 
-        playlistView.setTypeface(null, Typeface.BOLD);
+            TextView playlistView = convertView.findViewById(R.id.playlist_title);
+            TextView songCountView = convertView.findViewById(R.id.playlist_song_count);
 
-        playlistView.setText(currentPlaylist.getNameOfPlaylist());
-        songCountView.setText(currentPlaylist.size() + " songs");
+            playlistView.setTypeface(null, Typeface.BOLD);
 
+            playlistView.setText(currentPlaylist.getNameOfPlaylist());
+            songCountView.setText(currentPlaylist.size() + " songs");
+
+        }
         return convertView;
     }
 
