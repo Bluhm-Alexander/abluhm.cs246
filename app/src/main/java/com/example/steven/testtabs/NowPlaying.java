@@ -4,6 +4,7 @@ import android.content.ContentUris;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Color;
+import android.media.MediaPlayer;
 import android.net.Uri;
 import android.os.Handler;
 import android.os.ParcelFileDescriptor;
@@ -24,7 +25,7 @@ import java.io.FileDescriptor;
 
 import static android.view.View.GONE;
 
-public class NowPlaying extends AppCompatActivity {
+public class NowPlaying extends AppCompatActivity implements SeekBar.OnSeekBarChangeListener {
     private static final String TAG = "NowPlaying";
 
     public TextView title;
@@ -237,8 +238,52 @@ public class NowPlaying extends AppCompatActivity {
 
             // Running this thread after 100 milliseconds
             mHandler.postDelayed(this, 100);
+
+
         }
     };
+
+    public void onProgressChanged(SeekBar seekBar, int progress, boolean fromTouch) {
+
+    }
+
+    /*********************************************************************************
+     *  This function is a listener for the seekBar whenever the user touches the seek
+     *  Bar it stops calling the update time function it basically suspends activity so it doesn't
+     *  screw with the updater.
+     * @param seekBar
+     ********************************************************************************/
+    @Override
+    public void onStartTrackingTouch(SeekBar seekBar) {
+        // remove message Handler from updating progress bar
+        mHandler.removeCallbacks(mUpdateTimeTask);
+    }
+
+
+    /**************************************************************************************
+     * When user lets go of the seek bar it will update the song with the current position.
+     * @param seekBar
+     **************************************************************************************/
+    @Override
+    public void onStopTrackingTouch(SeekBar seekBar) {
+        mHandler.removeCallbacks(mUpdateTimeTask);
+        int totalDuration = AppCore.getInstance().musicSrv.getPlayer().getDuration();
+        int currentPosition = progressToTimer(seekBar.getProgress(), totalDuration);
+
+        // forward or backward to certain seconds
+        AppCore.getInstance().musicSrv.getPlayer().seekTo(currentPosition);
+
+        // update timer progress again
+        updateProgressBar();
+    }
+
+   public int progressToTimer(int progress, int totalTime) {
+        int position = (int)(totalTime * (progress / 100.00));
+
+
+        return position;
+   }
+
 
     public String convertMinutes(long milliseconds) {
         String output;
