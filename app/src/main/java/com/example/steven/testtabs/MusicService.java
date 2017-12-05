@@ -201,7 +201,7 @@ public class MusicService extends Service implements
             currentSong = 0;
         }
 
-        if(pressed)
+        if(!pressed)
             nextSong();
 
         if(!loopOn) {

@@ -1,8 +1,10 @@
 package com.example.steven.testtabs;
 
 import android.Manifest;
+import android.app.Dialog;
 import android.content.ContentResolver;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.database.Cursor;
@@ -14,12 +16,15 @@ import android.support.design.widget.TabLayout;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
 import android.support.v4.view.ViewPager;
+import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
+import android.view.LayoutInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
+import android.widget.EditText;
 import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
@@ -189,21 +194,35 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
-    public void createPlaylist(View view) {
+    public void createPlaylist(View v) {
 
-        //Hardcoding names for now to test with
-        String playlistName = "tmp" + AppCore.getInstance().mediaStorage.getUserPlaylists().size();
+        AlertDialog.Builder builder = new AlertDialog.Builder(MainActivity.this);
+        builder.setCancelable(true);
 
-        //TODO:Get name of playlist somehow
+        builder.setTitle("Test");
+        builder.setMessage("Message");
 
-        SimplePlaylist userPlaylist = AppCore.getInstance().mediaStorage.createUserPlaylist(playlistName);
+
+        builder.setNegativeButton("Negative", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialogInterface, int i) {
+                        dialogInterface.cancel();
+                    }
+                });
+
+        builder.setPositiveButton("Ok", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialogInterface, int i) {
+            }
+        });
+
+        builder.show();
 
         //TODO: Save to shared preferences
 
         //I can't figure out a better way to refresh the list after adding a new playlist
         ExpandablePlaylistFragment current = (ExpandablePlaylistFragment)pagerAdapter.getItem(currentTab);
         current.updatePlaylists();
-
     }
 
     public void addToPlaylist(View view) {
