@@ -7,7 +7,9 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.BaseExpandableListAdapter;
+import android.widget.ImageView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import java.util.ArrayList;
 
@@ -41,7 +43,7 @@ public class ExpandablePlaylistAdapter extends BaseExpandableListAdapter {
         if(parent == 0)
             return 0;
         else
-            return playlists.get(parent - 1).size();
+            return playlists.get(parent - 1).size() + 1;
     }
 
     @Override
@@ -49,19 +51,19 @@ public class ExpandablePlaylistAdapter extends BaseExpandableListAdapter {
         if(!canAddPlaylists)
             return playlists.get(parent);
         if(parent == 0)
-            return "New Playlist";
+            return "New playlist";
         else
             return playlists.get(parent - 1);
     }
 
     @Override
-    public Song getChild(int parent, int child) {
+    public Object getChild(int parent, int child) {
         if(!canAddPlaylists)
             return playlists.get(parent).get(child);
-        if(parent == 0)
-            return null;
+        if(child == 0)
+            return "Add to playlist";
         else
-            return playlists.get(parent - 1).get(child);
+            return playlists.get(parent - 1).get(child - 1);
     }
 
     @Override
@@ -71,7 +73,7 @@ public class ExpandablePlaylistAdapter extends BaseExpandableListAdapter {
 
     @Override
     public long getChildId(int parent, int child) {
-        return getChild(parent, child).getID();
+        return child;
     }
 
     @Override
@@ -109,25 +111,57 @@ public class ExpandablePlaylistAdapter extends BaseExpandableListAdapter {
     }
 
     @Override
-    public View getChildView(int parent, int child, boolean isLastChild, View convertView, ViewGroup parentView) {
-        Song currentSong = getChild(parent, child);
-        String title = currentSong.getTitle();
-        String artist = currentSong.getArtist();
-        String album = currentSong.getAlbum();
+    public View getChildView(final int parent, final int child, boolean isLastChild, View convertView, final ViewGroup parentView) {
+        LayoutInflater inflater;
 
-        if(convertView == null) {
-            LayoutInflater inflater = (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-            convertView = inflater.inflate(R.layout.song, parentView, false);
+        if(child == 0 && canAddPlaylists) {
+            String string = (String) getChild(parent, child);
+            inflater = (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+            convertView = inflater.inflate(R.layout.add_to_playlist, parentView, false);
+
+            TextView textView = (convertView.findViewById(R.id.new_song));
+            if(AppCore.getInstance().addingToPlaylistIndex >= 0) {
+                textView.setText("Stop adding to playlist");
+            }
+            else {
+                textView.setText("Add song");
+            }
+
         }
+        else {
+            final Song currentSong = (Song) getChild(parent, child);
+            final String title = currentSong.getTitle();
+            String artist = currentSong.getArtist();
+            String album = currentSong.getAlbum();
 
-        TextView titleView  = convertView.findViewById(R.id.song_title);
-        TextView artistView = convertView.findViewById(R.id.song_artist);
-        TextView albumView  = convertView.findViewById(R.id.song_album);
+            inflater = (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+            convertView = inflater.inflate(R.layout.song, parentView, false);
 
-        titleView.setText(title);
-        artistView.setText(artist);
-        albumView.setText(album);
+            if(AppCore.getInstance().addingToPlaylistIndex >= 0) {
+                ImageView imageView = convertView.findViewById(R.id.imageView);
+                imageView.setVisibility(View.VISIBLE);
+                imageView.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        if(AppCore.getInstance().mediaStorage.getSimplePlaylist(AppCore.getInstance().addingToPlaylistIndex).contains(currentSong))
+                            Toast.makeText(context, "Playlist already contains selected song", Toast.LENGTH_SHORT).show();
+                        else {
+                            AppCore.getInstance().mediaStorage.getSimplePlaylist(AppCore.getInstance().addingToPlaylistIndex).add(currentSong);
+                            Toast.makeText(context, "Added " + title + " to user playlist", Toast.LENGTH_SHORT).show();
+                            ExpandablePlaylistFragment current = (ExpandablePlaylistFragment) AppCore.getInstance().pagerAdapter.getItem(AppCore.getInstance().viewPager.getCurrentItem());
+                            current.updatePlaylists();
+                        }
+                    }
+                });
+            }
+            TextView titleView = convertView.findViewById(R.id.song_title);
+            TextView artistView = convertView.findViewById(R.id.song_artist);
+            TextView albumView = convertView.findViewById(R.id.song_album);
 
+            titleView.setText(title);
+            artistView.setText(artist);
+            albumView.setText(album);
+        }
         return convertView;
     }
 

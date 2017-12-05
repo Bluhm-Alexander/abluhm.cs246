@@ -78,25 +78,6 @@ public class MediaStorage {
     }
 
     /**
-     * Used for creating new playlists.
-     * Automatically stores new playlist into playlist collection in AppCore
-     *
-     * @param playlistName Name of Playlist
-     * @return returns new playlist object
-     */
-    SimplePlaylist createSimplePlaylist(String playlistName) {
-        SimplePlaylist newSimplePlaylist = new SimplePlaylist(playlistName);
-        if(!simplePlaylists.contains(newSimplePlaylist))
-            simplePlaylists.add(newSimplePlaylist);
-        else {
-            Log.w(TAG, "Attempted to create duplicate Simple Playlist");
-            Log.w(TAG, "Playlist name was: " + playlistName);
-            Log.w(TAG, "Previously existing playlist's index: " + simplePlaylists.indexOf(newSimplePlaylist));
-        }
-        return newSimplePlaylist;
-    }
-
-    /**
      * Used for creating new compound playlists.
      * Automatically stores new compound playlist into compound playlist collection in AppCore
      *
@@ -113,6 +94,36 @@ public class MediaStorage {
             Log.w(TAG, "Previously existing playlist's index: " + compoundPlaylists.indexOf(newCompoundPlaylist));
         }
         return newCompoundPlaylist;
+    }
+
+    /**
+     * Used for creating new playlists.
+     * Automatically stores new playlist into playlist collection in AppCore
+     *
+     * @param playlistName Name of Playlist
+     * @return returns new playlist object
+     */
+    SimplePlaylist createSimplePlaylist(String playlistName) {
+        SimplePlaylist newSimplePlaylist = new SimplePlaylist(playlistName);
+        boolean duplicate = false;
+        int index = 0;
+        for(int i = 0; i < simplePlaylists.size(); i++) {
+            if(simplePlaylists.get(i).getNameOfPlaylist() == playlistName) {
+                duplicate = true;
+                index = i;
+                break;
+            }
+        }
+        if(!duplicate) {
+            simplePlaylists.add(newSimplePlaylist);
+            return newSimplePlaylist;
+        }
+        else {
+            Log.w(TAG, "Attempted to create duplicate Simple Playlist");
+            Log.w(TAG, "Playlist name was: " + playlistName);
+            Log.w(TAG, "Previously existing playlist's index: " + index);
+        }
+        return newSimplePlaylist;
     }
 
     /**

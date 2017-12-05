@@ -137,8 +137,6 @@ public class MusicService extends Service implements
     public void setPlaylist(int index) {
         Log.d(TAG, "Setting current playlist index to: " + index);
         currentPlaylist = index;
-        if(getCurrentPlaylist() != null)
-            shuffle();
     }
 
     //Sets the next song
@@ -196,8 +194,6 @@ public class MusicService extends Service implements
         if(currentSong < 0 && getCurrentPlaylist() != null) {
             Log.d("onCompletion()", "Current song index: " + currentSong +
                     ". Setting song to beginning of queue");
-            if(shuffleOn)
-                shuffle();
             currentSong = 0;
         }
 
@@ -266,8 +262,6 @@ public class MusicService extends Service implements
         //If at the end of the queue, check if loop is on
         if(currentSong == getCurrentPlaylist().size() - 1) {
             if(loopOn) {
-                if(shuffleOn)
-                    shuffle();
                 currentSong = 0;
             }
             else {
@@ -318,11 +312,11 @@ public class MusicService extends Service implements
         shuffleOn = !shuffleOn;
         if(shuffleOn) {
             Toast.makeText(this, "Shuffle: On", Toast.LENGTH_SHORT).show();
-            shuffle();
+            //shuffle();
         }
         else {
             Toast.makeText(this, "Shuffle: Off", Toast.LENGTH_SHORT).show();
-            unShuffle();
+            //unShuffle();
         }
 
         SharedPreferences preferences = getSharedPreferences("mediaPlayer", 0);

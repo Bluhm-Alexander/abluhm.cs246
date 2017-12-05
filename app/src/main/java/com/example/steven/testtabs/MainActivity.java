@@ -43,8 +43,6 @@ public class MainActivity extends AppCompatActivity {
     private static final String TAG = "MainActivity";
     private static final int MY_PERMISSION_REQUEST = 1;
 
-    private ViewPager viewPager;
-    private PagerAdapter pagerAdapter;
     private TabLayout tabLayout;
     private TextView currentSongName;
     private RelativeLayout bottomBar;
@@ -75,8 +73,8 @@ public class MainActivity extends AppCompatActivity {
         // I might have fixed it - Colton
         getPermissions();
 
-        pagerAdapter = new PagerAdapter(getSupportFragmentManager());
-        viewPager = (ViewPager) findViewById(R.id.container);
+        AppCore.getInstance().pagerAdapter = new PagerAdapter(getSupportFragmentManager());
+        AppCore.getInstance().viewPager = (ViewPager) findViewById(R.id.container);
         playPauseButton = (Button) findViewById(R.id.play_pause);
         setupViewPager();
         setupTabLayout();
@@ -96,7 +94,7 @@ public class MainActivity extends AppCompatActivity {
 
     private void setupTabLayout() {
         tabLayout = (TabLayout) findViewById(R.id.tabs);
-        tabLayout.setupWithViewPager(viewPager);
+        tabLayout.setupWithViewPager(AppCore.getInstance().viewPager);
 
         tabLayout.addOnTabSelectedListener(new TabLayout.OnTabSelectedListener() {
 
@@ -139,14 +137,14 @@ public class MainActivity extends AppCompatActivity {
 
         //SimplePlaylist tabs - Single playlist tabs
         for(int i = 0; i < sizeOfDefaultPlaylists && i < AppCore.getInstance().mediaStorage.getSimplePlaylists().size(); i++)
-            pagerAdapter.addFragment(new SongListFragment(), AppCore.getInstance().mediaStorage.getSimplePlaylist(i));
+            AppCore.getInstance().pagerAdapter.addFragment(new SongListFragment(), AppCore.getInstance().mediaStorage.getSimplePlaylist(i));
 
         //CompoundPlaylist tabs - Collection of playlist tabs (Expanded)
         for(int i = 0; i < AppCore.getInstance().mediaStorage.getCompoundPlaylists().size(); i++)
-            pagerAdapter.addFragment(new ExpandablePlaylistFragment(), AppCore.getInstance().mediaStorage.getCompoundPlaylist(i));
+            AppCore.getInstance().pagerAdapter.addFragment(new ExpandablePlaylistFragment(), AppCore.getInstance().mediaStorage.getCompoundPlaylist(i));
 
         //Set adapter
-        viewPager.setAdapter(pagerAdapter);
+        AppCore.getInstance().viewPager.setAdapter(AppCore.getInstance().pagerAdapter);
     }
 
     /*******************************************************************************************
@@ -217,16 +215,8 @@ public class MainActivity extends AppCompatActivity {
         //TODO: Save to shared preferences
 
         //I can't figure out a better way to refresh the list after adding a new playlist
-        ExpandablePlaylistFragment current = (ExpandablePlaylistFragment)pagerAdapter.getItem(currentTab);
+        ExpandablePlaylistFragment current = (ExpandablePlaylistFragment) AppCore.getInstance().pagerAdapter.getItem(currentTab);
         current.updatePlaylists();
-    }
-
-    public void addToPlaylist(View view) {
-        //Create plus icons next to each song
-    }
-
-    public void finishedAddingToPlaylist(View view) {
-        //Remove plus icons next to each song
     }
 
     /*************************************************************************************
@@ -494,14 +484,14 @@ public class MainActivity extends AppCompatActivity {
             return false;
         }
         for(int i = 0; i < tabLayout.getChildCount(); i++) {
-            if(pagerAdapter.getPageTitle(i).equals(playlist.getNameOfPlaylist())) {
+            if(AppCore.getInstance().pagerAdapter.getPageTitle(i).equals(playlist.getNameOfPlaylist())) {
                 Toast.makeText(mContext, "Tab already exists with that name", Toast.LENGTH_SHORT).show();
                 Log.e(TAG, "Attempted to create tab with already existing name");
                 return false;
             }
         }
         //Create new tab with given playlist
-        pagerAdapter.addFragment(new SongListFragment(), playlist);
+        AppCore.getInstance().pagerAdapter.addFragment(new SongListFragment(), playlist);
         return true;
     }
 }
