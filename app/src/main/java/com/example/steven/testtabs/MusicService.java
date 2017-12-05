@@ -33,6 +33,8 @@ public class MusicService extends Service implements
     private int currentPlaylist;
     private int currentSong;
 
+    private boolean pressed = false;
+
     private boolean loopOn = false;
     private boolean shuffleOn = false;
 
@@ -199,10 +201,9 @@ public class MusicService extends Service implements
             currentSong = 0;
         }
 
-        if(player.getCurrentPosition() < 10 || player.getDuration() - player.getCurrentPosition() < 10 || player == null)
+        if(pressed)
             nextSong();
 
-        /*
         if(!loopOn) {
             Log.d("onCompletion()", "Looping is off. Pausing song.");
             //nextSong();
@@ -212,7 +213,7 @@ public class MusicService extends Service implements
             Log.d("onCompletion()", "Looping is on. Continuing to play song at beginning of queue");
             playSong();
         }
-        */
+        pressed = false;
     }
 
     @Override
@@ -232,6 +233,7 @@ public class MusicService extends Service implements
 
     //On press prevSong button
     public int prevSong() {
+        pressed = true;
         //Repeat song if past 3 seconds
         if(player.getCurrentPosition() > 3000) {
             Log.d("prevSong()", "Restarting song before 3 seconds (" + player.getCurrentPosition() + ") while executing prevSong()");
@@ -263,6 +265,7 @@ public class MusicService extends Service implements
 
     //On press nextSong button
     public int nextSong() {
+        pressed = true;
         //If at the end of the queue, check if loop is on
         if(currentSong == getCurrentPlaylist().size() - 1) {
             if(loopOn) {
