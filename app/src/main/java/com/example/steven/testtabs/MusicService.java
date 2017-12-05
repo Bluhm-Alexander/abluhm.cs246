@@ -199,7 +199,7 @@ public class MusicService extends Service implements
             currentSong = 0;
         }
 
-        if(player.getCurrentPosition() < 10 || player.getDuration() - player.getCurrentPosition() < 10)
+        if(player.getCurrentPosition() < 10 || player.getDuration() - player.getCurrentPosition() < 10 || player == null)
             nextSong();
 
         /*
