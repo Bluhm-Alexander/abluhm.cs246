@@ -16,6 +16,7 @@ import android.view.View;
 import android.widget.Toast;
 
 import java.util.ArrayList;
+import java.util.Collections;
 
 public class MusicService extends Service implements
         MediaPlayer.OnPreparedListener,
@@ -78,8 +79,18 @@ public class MusicService extends Service implements
 
     public boolean onSongPicked(int playlistIndex, int songIndex) {
         Log.d(TAG, "Song picked at playlist index: " + playlistIndex + " and song index: " + songIndex);
+        Song song = mediaStorage.getSimplePlaylist(playlistIndex).get(songIndex);
+
         setPlaylist(playlistIndex);
         setSong(songIndex);
+
+        currentSong = getCurrentPlaylist().indexOf(song);
+
+        if(currentSong != 0) {
+            getCurrentPlaylist().set(currentSong, getCurrentPlaylist().get(0));
+            getCurrentPlaylist().set(0, song);
+            currentSong = 0;
+        }
 
         if(getNowPlaying() != null) {
             Log.d("onSongPicked()", "Picked song: " + getCurrentSong().getTitle());
@@ -126,6 +137,8 @@ public class MusicService extends Service implements
     public void setPlaylist(int index) {
         Log.d(TAG, "Setting current playlist index to: " + index);
         currentPlaylist = index;
+        if(getCurrentPlaylist() != null)
+            shuffle();
     }
 
     //Sets the next song
@@ -180,14 +193,16 @@ public class MusicService extends Service implements
     @Override
     public void onCompletion(MediaPlayer mediaPlayer) {
         Log.d("onCompletion()", "Song finished.");
-        if(currentSong < 0) {
+        if(currentSong < 0 && getCurrentPlaylist() != null) {
             Log.d("onCompletion()", "Current song index: " + currentSong +
                     ". Setting song to beginning of queue");
-            setSong(0);
+            if(shuffleOn)
+                shuffle();
+            currentSong = 0;
         }
 
-
         playSong(); // used to be here?
+                    // ^No. Had this for testing
 
         if(!loopOn) {
             Log.d("onCompletion()", "Looping is off. Pausing song.");
@@ -251,6 +266,8 @@ public class MusicService extends Service implements
         //If at the end of the queue, check if loop is on
         if(currentSong == getCurrentPlaylist().size() - 1) {
             if(loopOn) {
+                if(shuffleOn)
+                    shuffle();
                 currentSong = 0;
             }
             else {
@@ -299,10 +316,14 @@ public class MusicService extends Service implements
 
     public void toggleShuffle() {
         shuffleOn = !shuffleOn;
-        if(shuffleOn)
+        if(shuffleOn) {
             Toast.makeText(this, "Shuffle: On", Toast.LENGTH_SHORT).show();
-        else
+            shuffle();
+        }
+        else {
             Toast.makeText(this, "Shuffle: Off", Toast.LENGTH_SHORT).show();
+            unShuffle();
+        }
 
         SharedPreferences preferences = getSharedPreferences("mediaPlayer", 0);
         SharedPreferences.Editor editor = preferences.edit();
@@ -377,5 +398,13 @@ public class MusicService extends Service implements
             Log.w("isPlaying()", "player.isPlaying() != isPlaying \'variable\'." +
                     " This shouldn't happen, but \"should\" be fine.");
         return (player.isPlaying() || isPlaying);
+    }
+
+    public void shuffle() {
+        Collections.shuffle(getCurrentPlaylist());
+    }
+
+    public void unShuffle() {
+        mediaStorage = AppCore.getInstance().mediaStorage;
     }
 }
