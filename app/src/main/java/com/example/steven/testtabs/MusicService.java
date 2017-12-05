@@ -204,9 +204,9 @@ public class MusicService extends Service implements
         if(pressed)
             nextSong();
 
-        if(!loopOn) {
+        else if(!loopOn) {
             Log.d("onCompletion()", "Looping is off. Pausing song.");
-            //nextSong();
+            nextSong();
             //pause();
         }
         else {
@@ -409,5 +409,10 @@ public class MusicService extends Service implements
 
     public void unShuffle() {
         mediaStorage = AppCore.getInstance().mediaStorage;
+    }
+
+    //Simple Check
+    public boolean checkPlaying() {
+        return player.isPlaying();
     }
 }
