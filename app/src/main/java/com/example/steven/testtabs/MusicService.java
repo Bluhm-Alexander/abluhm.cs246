@@ -101,9 +101,7 @@ public class MusicService extends Service implements
             isPlaying = false;
         }
 
-        Log.d("TEST", "Is playing: " + isPlaying());
         boolean playing = playSong();
-        Log.d("TEST", "Is playing: " + isPlaying());
         //This is a slight problem. We really shouldn't be starting an activity outside the
         //the main activity class it causes problems with older versions of android. I'm going to
         //let this slide for now but we need to talk about it.
@@ -201,9 +199,10 @@ public class MusicService extends Service implements
             currentSong = 0;
         }
 
-        playSong(); // used to be here?
-                    // ^No. Had this for testing
+        if(player.getCurrentPosition() < 10 || player.getDuration() - player.getCurrentPosition() < 10)
+            nextSong();
 
+        /*
         if(!loopOn) {
             Log.d("onCompletion()", "Looping is off. Pausing song.");
             //nextSong();
@@ -213,6 +212,7 @@ public class MusicService extends Service implements
             Log.d("onCompletion()", "Looping is on. Continuing to play song at beginning of queue");
             playSong();
         }
+        */
     }
 
     @Override
