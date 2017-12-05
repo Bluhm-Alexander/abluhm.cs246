@@ -195,27 +195,23 @@ public class MainActivity extends AppCompatActivity {
     }
 
     public void createPlaylist(View v) {
-
+        View view = (LayoutInflater.from(MainActivity.this)).inflate(R.layout.user_input, null);
         AlertDialog.Builder builder = new AlertDialog.Builder(MainActivity.this);
+        builder.setView(view);
+
+        final EditText userInput = (EditText) view.findViewById(R.id.userinput);
+
         builder.setCancelable(true);
-
-        builder.setTitle("Test");
-        builder.setMessage("Message");
-
-
-        builder.setNegativeButton("Negative", new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialogInterface, int i) {
-                        dialogInterface.cancel();
-                    }
-                });
+        builder.setTitle("Create new Playlist");
 
         builder.setPositiveButton("Ok", new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialogInterface, int i) {
+                CharSequence sequence = userInput.getText();
+                String name = sequence.toString();
+                AppCore.getInstance().mediaStorage.createUserPlaylist(name);
             }
         });
-
         builder.show();
 
         //TODO: Save to shared preferences

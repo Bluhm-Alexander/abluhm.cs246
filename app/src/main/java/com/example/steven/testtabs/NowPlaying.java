@@ -228,7 +228,8 @@ public class NowPlaying extends AppCompatActivity implements SeekBar.OnSeekBarCh
         public void run() {
             long totalDuration = AppCore.getInstance().musicSrv.getPlayer().getDuration();
             long currentDuration = AppCore.getInstance().musicSrv.getPlayer().getCurrentPosition();
-
+            if(currentDuration == 0)
+                updateTrackInfo();
             // Displaying Total Duration time
             songLength.setText("" + convertMinutes(totalDuration));
             // Displaying time completed playing

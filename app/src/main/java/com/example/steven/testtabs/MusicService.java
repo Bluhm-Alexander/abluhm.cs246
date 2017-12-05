@@ -201,9 +201,6 @@ public class MusicService extends Service implements
             currentSong = 0;
         }
 
-        if(!pressed)
-            nextSong();
-
         if(!loopOn) {
             Log.d("onCompletion()", "Looping is off. Pausing song.");
             //nextSong();
