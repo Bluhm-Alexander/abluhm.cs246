@@ -60,6 +60,10 @@ public class MusicService extends Service implements
         return player;
     }
 
+    public void setSeek(int seek) {
+        player.seekTo(seek);
+    }
+
     //Initialize
     public void initMusicPlayer(){
         //set player properties
@@ -167,6 +171,12 @@ public class MusicService extends Service implements
         return false;
     }
 
+    /**********************************************************************************************
+     * This function is getting called by the playlist selector this is a problem because it should
+     * skip to the next track when the song completes.
+     * @param mediaPlayer
+     */
+
     @Override
     public void onCompletion(MediaPlayer mediaPlayer) {
         Log.d("onCompletion()", "Song finished.");
@@ -176,14 +186,18 @@ public class MusicService extends Service implements
             setSong(0);
         }
 
-        playSong();
+
+        playSong(); // used to be here?
 
         if(!loopOn) {
             Log.d("onCompletion()", "Looping is off. Pausing song.");
-            pause();
+            //nextSong();
+            //pause();
         }
-        else
+        else {
             Log.d("onCompletion()", "Looping is on. Continuing to play song at beginning of queue");
+            playSong();
+        }
     }
 
     @Override

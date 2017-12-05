@@ -74,9 +74,12 @@ public class NowPlaying extends AppCompatActivity implements SeekBar.OnSeekBarCh
         shuffle = (Button) findViewById(R.id.shuffle);
         loop = (Button) findViewById(R.id.loop);
 
-        songProgressBar = (SeekBar) findViewById(R.id.seekBar);
+        songProgressBar = (SeekBar) findViewById(R.id.songProgressBar);
 
         buttonClick = new AlphaAnimation(1F, 0.8F);
+
+        //Have to set the overloaded functions
+        songProgressBar.setOnSeekBarChangeListener(this);
 
         updateTrackInfo();
     }
@@ -243,6 +246,13 @@ public class NowPlaying extends AppCompatActivity implements SeekBar.OnSeekBarCh
         }
     };
 
+    /**********************************************************************************************
+     * This function doesn't do anything its just here to satisfy the interface definitions
+     * @param seekBar
+     * @param progress
+     * @param fromTouch
+     *********************************************************************************************/
+    @Override
     public void onProgressChanged(SeekBar seekBar, int progress, boolean fromTouch) {
 
     }
@@ -270,8 +280,9 @@ public class NowPlaying extends AppCompatActivity implements SeekBar.OnSeekBarCh
         int totalDuration = AppCore.getInstance().musicSrv.getPlayer().getDuration();
         int currentPosition = progressToTimer(seekBar.getProgress(), totalDuration);
 
+        Log.d("onStopTrackingTouch", "The function has been called");
         // forward or backward to certain seconds
-        AppCore.getInstance().musicSrv.getPlayer().seekTo(currentPosition);
+        AppCore.getInstance().musicSrv.setSeek(currentPosition);
 
         // update timer progress again
         updateProgressBar();
