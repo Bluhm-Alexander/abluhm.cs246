@@ -193,14 +193,14 @@ public class MainActivity extends AppCompatActivity {
     }
 
     public void createPlaylist(View v) {
-        View view = (LayoutInflater.from(MainActivity.this)).inflate(R.layout.user_input, null);
+        View view = (LayoutInflater.from(MainActivity.this)).inflate(R.layout.userinput, null);
         AlertDialog.Builder builder = new AlertDialog.Builder(MainActivity.this);
         builder.setView(view);
 
-        final EditText userInput = (EditText) view.findViewById(R.id.userinput);
+        final EditText userInput = (EditText) view.findViewById(R.id.user_input);
 
         builder.setCancelable(true);
-        builder.setTitle("Create new Playlist");
+        builder.setTitle("Create New Playlist");
 
         builder.setPositiveButton("Ok", new DialogInterface.OnClickListener() {
             @Override
@@ -208,6 +208,9 @@ public class MainActivity extends AppCompatActivity {
                 CharSequence sequence = userInput.getText();
                 String name = sequence.toString();
                 AppCore.getInstance().mediaStorage.createUserPlaylist(name);
+                //I can't figure out a better way to refresh the list after adding a new playlist
+                ExpandablePlaylistFragment current = (ExpandablePlaylistFragment) AppCore.getInstance().pagerAdapter.getItem(currentTab);
+                current.updatePlaylists();
             }
         });
         builder.show();
