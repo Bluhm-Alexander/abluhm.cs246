@@ -228,21 +228,23 @@ public class NowPlaying extends AppCompatActivity implements SeekBar.OnSeekBarCh
         public void run() {
             long totalDuration = AppCore.getInstance().musicSrv.getPlayer().getDuration();
             long currentDuration = AppCore.getInstance().musicSrv.getPlayer().getCurrentPosition();
-            if(currentDuration == 0)
-                updateTrackInfo();
-            // Displaying Total Duration time
-            songLength.setText("" + convertMinutes(totalDuration));
-            // Displaying time completed playing
-            currentTime.setText("" + convertMinutes(currentDuration));
+            if(AppCore.getInstance().musicSrv.getPlayer().isPlaying()) {
+                //updateTrackInfo();
 
-            // Updating progress bar
-            int progress = (int)(findPercentage(currentDuration, totalDuration));
-            //Log.d("Progress", ""+progress);
-            songProgressBar.setProgress(progress);
+                //Log.d("mUpdateTimeTask()", "We are in mUpdateTask");
+                // Displaying Total Duration time
+                songLength.setText("" + convertMinutes(totalDuration));
+                // Displaying time completed playing
+                currentTime.setText("" + convertMinutes(currentDuration));
 
-            // Running this thread after 100 milliseconds
-            mHandler.postDelayed(this, 100);
+                // Updating progress bar
+                int progress = (int) (findPercentage(currentDuration, totalDuration));
+                //Log.d("Progress", ""+progress);
+                songProgressBar.setProgress(progress);
 
+                // Running this thread after 100 milliseconds
+                mHandler.postDelayed(this, 100);
+            }
 
         }
     };

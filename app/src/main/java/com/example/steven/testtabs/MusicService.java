@@ -189,17 +189,19 @@ public class MusicService extends Service implements
      */
 
     @Override
+
     public void onCompletion(MediaPlayer mediaPlayer) {
         Log.d("onCompletion()", "Song finished.");
-        if(currentSong < 0 && getCurrentPlaylist() != null) {
+
+        /**if(currentSong < 0 && getCurrentPlaylist() != null) {
             Log.d("onCompletion()", "Current song index: " + currentSong +
                     ". Setting song to beginning of queue");
             currentSong = 0;
-        }
+        }**/
 
         if(!loopOn) {
             Log.d("onCompletion()", "Looping is off. Pausing song.");
-            //nextSong();
+            nextSong();
             //pause();
         }
         else {

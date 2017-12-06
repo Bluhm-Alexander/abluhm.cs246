@@ -12,7 +12,7 @@ class Song {
     private String albumArt;
 
     Song () {
-        albumID = 0;
+        albumID = -1;
         id = 0;
         title  = "";
         artist = "";
@@ -21,12 +21,12 @@ class Song {
         indexInLibrary = 0;
     }
 
-    Song(long songID, String songTitle, String songArtist, String songAlbum, String artAlbum, long albumId) {
+    Song(long songID, String songTitle, String songArtist, String songAlbum, long albumId) { // String artAlbum, long albumId
         id     = songID;
         title  = songTitle;
         artist = songArtist;
         album  = songAlbum;
-        albumArt = artAlbum;
+        //albumArt = artAlbum;
         albumID = albumId;
 
         indexInLibrary = 0;

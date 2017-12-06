@@ -327,34 +327,38 @@ public class MainActivity extends AppCompatActivity {
             //Adding ALBUM_ID apparently it is a lot more stable for pulling Album Art
             //Also I may be using this later to search through songs because it is faster apparently
             //because it is a hash
+
+            //This code has problems commenting out for performance
             int albumID      = songCursor.getColumnIndex(MediaStore.Audio.Media.ALBUM_ID);
-            int artColumn    = songCursor.getColumnIndex(MediaStore.Audio.Albums.ALBUM_ART);
+            //int artColumn    = songCursor.getColumnIndex(MediaStore.Audio.Albums.ALBUM_ART);
 
             int i = 0;
             do {
                 String thisTitle = songCursor.getString(titleColumn);
                 String thisArtist = songCursor.getString(artistColumn);
                 String thisAlbum = songCursor.getString(albumColumn);
+
                 //This is where we will add Album Art to the song Class.
                 //We may need to reduce resolution in order to improve performance
                 //if we want to include the images in the main menu
                 //for now the NowPlaying activity will retrieve and render these images based on
                 //their path for performance
-                String coverPath;
+                //String coverPath;
                 //Must check to see if the path to album art is empty
-                Log.d("getMusic()", "artColumn index is: " + artColumn);
+                //Not returning anything moving to nowPlaying
+                /**Log.d("getMusic()", "artColumn index is: " + artColumn);
                 if (artColumn < 0) {
                     coverPath = "NA";
                 }
                 else {
                     coverPath = songCursor.getString(artColumn);
-                }
-
+                }**/
                 long thisAlbumId = songCursor.getLong(albumID);
+
                 long thisId = songCursor.getLong(idColumn);
 
                 AppCore.getInstance().mediaStorage.createSong
-                        (thisId, thisTitle, thisArtist, thisAlbum, coverPath, thisAlbumId);
+                        (thisId, thisTitle, thisArtist, thisAlbum, thisAlbumId); // used to incorporate coverPath, thisAlbumId
                 i++;
             }
             while(songCursor.moveToNext());
