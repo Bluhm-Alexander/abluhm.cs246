@@ -25,7 +25,7 @@ import java.io.FileDescriptor;
 
 import static android.view.View.GONE;
 
-public class NowPlaying extends AppCompatActivity implements SeekBar.OnSeekBarChangeListener {
+public class NowPlaying extends AppCompatActivity implements SeekBar.OnSeekBarChangeListener, MediaPlayer.OnCompletionListener {
     private static final String TAG = "NowPlaying";
 
     public TextView title;
@@ -33,6 +33,7 @@ public class NowPlaying extends AppCompatActivity implements SeekBar.OnSeekBarCh
     public TextView album;
     public TextView currentTime;
     public TextView songLength;
+    public TextView trackNumber;
     public Button playPauseButton;
     public Button previous;
     public Button next;
@@ -61,6 +62,7 @@ public class NowPlaying extends AppCompatActivity implements SeekBar.OnSeekBarCh
         title  = (TextView) findViewById(R.id.title);
         artist = (TextView) findViewById(R.id.artist);
         album  = (TextView) findViewById(R.id.album);
+        trackNumber = (TextView) findViewById(R.id.trackCount);
 
         coverAlbum = (ImageView) findViewById(R.id.albumArt);
 
@@ -80,6 +82,10 @@ public class NowPlaying extends AppCompatActivity implements SeekBar.OnSeekBarCh
 
         //Have to set the overloaded functions
         songProgressBar.setOnSeekBarChangeListener(this);
+
+
+        //Setting other overloaded function
+        AppCore.getInstance().musicSrv.getPlayer().setOnCompletionListener(this);
 
         updateTrackInfo();
     }
@@ -115,6 +121,17 @@ public class NowPlaying extends AppCompatActivity implements SeekBar.OnSeekBarCh
         else {
             loop.setBackgroundResource(R.drawable.loop_unpressed);
         }
+    }
+
+    /*******************************************************************************************
+     * This function just calls back to AppCore in order to change songs.
+     * @param mediaPlayer
+     **********************************************************************************************/
+    @Override
+    public void onCompletion(MediaPlayer mediaPlayer) {
+        Log.d("NowPlay/oncomp", "Song finished.");
+        AppCore.getInstance().musicSrv.songCompleted();
+        updateTrackInfo();
     }
 
     //On press play/pause
@@ -162,16 +179,19 @@ public class NowPlaying extends AppCompatActivity implements SeekBar.OnSeekBarCh
 
     public void updateTrackInfo() {
         nowPlaying = AppCore.getInstance().musicSrv.getNowPlaying();
+
         if(nowPlaying != null) {
             title.setText(nowPlaying.getTitle());
             album.setText(nowPlaying.getAlbum());
             artist.setText(nowPlaying.getArtist());
+            trackNumber.setText(AppCore.getInstance().musicSrv.getTrackNumber() + "/" + AppCore.getInstance().musicSrv.getTotalTracks());
 
             //Log.d("updateTrackInfo()", "The album art path is: " + nowPlaying.getAlbumArt());
             coverAlbum.setImageBitmap(getAlbumart(nowPlaying.getAlbumID())); //was img
 
             //This should update the progressBar every second
             updateProgressBar();
+
         }
         else {
             title.setText("Stopped");
@@ -180,6 +200,8 @@ public class NowPlaying extends AppCompatActivity implements SeekBar.OnSeekBarCh
             updateButtons();
         }
     }
+
+
 
     /*********************************************************************************************
      * This function grabs the album Art out of the MediaStore database which apparently scrubs
@@ -226,9 +248,10 @@ public class NowPlaying extends AppCompatActivity implements SeekBar.OnSeekBarCh
     private Runnable mUpdateTimeTask = new Runnable() {
 
         public void run() {
-            long totalDuration = AppCore.getInstance().musicSrv.getPlayer().getDuration();
-            long currentDuration = AppCore.getInstance().musicSrv.getPlayer().getCurrentPosition();
             if(AppCore.getInstance().musicSrv.getPlayer().isPlaying()) {
+                long totalDuration = AppCore.getInstance().musicSrv.getPlayer().getDuration();
+                long currentDuration = AppCore.getInstance().musicSrv.getPlayer().getCurrentPosition();
+
                 //updateTrackInfo();
 
                 //Log.d("mUpdateTimeTask()", "We are in mUpdateTask");

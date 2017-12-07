@@ -79,6 +79,21 @@ public class MusicService extends Service implements
         player.setOnErrorListener(this);
     }
 
+    /*********************************************************************************************
+     * THIS IS A CUSTOM LISTENER FOR ON COMPLETION. This boolean will use the VariableChangeListener
+     * interface to listen for any variable changes which will be used in now playing to update
+     * seek bar and track info.
+     ********************************************************************************************/
+
+
+
+    /*******************************************************************************************
+     * Bug Identified playlists go crazy in here. Playlists are getting rearranged
+     * @param playlistIndex
+     * @param songIndex
+     * @return
+     */
+
     public boolean onSongPicked(int playlistIndex, int songIndex) {
         Log.d(TAG, "Song picked at playlist index: " + playlistIndex + " and song index: " + songIndex);
         Song song = mediaStorage.getSimplePlaylist(playlistIndex).get(songIndex);
@@ -86,9 +101,12 @@ public class MusicService extends Service implements
         setPlaylist(playlistIndex);
         setSong(songIndex);
 
-        currentSong = getCurrentPlaylist().indexOf(song);
+        //CurrentSong songIndex is repetetive
+        //currentSong = getCurrentPlaylist().indexOf(song);
+        currentSong = songIndex;
 
-        if(currentSong != 0) {
+        //Bug Fixed by Alex: if statement was (currentSong != 0) kept resetting selected to 0
+        if(currentSong < 0) {
             getCurrentPlaylist().set(currentSong, getCurrentPlaylist().get(0));
             getCurrentPlaylist().set(0, song);
             currentSong = 0;
@@ -102,6 +120,8 @@ public class MusicService extends Service implements
             Log.w("onSongPicked()", "Current song is null!");
             isPlaying = false;
         }
+
+
 
         boolean playing = playSong();
         //This is a slight problem. We really shouldn't be starting an activity outside the
@@ -126,11 +146,16 @@ public class MusicService extends Service implements
         }
     }
 
+    //I need the track numbers for now playing
+    public int getTrackNumber() {return currentSong;}
+
+    public int getTotalTracks() {return getCurrentPlaylist().size();}
+
     //Pass list of songs to MusicService
     public void setMediaStorage(MediaStorage storage){
         mediaStorage = storage;
         currentPlaylist = -1;
-        currentSong = -1;
+        //currentSong = -1;
     }
 
     //Sets the playlist to play from
@@ -185,27 +210,33 @@ public class MusicService extends Service implements
     /**********************************************************************************************
      * This function is getting called by the playlist selector this is a problem because it should
      * skip to the next track when the song completes.
+     *
+     * Also this function is overloaded here and in the NowPlaying class. I have a bad feeling this
+     * is a little too crazy but it is the only way of keeping device overhead low.
      * @param mediaPlayer
      */
-
     @Override
-
     public void onCompletion(MediaPlayer mediaPlayer) {
-        Log.d("onCompletion()", "Song finished.");
+        songCompleted();
+    }
 
-        /**if(currentSong < 0 && getCurrentPlaylist() != null) {
-            Log.d("onCompletion()", "Current song index: " + currentSong +
+    public void songCompleted() {
+        Log.d("songCompleted()", "Song finished.");
+
+
+        if(currentSong < 0 && getCurrentPlaylist() != null) {
+            Log.d("songCompleted()", "Current song index: " + currentSong +
                     ". Setting song to beginning of queue");
             currentSong = 0;
-        }**/
+        }
 
-        if(!loopOn) {
-            Log.d("onCompletion()", "Looping is off. Pausing song.");
+        else if(!loopOn) {
+            Log.d("songCompleted()", "Looping is off. Playing Next Song.");
             nextSong();
             //pause();
         }
         else {
-            Log.d("onCompletion()", "Looping is on. Continuing to play song at beginning of queue");
+            Log.d("songCompleted", "Looping is on. Continuing to play song at beginning of queue");
             playSong();
         }
         pressed = false;
