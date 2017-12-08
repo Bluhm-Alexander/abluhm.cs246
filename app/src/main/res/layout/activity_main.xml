@@ -31,10 +31,6 @@
 
     </android.support.design.widget.TabLayout>
 
-        <EditText
-            android:layout_width="match_parent"
-            android:layout_height="40dp" />
-
     </android.support.design.widget.AppBarLayout>
     
     
