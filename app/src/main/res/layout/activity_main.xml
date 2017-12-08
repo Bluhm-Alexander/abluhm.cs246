@@ -22,9 +22,22 @@
             app:tabBackground="@drawable/rectangle"
             app:tabMaxWidth="133dp"
             app:tabMinWidth="133dp"
-            app:tabMode="scrollable" />
+            app:tabMode="scrollable">
+
+        <android.support.design.widget.TabItem
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="search"/>
+
+    </android.support.design.widget.TabLayout>
+
+        <EditText
+            android:layout_width="match_parent"
+            android:layout_height="40dp" />
 
     </android.support.design.widget.AppBarLayout>
+    
+    
 
     <android.support.v4.view.ViewPager
         android:id="@+id/container"
@@ -62,7 +75,6 @@
             android:layout_alignBaseline="@+id/play_pause"
             android:layout_alignBottom="@+id/play_pause"
             android:layout_alignParentStart="true"
-            android:layout_marginStart="19dp"
             android:text="Not Playing"
             android:textColor="@android:color/background_light"
             android:textSize="18sp"
