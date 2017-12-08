@@ -85,8 +85,7 @@ public class MainActivity extends AppCompatActivity {
 
         //Going to AppCore to Start our music Service
         AppCore.getInstance().startService();
-        AppCore.getInstance().mainContext = this;
-        AppCore.getInstance().loadUserPlaylistPreferences();
+
         //set up context
         mContext = getApplicationContext();
     }

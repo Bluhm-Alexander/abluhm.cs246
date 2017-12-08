@@ -116,6 +116,35 @@ public class ExpandablePlaylistFragment extends Fragment {
             });
         }
         else {
+            expandableListView.setOnGroupClickListener(new ExpandableListView.OnGroupClickListener() {
+                @Override
+                public boolean onGroupClick(ExpandableListView expandableListView, View view, int i, long l) {
+                    if (i > 0) {
+                        if (expandableListView.isGroupExpanded(i)) {
+                            expandableListView.collapseGroup(i);
+                            AppCore.getInstance().currentPlaylistIndexInExpandableListView = -1;
+                        }
+                        else {
+                            collapseAll();
+                            expandableListView.expandGroup(i);
+                            Log.d("test", "setting index to: " + i);
+                            AppCore.getInstance().currentPlaylistIndexInExpandableListView = i;
+                        }
+                    }
+                    else{
+                        AppCore.getInstance().musicSrv.onSongPicked(playlists.get(i).getIndexInCollection(), 0);
+                    }
+
+                    return true;
+                }
+
+                private void collapseAll() {
+                    for (int i = 0; i < adapter.getGroupCount(); i++) {
+                        expandableListView.collapseGroup(i);
+                    }
+                }
+            });
+
             expandableListView.setOnChildClickListener(new ExpandableListView.OnChildClickListener() {
                 @Override
                 public boolean onChildClick(ExpandableListView expandableListView, View v, int i, int i1, long id) {
