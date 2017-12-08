@@ -152,6 +152,8 @@ public class MainActivity extends AppCompatActivity {
         AppCore.getInstance().viewPager.setAdapter(AppCore.getInstance().pagerAdapter);
     }
 
+
+
     /*******************************************************************************************
      * onStart() is called after onCreate(). when User navigates away from the application
      * onStop() is called. When user navigates back to the application onStart is called.
@@ -353,6 +355,11 @@ public class MainActivity extends AppCompatActivity {
         createDefaultPlaylists();
         getUserPlaylists();
     }
+
+    public void addSearchBar() {
+
+    }
+
 
     /********************************************************************************************
      * createDefaultPlaylists() creates the default playlists to be added into the Media Player
