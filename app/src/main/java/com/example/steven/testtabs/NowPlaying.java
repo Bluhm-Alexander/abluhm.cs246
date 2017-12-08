@@ -113,10 +113,12 @@ public class NowPlaying extends AppCompatActivity implements SeekBar.OnSeekBarCh
         if(AppCore.getInstance().musicSrv.getShuffleOn()) {
             Log.d(TAG, "Setting the \"shuffle\" button state to ON");
             shuffle.setBackgroundResource(R.drawable.shuffle_pressed);
+            trackNumber.setText(AppCore.getInstance().musicSrv.getTrackNumber() + 1 + "/" + AppCore.getInstance().musicSrv.getTotalTracks());
         }
         else {
             Log.d(TAG, "Setting the \"shuffle\" button state to OFF");
             shuffle.setBackgroundResource(R.drawable.shuffle_unpressed);
+            trackNumber.setText(AppCore.getInstance().musicSrv.getTrackNumber() + 1 + "/" + AppCore.getInstance().musicSrv.getTotalTracks());
         }
         if(AppCore.getInstance().musicSrv.getLoopOn()) {
             loop.setBackgroundResource(R.drawable.loop_pressed);
