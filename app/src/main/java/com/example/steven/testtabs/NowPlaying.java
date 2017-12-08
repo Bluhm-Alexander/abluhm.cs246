@@ -16,10 +16,12 @@ import android.view.View;
 import android.view.animation.AlphaAnimation;
 import android.view.animation.Animation;
 import android.widget.Button;
+import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.ProgressBar;
 import android.widget.SeekBar;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import java.io.FileDescriptor;
 
@@ -40,6 +42,7 @@ public class NowPlaying extends AppCompatActivity implements SeekBar.OnSeekBarCh
     public Button shuffle;
     public Button loop;
     public ImageView coverAlbum;
+    public boolean albumArtToggle = true;
 
     private AlphaAnimation buttonClick;
 
@@ -187,8 +190,13 @@ public class NowPlaying extends AppCompatActivity implements SeekBar.OnSeekBarCh
             trackNumber.setText(AppCore.getInstance().musicSrv.getTrackNumber() + "/" + AppCore.getInstance().musicSrv.getTotalTracks());
 
             //Log.d("updateTrackInfo()", "The album art path is: " + nowPlaying.getAlbumArt());
-            coverAlbum.setImageBitmap(getAlbumart(nowPlaying.getAlbumID())); //was img
 
+            if (getAlbumart(nowPlaying.getAlbumID()) != null && albumArtToggle) {
+                coverAlbum.setImageBitmap(getAlbumart(nowPlaying.getAlbumID())); //was img
+            }
+            else {
+                coverAlbum.setImageResource(R.drawable.no_album_art);
+            }
             //This should update the progressBar every second
             updateProgressBar();
 
@@ -230,6 +238,22 @@ public class NowPlaying extends AppCompatActivity implements SeekBar.OnSeekBarCh
         } catch (Exception e) {
         }
         return bm;
+    }
+
+    /***********************************************************************************************
+     * This is the listener for whether or not you want to turn off album art.
+     * @param view
+     */
+    public void toggleAlbumArt(View view) {
+        if (albumArtToggle == true) {
+            albumArtToggle = false;
+            Toast.makeText(getBaseContext(), "Album Art Off", Toast.LENGTH_SHORT).show();
+        }
+        else {
+            albumArtToggle = true;
+            Toast.makeText(getBaseContext(), "Album Art On", Toast.LENGTH_SHORT).show();
+        }
+        updateTrackInfo();
     }
 
     //I'm going to put the seekbar check on a seperate thread and see what happens.

@@ -114,6 +114,7 @@
         android:id="@+id/albumArt"
         android:layout_width="310dp"
         android:layout_height="312dp"
+        android:onClick="toggleAlbumArt"
         android:src="@drawable/no_album_art"
         app:layout_constraintBottom_toTopOf="@+id/playPauseButton"
         app:layout_constraintEnd_toEndOf="parent"
