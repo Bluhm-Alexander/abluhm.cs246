@@ -149,8 +149,7 @@ public class ExpandablePlaylistFragment extends Fragment {
 
     public void updatePlaylists() {
         expandableListView.setAdapter(adapter);
-        if(AppCore.getInstance().currentPlaylistIndexInExpandableListView >= 0)
-            expandableListView.expandGroup(AppCore.getInstance().currentPlaylistIndexInExpandableListView);
+        expandableListView.expandGroup(AppCore.getInstance().currentPlaylistIndexInExpandableListView);
     }
 
     public void createPlaylist() {

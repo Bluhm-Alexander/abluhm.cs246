@@ -46,6 +46,7 @@ public class AppCore {
     public int currentPlaylistIndexInExpandableListView; //Ignore, but this helps in updating tabs
     public boolean removingPlaylists = false;
     public boolean musicBound = false;
+    public int currentTab = 0;
 
     /*********************************************************************************************
      * Private constructor;

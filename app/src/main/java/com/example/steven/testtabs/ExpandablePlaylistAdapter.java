@@ -212,10 +212,8 @@ public class ExpandablePlaylistAdapter extends BaseExpandableListAdapter {
                                 Toast.makeText(context, "Removed " + currentSong.getTitle() + " from user playlist", Toast.LENGTH_SHORT).show();
 
                                 //To force update the list view
-                                if(AppCore.getInstance().viewPager.getCurrentItem() == AppCore.getInstance().viewPager.getChildCount() - 1) {
-                                    ExpandablePlaylistFragment current = (ExpandablePlaylistFragment) AppCore.getInstance().pagerAdapter.getItem(AppCore.getInstance().viewPager.getCurrentItem());
-                                    current.updatePlaylists();
-                                }
+                                ExpandablePlaylistFragment current = (ExpandablePlaylistFragment) AppCore.getInstance().pagerAdapter.getItem(AppCore.getInstance().currentTab);
+                                current.updatePlaylists();
                             }
                         }
                     });
@@ -235,7 +233,7 @@ public class ExpandablePlaylistAdapter extends BaseExpandableListAdapter {
                                 addingToPlaylist.add(currentSong);
                                 Toast.makeText(context, "Added " + currentSong.getTitle() + " to user playlist", Toast.LENGTH_SHORT).show();
                                 //To force update the list view
-                                ExpandablePlaylistFragment current = (ExpandablePlaylistFragment) AppCore.getInstance().pagerAdapter.getItem(AppCore.getInstance().viewPager.getCurrentItem());
+                                ExpandablePlaylistFragment current = (ExpandablePlaylistFragment) AppCore.getInstance().pagerAdapter.getItem(AppCore.getInstance().pagerAdapter.getCount() - 2);
                                 current.updatePlaylists();
                             }
                         }

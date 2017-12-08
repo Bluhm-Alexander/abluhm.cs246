@@ -106,6 +106,7 @@ public class MainActivity extends AppCompatActivity {
             public void onTabSelected(TabLayout.Tab tab) {
                 int previousTab = currentTab;
                 currentTab = tabLayout.getSelectedTabPosition();
+                AppCore.getInstance().currentTab = currentTab;
                 Log.d(TAG, "Switched to tab: " + currentTab + " from: " + previousTab);
             }
 
