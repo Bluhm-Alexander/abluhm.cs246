@@ -29,6 +29,7 @@ class Song {
         //albumArt = artAlbum;
         albumID = albumId;
 
+        //indexInLibrary = AppCore.getInstance().mediaStorage.getSongs().size();
         indexInLibrary = 0;
     }
 
@@ -38,6 +39,7 @@ class Song {
         artist = songArtist;
         album  = songAlbum;
         this.indexInLibrary = indexInLibrary;
+        albumID = -1;
     }
 
     int getIndexInCollection() { return indexInLibrary; }

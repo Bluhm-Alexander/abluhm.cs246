@@ -35,6 +35,8 @@ public class MusicService extends Service implements
 
     private boolean pressed = false;
 
+    private SimplePlaylist currentPlaylistObject;
+
     private boolean loopOn = false;
     private boolean shuffleOn = false;
 
@@ -96,21 +98,29 @@ public class MusicService extends Service implements
 
     public boolean onSongPicked(int playlistIndex, int songIndex) {
         Log.d(TAG, "Song picked at playlist index: " + playlistIndex + " and song index: " + songIndex);
-        Song song = mediaStorage.getSimplePlaylist(playlistIndex).get(songIndex);
 
         setPlaylist(playlistIndex);
-        setSong(songIndex);
 
-        //CurrentSong songIndex is repetetive
+        if(!shuffleOn)
+            setSong(songIndex);
+        else {
+            Song pressedSong = mediaStorage.getSimplePlaylist(playlistIndex).get(songIndex);
+            int newIndex = getCurrentPlaylist().indexOf(pressedSong);
+            if(newIndex != 0) {
+                Collections.swap(getCurrentPlaylist(), 0, newIndex);
+                currentSong = 0;
+            }
+        }
+        //CurrentSong songIndex is repetitive
         //currentSong = getCurrentPlaylist().indexOf(song);
-        currentSong = songIndex;
+        //currentSong = songIndex;
 
         //Bug Fixed by Alex: if statement was (currentSong != 0) kept resetting selected to 0
-        if(currentSong < 0) {
+        /*if(currentSong < 0) {
             getCurrentPlaylist().set(currentSong, getCurrentPlaylist().get(0));
             getCurrentPlaylist().set(0, song);
             currentSong = 0;
-        }
+        }*/
 
         if(getNowPlaying() != null) {
             Log.d("onSongPicked()", "Picked song: " + getCurrentSong().getTitle());
@@ -147,9 +157,9 @@ public class MusicService extends Service implements
     }
 
     //I need the track numbers for now playing
-    public int getTrackNumber() {return currentSong;}
+    public int getTrackNumber() { return currentSong; }
 
-    public int getTotalTracks() {return getCurrentPlaylist().size();}
+    public int getTotalTracks() { return getCurrentPlaylist().size(); }
 
     //Pass list of songs to MusicService
     public void setMediaStorage(MediaStorage storage){
@@ -162,6 +172,10 @@ public class MusicService extends Service implements
     public void setPlaylist(int index) {
         Log.d(TAG, "Setting current playlist index to: " + index);
         currentPlaylist = index;
+        currentPlaylistObject = new SimplePlaylist("Shuffled Playlist");
+        currentPlaylistObject.addAll(mediaStorage.getSimplePlaylist(currentPlaylist));
+        if(shuffleOn)
+            shuffle();
     }
 
     //Sets the next song
@@ -173,7 +187,7 @@ public class MusicService extends Service implements
     public SimplePlaylist getCurrentPlaylist() {
         if(currentPlaylist < 0 || currentPlaylist >= mediaStorage.getSimplePlaylists().size())
             return null;
-        return mediaStorage.getSimplePlaylists().get(currentPlaylist);
+        return currentPlaylistObject;
     }
 
     public Song getCurrentSong() {
@@ -223,7 +237,6 @@ public class MusicService extends Service implements
     public void songCompleted() {
         Log.d("songCompleted()", "Song finished.");
 
-
         if(currentSong < 0 && getCurrentPlaylist() != null) {
             Log.d("songCompleted()", "Current song index: " + currentSong +
                     ". Setting song to beginning of queue");
@@ -233,7 +246,6 @@ public class MusicService extends Service implements
         else if(!loopOn) {
             Log.d("songCompleted()", "Looping is off. Playing Next Song.");
             nextSong();
-            //pause();
         }
         else {
             Log.d("songCompleted", "Looping is on. Continuing to play song at beginning of queue");
@@ -294,6 +306,10 @@ public class MusicService extends Service implements
         pressed = true;
         //If at the end of the queue, check if loop is on
         if(currentSong == getCurrentPlaylist().size() - 1) {
+            if(shuffleOn) {
+                currentSong = -1; //So shuffle won't throw last song played in front. Trust me, it does that
+                shuffle();
+            }
             if(loopOn) {
                 currentSong = 0;
             }
@@ -345,11 +361,11 @@ public class MusicService extends Service implements
         shuffleOn = !shuffleOn;
         if(shuffleOn) {
             Toast.makeText(this, "Shuffle: On", Toast.LENGTH_SHORT).show();
-            //shuffle();
+            shuffle();
         }
         else {
             Toast.makeText(this, "Shuffle: Off", Toast.LENGTH_SHORT).show();
-            //unShuffle();
+            unShuffle();
         }
 
         SharedPreferences preferences = getSharedPreferences("mediaPlayer", 0);
@@ -427,11 +443,33 @@ public class MusicService extends Service implements
         return (player.isPlaying() || isPlaying);
     }
 
+    private void swapSongs(int index0, int index1) {
+        if(shuffleOn) {
+            Song song = getCurrentPlaylist().get(index0);
+            getCurrentPlaylist().set(index0, getCurrentPlaylist().get(index1));
+            getCurrentPlaylist().set(index1, song);
+            if(currentSong == index0)
+                currentSong = index1;
+            else if(currentSong == index1)
+                currentSong = index0;
+            //else
+                //do nothing
+        }
+        else {
+            Log.w("swapSongs()", "Attempted to swap 2 songs while shuffle is off");
+        }
+    }
+
     public void shuffle() {
-        Collections.shuffle(getCurrentPlaylist());
+        Log.d(TAG, "Shuffling");
+        if(currentPlaylistObject != null && !currentPlaylistObject.isEmpty()) {
+            Collections.shuffle(currentPlaylistObject);
+        }
     }
 
     public void unShuffle() {
-        mediaStorage = AppCore.getInstance().mediaStorage;
+        Song song = getCurrentSong();
+        currentPlaylistObject = mediaStorage.getSimplePlaylist(currentPlaylist);
+        currentSong = getCurrentPlaylist().indexOf(song);
     }
 }

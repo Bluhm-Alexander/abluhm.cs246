@@ -187,7 +187,7 @@ public class NowPlaying extends AppCompatActivity implements SeekBar.OnSeekBarCh
             title.setText(nowPlaying.getTitle());
             album.setText(nowPlaying.getAlbum());
             artist.setText(nowPlaying.getArtist());
-            trackNumber.setText(AppCore.getInstance().musicSrv.getTrackNumber() + "/" + AppCore.getInstance().musicSrv.getTotalTracks());
+            trackNumber.setText(AppCore.getInstance().musicSrv.getTrackNumber() + 1 + "/" + AppCore.getInstance().musicSrv.getTotalTracks());
 
             //Log.d("updateTrackInfo()", "The album art path is: " + nowPlaying.getAlbumArt());
 
