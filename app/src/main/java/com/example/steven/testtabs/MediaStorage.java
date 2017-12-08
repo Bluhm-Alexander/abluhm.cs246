@@ -15,6 +15,7 @@ public class MediaStorage {
     private ArrayList<SimplePlaylist> simplePlaylists;
     private ArrayList<CompoundPlaylist> compoundPlaylists;
     private CompoundPlaylist userPlaylists;
+    public int startIndexOfUserPlaylists;
 
 
     MediaStorage() {
@@ -22,6 +23,7 @@ public class MediaStorage {
         simplePlaylists = new ArrayList<>();
         compoundPlaylists = new ArrayList<>();
         userPlaylists = new CompoundPlaylist("User Playlists");
+        startIndexOfUserPlaylists = 0;
     }
 
     ArrayList<Song> getSongs() {
@@ -135,6 +137,8 @@ public class MediaStorage {
      * @return returns new compound playlist
      */
     SimplePlaylist createUserPlaylist(String playlistName) {
+        if(userPlaylists.isEmpty())
+            startIndexOfUserPlaylists = simplePlaylists.size();
         boolean duplicate = false;
         int index = 0;
         for(int i = 0; i < userPlaylists.size(); i++) {
@@ -147,6 +151,7 @@ public class MediaStorage {
         if(!duplicate) {
             SimplePlaylist newUserPlaylist = createSimplePlaylist(playlistName);
             userPlaylists.add(newUserPlaylist);
+            newUserPlaylist.setIndexInUserPlaylist(userPlaylists.size() - 1);
             return newUserPlaylist;
         }
         else {
@@ -155,7 +160,6 @@ public class MediaStorage {
             Log.w(TAG, "Previously existing playlist's index: " + userPlaylists.get(index));
             return null;
         }
-
     }
 
     /**

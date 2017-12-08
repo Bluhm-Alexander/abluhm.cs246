@@ -9,11 +9,13 @@
 
     <ImageView
         android:id="@+id/imageView"
-        android:paddingRight="8dp"
+        android:paddingStart="8dp"
+        android:paddingEnd="8dp"
         android:layout_width="32dp"
         android:layout_height="32dp"
         app:srcCompat="@drawable/add_icon"
-        android:visibility="gone" />
+        android:visibility="gone"
+        app:layout_constraintLeft_toRightOf="parent"/>
 
     <TextView
         android:id="@+id/song_title"

@@ -6,6 +6,7 @@ import android.content.ContentResolver;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.database.Cursor;
 import android.graphics.drawable.Drawable;
@@ -29,6 +30,9 @@ import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.Toast;
+
+import com.google.gson.Gson;
+
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
@@ -192,36 +196,6 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
-    public void createPlaylist(View v) {
-        View view = (LayoutInflater.from(MainActivity.this)).inflate(R.layout.userinput, null);
-        AlertDialog.Builder builder = new AlertDialog.Builder(MainActivity.this);
-        builder.setView(view);
-
-        final EditText userInput = (EditText) view.findViewById(R.id.user_input);
-
-        builder.setCancelable(true);
-        builder.setTitle("Create New Playlist");
-
-        builder.setPositiveButton("Ok", new DialogInterface.OnClickListener() {
-            @Override
-            public void onClick(DialogInterface dialogInterface, int i) {
-                CharSequence sequence = userInput.getText();
-                String name = sequence.toString();
-                AppCore.getInstance().mediaStorage.createUserPlaylist(name);
-                //I can't figure out a better way to refresh the list after adding a new playlist
-                ExpandablePlaylistFragment current = (ExpandablePlaylistFragment) AppCore.getInstance().pagerAdapter.getItem(currentTab);
-                current.updatePlaylists();
-            }
-        });
-        builder.show();
-
-        //TODO: Save to shared preferences
-
-        //I can't figure out a better way to refresh the list after adding a new playlist
-        ExpandablePlaylistFragment current = (ExpandablePlaylistFragment) AppCore.getInstance().pagerAdapter.getItem(currentTab);
-        current.updatePlaylists();
-    }
-
     /*************************************************************************************
      * onDestroy() Stops music when application is closed.
      * seems to be a glitch when the application is exited. Investigate further.
@@ -376,6 +350,7 @@ public class MainActivity extends AppCompatActivity {
             Log.w("getMusic()", "Found no songs on this device. Bug or is this okay?");
 
         createDefaultPlaylists();
+        getUserPlaylists();
     }
 
     /********************************************************************************************
@@ -483,22 +458,22 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
-    //Create tab for selected playlist
-    public boolean createTabForPlaylist(SimplePlaylist playlist) {
-        if(playlist.isEmpty()) {
-            Toast.makeText(mContext, "Cannot create new tab for empty playlist. For now..." , Toast.LENGTH_SHORT).show();
-            Log.e(TAG, "Attempted to create tab with empty playlist");
-            return false;
-        }
-        for(int i = 0; i < tabLayout.getChildCount(); i++) {
-            if(AppCore.getInstance().pagerAdapter.getPageTitle(i).equals(playlist.getNameOfPlaylist())) {
-                Toast.makeText(mContext, "Tab already exists with that name", Toast.LENGTH_SHORT).show();
-                Log.e(TAG, "Attempted to create tab with already existing name");
-                return false;
+    public void getUserPlaylists() {
+        String userPlaylistName = AppCore.getInstance().mediaStorage.getUserPlaylists().getNameOfPlaylist();
+        SharedPreferences playlists = getSharedPreferences("playlists", MODE_PRIVATE);
+        Gson gson = new Gson();
+
+        int playlistsSize = playlists.getInt(userPlaylistName + "size", 0);
+        for(int j = 0; j < playlistsSize; j++) {
+            String playlistName = playlists.getString(userPlaylistName + j + "name", "");
+            int playlistSize = playlists.getInt(userPlaylistName + j + "size", 0);
+            SimplePlaylist simplePlaylist = AppCore.getInstance().mediaStorage.createUserPlaylist(playlistName);
+            for(int k = 0; k < playlistSize; k++) {
+                Log.d("SharedPreferences", "Grabbing song from: \"" + userPlaylistName + j + "song" + k + "\" from shared preferences");
+                String json = playlists.getString(userPlaylistName + j + "song" + k, null);
+                Song song = gson.fromJson(json, Song.class);
+                simplePlaylist.add(song);
             }
         }
-        //Create new tab with given playlist
-        AppCore.getInstance().pagerAdapter.addFragment(new SongListFragment(), playlist);
-        return true;
     }
 }

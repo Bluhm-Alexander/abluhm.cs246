@@ -20,8 +20,8 @@ import javax.xml.transform.TransformerConfigurationException;
 class SimplePlaylist extends ArrayList<Song> {
     private static final String TAG = "SimplePlaylist";
     private String playlistName;
-    private final int indexInCollection;
-    private int numSongs;
+    public int indexInCollection;
+    public int indexInUserPlaylist;
 
     /**
      * Non-default constructor
@@ -35,6 +35,15 @@ class SimplePlaylist extends ArrayList<Song> {
             indexInCollection = -1;
         else
             indexInCollection = AppCore.getInstance().mediaStorage.getSimplePlaylists().size();
+        indexInUserPlaylist = 1;
+    }
+
+    public int getIndexInUserPlaylist() {
+        return indexInUserPlaylist;
+    }
+
+    public void setIndexInUserPlaylist(int index) {
+        indexInUserPlaylist = index;
     }
 
     /**

@@ -2,6 +2,7 @@ package com.example.steven.testtabs;
 
 import android.content.Context;
 import android.support.constraint.ConstraintLayout;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -46,12 +47,16 @@ public class SongAdapter extends BaseAdapter {
         if(AppCore.getInstance().addingToPlaylistIndex >= 0) {
             ImageView imageView = songLay.findViewById(R.id.imageView);
             imageView.setVisibility(View.VISIBLE);
+            imageView.setImageResource(R.drawable.add_icon);
             imageView.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-                    if(AppCore.getInstance().mediaStorage.getSimplePlaylist(AppCore.getInstance().addingToPlaylistIndex).contains(currentSong))
+                    if(AppCore.getInstance().mediaStorage.getSimplePlaylist(AppCore.getInstance().addingToPlaylistIndex).contains(currentSong)) {
                         Toast.makeText(convertView.getContext(), "Playlist already contains selected song", Toast.LENGTH_SHORT).show();
+                        Log.w("AddSongToPlaylist", "Attempted to add already existing song to user playlist");
+                    }
                     else {
+                        //Add song to playlist
                         AppCore.getInstance().mediaStorage.getSimplePlaylist(AppCore.getInstance().addingToPlaylistIndex).add(currentSong);
                         Toast.makeText(convertView.getContext(), "Added " + currentSong.getTitle() + " to user playlist", Toast.LENGTH_SHORT).show();
                     }
