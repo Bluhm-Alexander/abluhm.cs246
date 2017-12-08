@@ -462,8 +462,14 @@ public class MusicService extends Service implements
 
     public void shuffle() {
         Log.d(TAG, "Shuffling");
-        if(currentPlaylistObject != null && !currentPlaylistObject.isEmpty()) {
+        if(shuffleOn && currentPlaylistObject != null && !currentPlaylistObject.isEmpty()) {
+            Song song = getCurrentSong();
             Collections.shuffle(currentPlaylistObject);
+            int index = getCurrentPlaylist().indexOf(song);
+            if(index != 0) {
+                Collections.swap(getCurrentPlaylist(), 0, index);
+                currentSong = 0;
+            }
         }
     }
 
