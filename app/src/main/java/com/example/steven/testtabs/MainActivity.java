@@ -85,7 +85,8 @@ public class MainActivity extends AppCompatActivity {
 
         //Going to AppCore to Start our music Service
         AppCore.getInstance().startService();
-
+        AppCore.getInstance().mainContext = this;
+        AppCore.getInstance().loadUserPlaylistPreferences();
         //set up context
         mContext = getApplicationContext();
     }
@@ -169,6 +170,13 @@ public class MainActivity extends AppCompatActivity {
             bindService(AppCore.getInstance().playIntent, AppCore.getInstance().musicConnection, Context.BIND_AUTO_CREATE);
             startService(AppCore.getInstance().playIntent);
         }
+    }
+
+    @Override
+    protected void onPause() {
+        super.onPause();
+        AppCore.getInstance().removingPlaylists = false;
+        AppCore.getInstance().addingToPlaylistIndex = -1;
     }
 
     /*************************************************************************************
@@ -388,7 +396,7 @@ public class MainActivity extends AppCompatActivity {
 
         //ARTIST SORT
         SimplePlaylist artistSort = AppCore.getInstance().mediaStorage.createSimplePlaylist
-                ("Artist Sort");
+                ("Play all");
         //Sort by artist
         Collections.sort(songs, new Comparator<Song>(){
             public int compare(Song a, Song b){
@@ -399,7 +407,7 @@ public class MainActivity extends AppCompatActivity {
 
         //ALBUM SORT
         SimplePlaylist albumSort = AppCore.getInstance().mediaStorage.createSimplePlaylist
-                ("Album Sort");
+                ("Play all");
         //Sort by album
         Collections.sort(songs, new Comparator<Song>(){
             public int compare(Song a, Song b){
@@ -415,6 +423,7 @@ public class MainActivity extends AppCompatActivity {
         //CompoundPlaylist of artists
         CompoundPlaylist artistCollection = AppCore.getInstance().mediaStorage.createCompoundPlaylist
                 ("Artists");
+        artistCollection.add(artistSort);
         SimplePlaylist currentArtistPlaylist = null;
         String previousArtist = null;
 
@@ -439,6 +448,7 @@ public class MainActivity extends AppCompatActivity {
         //CompoundPlaylist of albums
         CompoundPlaylist albumCollection = AppCore.getInstance().mediaStorage.createCompoundPlaylist
                 ("Albums");
+        albumCollection.add(albumSort);
         SimplePlaylist currentAlbumPlaylist = null;
         String previousAlbum = null;
 
