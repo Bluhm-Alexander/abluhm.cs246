@@ -272,25 +272,28 @@ public class NowPlaying extends AppCompatActivity implements SeekBar.OnSeekBarCh
     private Runnable mUpdateTimeTask = new Runnable() {
 
         public void run() {
-            if(AppCore.getInstance().musicSrv.getPlayer().isPlaying()) {
-                long totalDuration = AppCore.getInstance().musicSrv.getPlayer().getDuration();
-                long currentDuration = AppCore.getInstance().musicSrv.getPlayer().getCurrentPosition();
+            //There was a bug where calling isPlaying would return a unintialized Class
+            if(AppCore.getInstance().musicSrv != null) {
+                if (AppCore.getInstance().musicSrv.getPlayer().isPlaying()) {
+                    long totalDuration = AppCore.getInstance().musicSrv.getPlayer().getDuration();
+                    long currentDuration = AppCore.getInstance().musicSrv.getPlayer().getCurrentPosition();
 
-                //updateTrackInfo();
+                    //updateTrackInfo();
 
-                //Log.d("mUpdateTimeTask()", "We are in mUpdateTask");
-                // Displaying Total Duration time
-                songLength.setText("" + convertMinutes(totalDuration));
-                // Displaying time completed playing
-                currentTime.setText("" + convertMinutes(currentDuration));
+                    //Log.d("mUpdateTimeTask()", "We are in mUpdateTask");
+                    // Displaying Total Duration time
+                    songLength.setText("" + convertMinutes(totalDuration));
+                    // Displaying time completed playing
+                    currentTime.setText("" + convertMinutes(currentDuration));
 
-                // Updating progress bar
-                int progress = (int) (findPercentage(currentDuration, totalDuration));
-                //Log.d("Progress", ""+progress);
-                songProgressBar.setProgress(progress);
+                    // Updating progress bar
+                    int progress = (int) (findPercentage(currentDuration, totalDuration));
+                    //Log.d("Progress", ""+progress);
+                    songProgressBar.setProgress(progress);
 
-                // Running this thread after 100 milliseconds
-                mHandler.postDelayed(this, 100);
+                    // Running this thread after 100 milliseconds
+                    mHandler.postDelayed(this, 100);
+                }
             }
 
         }
