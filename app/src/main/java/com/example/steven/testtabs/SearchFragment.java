@@ -26,6 +26,7 @@ import java.util.ArrayList;
 public class SearchFragment extends Fragment {
     private static final String TAG = "SearchFragment";
     private static SimplePlaylist searchResults;
+    private static SimplePlaylist dummyPlaylst;
     ListView results;
     SongAdapter adapter;
 
@@ -34,13 +35,17 @@ public class SearchFragment extends Fragment {
         Log.d(TAG, "Creating SearchFragment");
         ViewGroup rootView = (ViewGroup) inflater.inflate(R.layout.search_layout, container, false);
 
-        searchResults = AppCore.getInstance().mediaStorage.createSimplePlaylist("searchResults");
+        searchResults = new SimplePlaylist("Search Results");
+        dummyPlaylst = AppCore.getInstance().mediaStorage.createSimplePlaylist("Searched Song");
+        AppCore.getInstance().mediaStorage.createSimplePlaylist("searchResults");
         adapter = new SongAdapter(getActivity(), searchResults);
         results = rootView.findViewById(R.id.results);
         results.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
-                Toast.makeText(getContext(), "test", Toast.LENGTH_SHORT);
+                dummyPlaylst.clear();
+                dummyPlaylst.add(searchResults.get(i));
+                AppCore.getInstance().musicSrv.onSongPicked(dummyPlaylst.getIndexInCollection(), 0);
             }
         });
 
@@ -59,9 +64,7 @@ public class SearchFragment extends Fragment {
                     for (int i = 0; i < AppCore.getInstance().mediaStorage.getSongs().size(); i++) {
                         Song song = AppCore.getInstance().mediaStorage.getSongs().get(i);
                         if (song.getTitle().toLowerCase().contains(string)) {
-                            Log.d("test", "Found song: " + song.getTitle());
                             searchResults.add(song);
-                            Log.d("test", "Size: " + searchResults.size());
                         }
                     }
                 }
@@ -76,6 +79,7 @@ public class SearchFragment extends Fragment {
 
     private static void clearResults() {
         searchResults.clear();
+        dummyPlaylst.clear();
     }
 
 }
