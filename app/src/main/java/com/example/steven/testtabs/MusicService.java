@@ -191,6 +191,8 @@ public class MusicService extends Service implements
     }
 
     public Song getCurrentSong() {
+        if (getCurrentPlaylist() == null)
+            return null;
         if(currentSong < 0 || currentSong >= getCurrentPlaylist().size())
             return null;
         return getCurrentPlaylist().get(currentSong);

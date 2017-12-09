@@ -2,6 +2,7 @@ package com.example.steven.testtabs;
 
 import android.content.Context;
 import android.content.SharedPreferences;
+import android.graphics.Color;
 import android.graphics.Typeface;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -111,7 +112,7 @@ public class ExpandablePlaylistAdapter extends BaseExpandableListAdapter {
     }
 
     @Override
-    public View getGroupView(int parent, boolean isExpanded, View convertView, ViewGroup parentView) {
+    public View getGroupView(final int parent, boolean isExpanded, View convertView, ViewGroup parentView) {
         LayoutInflater inflater;
         if(canAddPlaylists && parent == 0) {
             String string = (String) getGroup(parent);
@@ -159,7 +160,6 @@ public class ExpandablePlaylistAdapter extends BaseExpandableListAdapter {
                 imageView.setVisibility(View.GONE);
             }
 
-
             TextView playlistView = convertView.findViewById(R.id.playlist_title);
             TextView songCountView = convertView.findViewById(R.id.playlist_song_count);
 
@@ -167,6 +167,11 @@ public class ExpandablePlaylistAdapter extends BaseExpandableListAdapter {
 
             playlistView.setText(currentPlaylist.getNameOfPlaylist());
             songCountView.setText(currentPlaylist.size() + " songs");
+
+            if(parent == 0 || (canAddPlaylists && parent == 1)) {
+                playlistView.setTextColor(convertView.getResources().getColor(R.color.colorPrimary));
+                songCountView.setTextColor(convertView.getResources().getColor(R.color.colorPrimary));
+            }
         }
         return convertView;
     }
