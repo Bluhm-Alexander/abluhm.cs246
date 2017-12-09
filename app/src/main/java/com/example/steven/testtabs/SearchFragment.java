@@ -20,30 +20,32 @@ import java.util.ArrayList;
  * Created by xflip on 11/14/2017.
  */
 
-public class SettingsFragment extends ListFragment {
-    private static final String TAG = "SettingsFragment";
-    private static ArrayList<String> settingNames;
+public class SearchFragment extends ListFragment {
+    private static final String TAG = "SearchFragment";
+    private static SimplePlaylist searchResults;
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle saveInstanceState) {
-        Log.d(TAG, "Creating SettingsFragment");
-        ViewGroup rootView = (ViewGroup) inflater.inflate(R.layout.listfragment, container, false);
+        Log.d(TAG, "Creating SearchFragment");
+        ViewGroup rootView = (ViewGroup) inflater.inflate(R.layout.search_layout, container, false);
 
-        settingNames = new ArrayList<>();
-        ArrayAdapter<String> adapter = new ArrayAdapter<>(getActivity(), android.R.layout.simple_list_item_1, settingNames);
+        searchResults = AppCore.getInstance().mediaStorage.createSimplePlaylist("searchResults");
+
+        SongAdapter adapter = new SongAdapter(getActivity(), searchResults);
         setListAdapter(adapter);
 
         setRetainInstance(true);
-
-        addSettings();
 
 
         return rootView;
     }
 
-    private static void addSettings() {
-        settingNames.add("Toggle on/off album art");
+    private static void clearResults() {
+        searchResults.clear();
+
     }
+
+
 
     @Override
     public void onListItemClick(ListView l, View v, int position, long id) {

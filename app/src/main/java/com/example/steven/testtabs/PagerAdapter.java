@@ -1,6 +1,5 @@
 package com.example.steven.testtabs;
 
-import android.provider.Settings;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentPagerAdapter;
@@ -15,13 +14,13 @@ public class PagerAdapter extends FragmentPagerAdapter {
     private final List<String> fragmentTitleList = new ArrayList<>();
 
 
-    private SettingsFragment settingsFragment;
+    private SearchFragment searchFragment;
     private ExpandablePlaylistFragment playlistFragment;
 
     PagerAdapter(FragmentManager fm) {
         super(fm);
 
-        settingsFragment = new SettingsFragment();
+        searchFragment = new SearchFragment();
         playlistFragment = new ExpandablePlaylistFragment();
         playlistFragment.setSongs(AppCore.getInstance().mediaStorage.getUserPlaylists());
         playlistFragment.setCanAddPlaylists(true);
@@ -105,7 +104,7 @@ public class PagerAdapter extends FragmentPagerAdapter {
         if(position == fragmentList.size())
             return playlistFragment;
         else if(position == fragmentList.size() + 1)
-            return settingsFragment;
+            return searchFragment;
         return fragmentList.get(position);
     }
 
