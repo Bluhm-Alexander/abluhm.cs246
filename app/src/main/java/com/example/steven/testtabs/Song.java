@@ -8,6 +8,8 @@ class Song {
     private String title;
     private String artist;
     private String album;
+    private String genre;
+    private String track;
     private final int indexInLibrary;
     private String albumArt;
 
@@ -18,28 +20,23 @@ class Song {
         artist = "";
         album  = "";
         albumArt = "";
+        genre = "";
+        track = "";
         indexInLibrary = 0;
     }
 
-    Song(long songID, String songTitle, String songArtist, String songAlbum, long albumId) { // String artAlbum, long albumId
+    Song(long songID, String songTitle, String songArtist, String songAlbum, long albumId, String songGenre, String songTrack) { // String artAlbum, long albumId
         id     = songID;
         title  = songTitle;
         artist = songArtist;
         album  = songAlbum;
         //albumArt = artAlbum;
         albumID = albumId;
+        genre = songGenre;
+        track = songTrack;
 
         //indexInLibrary = AppCore.getInstance().mediaStorage.getSongs().size();
         indexInLibrary = 0;
-    }
-
-    Song(long songID, String songTitle, String songArtist, String songAlbum, int indexInLibrary) {
-        id     = songID;
-        title  = songTitle;
-        artist = songArtist;
-        album  = songAlbum;
-        this.indexInLibrary = indexInLibrary;
-        albumID = -1;
     }
 
     int getIndexInCollection() { return indexInLibrary; }
@@ -49,6 +46,8 @@ class Song {
     String getArtist()         { return artist; }
     String getAlbum()          { return album;  }
     String getAlbumArt()       { return albumArt;}
+    String getGenre()          { return genre; }
+    String getTrack()          { return track; }
 
     String getSongInfo() { return (getIndexInCollection() + " - " + getTitle() + " - " + getArtist() + " - " + getAlbum() + " - " + getID() + "\n"); }
     void logSongInfo()   { Log.d("Song class", getSongInfo()); }

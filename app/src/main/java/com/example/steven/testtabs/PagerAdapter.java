@@ -89,7 +89,7 @@ public class PagerAdapter extends FragmentPagerAdapter {
         if(position == fragmentList.size())
             return "Playlists";
         else if(position == fragmentList.size() + 1)
-            return "Settings";
+            return "Search";
         return fragmentTitleList.get(position);
     }
 

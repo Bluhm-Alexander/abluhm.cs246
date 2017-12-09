@@ -10,6 +10,8 @@ import android.view.ViewGroup;
 import android.widget.Adapter;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
+import android.widget.Button;
+import android.widget.EditText;
 import android.widget.ListAdapter;
 import android.widget.ListView;
 import android.widget.RelativeLayout;
@@ -25,6 +27,7 @@ public class SearchFragment extends Fragment {
     private static final String TAG = "SearchFragment";
     private static SimplePlaylist searchResults;
     ListView results;
+    SongAdapter adapter;
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle saveInstanceState) {
@@ -32,7 +35,8 @@ public class SearchFragment extends Fragment {
         ViewGroup rootView = (ViewGroup) inflater.inflate(R.layout.search_layout, container, false);
 
         searchResults = AppCore.getInstance().mediaStorage.createSimplePlaylist("searchResults");
-        results = (ListView) rootView.findViewById(R.id.results);
+        adapter = new SongAdapter(getActivity(), searchResults);
+        results = rootView.findViewById(R.id.results);
         results.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
@@ -40,8 +44,30 @@ public class SearchFragment extends Fragment {
             }
         });
 
-        SongAdapter adapter = new SongAdapter(getActivity(), searchResults);
         results.setAdapter(adapter);
+
+        final EditText editText = rootView.findViewById(R.id.editText);
+        Button button = rootView.findViewById(R.id.button);
+        button.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                clearResults();
+                CharSequence sequence = editText.getText();
+                String string = sequence.toString();
+                string = string.toLowerCase();
+                if(sequence.length() != 0) {
+                    for (int i = 0; i < AppCore.getInstance().mediaStorage.getSongs().size(); i++) {
+                        Song song = AppCore.getInstance().mediaStorage.getSongs().get(i);
+                        if (song.getTitle().toLowerCase().contains(string)) {
+                            Log.d("test", "Found song: " + song.getTitle());
+                            searchResults.add(song);
+                            Log.d("test", "Size: " + searchResults.size());
+                        }
+                    }
+                }
+                results.setAdapter(adapter);
+            }
+        });
 
         setRetainInstance(true);
 

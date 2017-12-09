@@ -309,6 +309,7 @@ public class MainActivity extends AppCompatActivity {
             int titleColumn  = songCursor.getColumnIndex(MediaStore.Audio.Media.TITLE);
             int artistColumn = songCursor.getColumnIndex(MediaStore.Audio.Media.ARTIST);
             int albumColumn  = songCursor.getColumnIndex(MediaStore.Audio.Media.ALBUM);
+            int trackColumn  = songCursor.getColumnIndex(MediaStore.Audio.Media.TRACK);
             int idColumn     = songCursor.getColumnIndex(MediaStore.Audio.Media._ID);
             //Adding ALBUM_ID apparently it is a lot more stable for pulling Album Art
             //Also I may be using this later to search through songs because it is faster apparently
@@ -323,7 +324,8 @@ public class MainActivity extends AppCompatActivity {
                 String thisTitle = songCursor.getString(titleColumn);
                 String thisArtist = songCursor.getString(artistColumn);
                 String thisAlbum = songCursor.getString(albumColumn);
-
+                //String genre = songCursor.getString(genreColumn);
+                String thisTrack = songCursor.getString(trackColumn);
                 //This is where we will add Album Art to the song Class.
                 //We may need to reduce resolution in order to improve performance
                 //if we want to include the images in the main menu
@@ -344,7 +346,7 @@ public class MainActivity extends AppCompatActivity {
                 long thisId = songCursor.getLong(idColumn);
 
                 AppCore.getInstance().mediaStorage.createSong
-                        (thisId, thisTitle, thisArtist, thisAlbum, thisAlbumId); // used to incorporate coverPath, thisAlbumId
+                        (thisId, thisTitle, thisArtist, thisAlbum, thisAlbumId, "genre", thisTrack); // used to incorporate coverPath, thisAlbumId
                 i++;
             }
             while(songCursor.moveToNext());
@@ -354,7 +356,7 @@ public class MainActivity extends AppCompatActivity {
             //Default sorting
             Collections.sort(AppCore.getInstance().mediaStorage.getSongs(), new Comparator<Song>(){
                 public int compare(Song a, Song b){
-                    return a.getTitle().compareTo(b.getTitle());
+                    return a.getTrack().compareTo(b.getTrack());
                 }
             });
         }
@@ -406,6 +408,17 @@ public class MainActivity extends AppCompatActivity {
                 return a.getArtist().compareTo(b.getArtist());
             }});
         artistSort.addAll(songs);
+
+
+        //GENRE SORT
+        SimplePlaylist genreSort = AppCore.getInstance().mediaStorage.createSimplePlaylist
+                ("Play all");
+        //Sort by genre
+        Collections.sort(songs, new Comparator<Song>(){
+            public int compare(Song a, Song b){
+                return a.getGenre().compareTo(b.getGenre());
+            }});
+        genreSort.addAll(songs);
 
 
         //ALBUM SORT
@@ -471,11 +484,37 @@ public class MainActivity extends AppCompatActivity {
         if(i > 0)
             albumCollection.add(currentAlbumPlaylist);
 
-        //Logging for each playlist to check if empty. Could be bad?
-        for(int index = 0; index < AppCore.getInstance().mediaStorage.getSimplePlaylists().size(); index++) {
-            SimplePlaylist simplePlaylist = AppCore.getInstance().mediaStorage.getSimplePlaylist(index);
-            if(simplePlaylist.isEmpty())
-                Log.w("createDefaultPlaylists", "Playlist : " + simplePlaylist.getNameOfPlaylist() + ". Bug or is this okay?");
+
+        //CompoundPlaylist of genres
+        CompoundPlaylist genreCollection = AppCore.getInstance().mediaStorage.createCompoundPlaylist
+                ("Genre");
+        genreCollection.add(genreSort);
+        SimplePlaylist currentGenrePlaylist = null;
+        String previousGenre = null;
+
+        for(i = 0; i < genreSort.size(); i++) {
+            Song currentSong = genreSort.get(i);
+            if(!currentSong.getGenre().equals(previousGenre)) {
+                if(i > 0) {
+                    genreCollection.add(currentGenrePlaylist);
+                }
+                currentGenrePlaylist = AppCore.getInstance().mediaStorage.createSimplePlaylist(currentSong.getGenre());
+            }
+            currentGenrePlaylist.add(currentSong);
+            previousGenre = currentSong.getGenre();
+        }
+        //Just in case the "last playlist" isn't at index 0 (was never initialized)
+        //Add last album playlist
+        if(i > 0)
+            genreCollection.add(currentGenrePlaylist);
+
+        //Sorts all songs past index 2 by track
+        for(int index = 3; index < AppCore.getInstance().mediaStorage.getSimplePlaylists().size(); index++) {
+            songs = AppCore.getInstance().mediaStorage.getSimplePlaylist(index);
+            Collections.sort(songs, new Comparator<Song>(){
+                public int compare(Song a, Song b){
+                    return a.getTrack().compareTo(b.getTrack());
+                }});
         }
     }
 }
