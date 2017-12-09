@@ -16,16 +16,18 @@ import android.view.View;
 import android.view.animation.AlphaAnimation;
 import android.view.animation.Animation;
 import android.widget.Button;
+import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.ProgressBar;
 import android.widget.SeekBar;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import java.io.FileDescriptor;
 
 import static android.view.View.GONE;
 
-public class NowPlaying extends AppCompatActivity implements SeekBar.OnSeekBarChangeListener {
+public class NowPlaying extends AppCompatActivity implements SeekBar.OnSeekBarChangeListener, MediaPlayer.OnCompletionListener {
     private static final String TAG = "NowPlaying";
 
     public TextView title;
@@ -33,12 +35,14 @@ public class NowPlaying extends AppCompatActivity implements SeekBar.OnSeekBarCh
     public TextView album;
     public TextView currentTime;
     public TextView songLength;
+    public TextView trackNumber;
     public Button playPauseButton;
     public Button previous;
     public Button next;
     public Button shuffle;
     public Button loop;
     public ImageView coverAlbum;
+    public boolean albumArtToggle = true;
 
     private AlphaAnimation buttonClick;
 
@@ -61,6 +65,7 @@ public class NowPlaying extends AppCompatActivity implements SeekBar.OnSeekBarCh
         title  = (TextView) findViewById(R.id.title);
         artist = (TextView) findViewById(R.id.artist);
         album  = (TextView) findViewById(R.id.album);
+        trackNumber = (TextView) findViewById(R.id.trackCount);
 
         coverAlbum = (ImageView) findViewById(R.id.albumArt);
 
@@ -80,6 +85,10 @@ public class NowPlaying extends AppCompatActivity implements SeekBar.OnSeekBarCh
 
         //Have to set the overloaded functions
         songProgressBar.setOnSeekBarChangeListener(this);
+
+
+        //Setting other overloaded function
+        AppCore.getInstance().musicSrv.getPlayer().setOnCompletionListener(this);
 
         updateTrackInfo();
     }
@@ -115,6 +124,17 @@ public class NowPlaying extends AppCompatActivity implements SeekBar.OnSeekBarCh
         else {
             loop.setBackgroundResource(R.drawable.loop_unpressed);
         }
+    }
+
+    /*******************************************************************************************
+     * This function just calls back to AppCore in order to change songs.
+     * @param mediaPlayer
+     **********************************************************************************************/
+    @Override
+    public void onCompletion(MediaPlayer mediaPlayer) {
+        Log.d("NowPlay/oncomp", "Song finished.");
+        AppCore.getInstance().musicSrv.songCompleted();
+        updateTrackInfo();
     }
 
     //On press play/pause
@@ -162,16 +182,24 @@ public class NowPlaying extends AppCompatActivity implements SeekBar.OnSeekBarCh
 
     public void updateTrackInfo() {
         nowPlaying = AppCore.getInstance().musicSrv.getNowPlaying();
+
         if(nowPlaying != null) {
             title.setText(nowPlaying.getTitle());
             album.setText(nowPlaying.getAlbum());
             artist.setText(nowPlaying.getArtist());
+            trackNumber.setText(AppCore.getInstance().musicSrv.getTrackNumber() + "/" + AppCore.getInstance().musicSrv.getTotalTracks());
 
             //Log.d("updateTrackInfo()", "The album art path is: " + nowPlaying.getAlbumArt());
-            coverAlbum.setImageBitmap(getAlbumart(nowPlaying.getAlbumID())); //was img
 
+            if (getAlbumart(nowPlaying.getAlbumID()) != null && albumArtToggle) {
+                coverAlbum.setImageBitmap(getAlbumart(nowPlaying.getAlbumID())); //was img
+            }
+            else {
+                coverAlbum.setImageResource(R.drawable.no_album_art);
+            }
             //This should update the progressBar every second
             updateProgressBar();
+
         }
         else {
             title.setText("Stopped");
@@ -180,6 +208,8 @@ public class NowPlaying extends AppCompatActivity implements SeekBar.OnSeekBarCh
             updateButtons();
         }
     }
+
+
 
     /*********************************************************************************************
      * This function grabs the album Art out of the MediaStore database which apparently scrubs
@@ -210,6 +240,22 @@ public class NowPlaying extends AppCompatActivity implements SeekBar.OnSeekBarCh
         return bm;
     }
 
+    /***********************************************************************************************
+     * This is the listener for whether or not you want to turn off album art.
+     * @param view
+     */
+    public void toggleAlbumArt(View view) {
+        if (albumArtToggle == true) {
+            albumArtToggle = false;
+            Toast.makeText(getBaseContext(), "Album Art Off", Toast.LENGTH_SHORT).show();
+        }
+        else {
+            albumArtToggle = true;
+            Toast.makeText(getBaseContext(), "Album Art On", Toast.LENGTH_SHORT).show();
+        }
+        updateTrackInfo();
+    }
+
     //I'm going to put the seekbar check on a seperate thread and see what happens.
 
     /**
@@ -226,13 +272,13 @@ public class NowPlaying extends AppCompatActivity implements SeekBar.OnSeekBarCh
     private Runnable mUpdateTimeTask = new Runnable() {
 
         public void run() {
-            if (AppCore.getInstance().musicSrv.checkPlaying()) {
-
+            if(AppCore.getInstance().musicSrv.getPlayer().isPlaying()) {
                 long totalDuration = AppCore.getInstance().musicSrv.getPlayer().getDuration();
                 long currentDuration = AppCore.getInstance().musicSrv.getPlayer().getCurrentPosition();
 
-                if (currentDuration == 0) {updateTrackInfo();}
+                //updateTrackInfo();
 
+                //Log.d("mUpdateTimeTask()", "We are in mUpdateTask");
                 // Displaying Total Duration time
                 songLength.setText("" + convertMinutes(totalDuration));
                 // Displaying time completed playing

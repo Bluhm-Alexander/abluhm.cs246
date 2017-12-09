@@ -3,7 +3,9 @@ package com.example.steven.testtabs;
 import android.content.ComponentName;
 import android.content.Intent;
 import android.content.ServiceConnection;
+import android.content.SharedPreferences;
 import android.os.IBinder;
+import android.support.v4.view.ViewPager;
 import android.util.Log;
 
 import java.util.ArrayList;
@@ -35,11 +37,16 @@ public class AppCore {
     private static final String TAG = "AppCore";
 
     public MediaStorage mediaStorage = new MediaStorage();
-
+    public int addingToPlaylistIndex = -1;
     public MusicService musicSrv;
     public Intent playIntent;
     public ServiceConnection musicConnection;
+    public PagerAdapter pagerAdapter;
+    public ViewPager viewPager;
+    public int currentPlaylistIndexInExpandableListView; //Ignore, but this helps in updating tabs
+    public boolean removingPlaylists = false;
     public boolean musicBound = false;
+    public int currentTab = 0;
 
     /*********************************************************************************************
      * Private constructor;

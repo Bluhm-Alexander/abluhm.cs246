@@ -15,12 +15,15 @@ public class MediaStorage {
     private ArrayList<SimplePlaylist> simplePlaylists;
     private ArrayList<CompoundPlaylist> compoundPlaylists;
     private CompoundPlaylist userPlaylists;
+    public int startIndexOfUserPlaylists;
+
 
     MediaStorage() {
         songs = new ArrayList<>();
         simplePlaylists = new ArrayList<>();
         compoundPlaylists = new ArrayList<>();
         userPlaylists = new CompoundPlaylist("User Playlists");
+        startIndexOfUserPlaylists = 0;
     }
 
     ArrayList<Song> getSongs() {
@@ -65,8 +68,8 @@ public class MediaStorage {
      * @param album Song's album
      * @return returns the new song object
      */
-    Song createSong(Long songID, String songName, String artist, String album, String coverPath, Long albumID) {
-        Song newSong = new Song(songID, songName, artist, album, coverPath, albumID);
+    Song createSong(Long songID, String songName, String artist, String album, Long albumID) { // String coverPath, Long albumID
+        Song newSong = new Song(songID, songName, artist, album, albumID); //coverPath, albumID
         if(!songs.contains(newSong))
             songs.add(newSong);
         else {
@@ -75,25 +78,6 @@ public class MediaStorage {
             Log.w(TAG, "Previously existing song's index: " + songs.indexOf(newSong));
         }
         return newSong;
-    }
-
-    /**
-     * Used for creating new playlists.
-     * Automatically stores new playlist into playlist collection in AppCore
-     *
-     * @param playlistName Name of Playlist
-     * @return returns new playlist object
-     */
-    SimplePlaylist createSimplePlaylist(String playlistName) {
-        SimplePlaylist newSimplePlaylist = new SimplePlaylist(playlistName);
-        if(!simplePlaylists.contains(newSimplePlaylist))
-            simplePlaylists.add(newSimplePlaylist);
-        else {
-            Log.w(TAG, "Attempted to create duplicate Simple Playlist");
-            Log.w(TAG, "Playlist name was: " + playlistName);
-            Log.w(TAG, "Previously existing playlist's index: " + simplePlaylists.indexOf(newSimplePlaylist));
-        }
-        return newSimplePlaylist;
     }
 
     /**
@@ -116,6 +100,36 @@ public class MediaStorage {
     }
 
     /**
+     * Used for creating new playlists.
+     * Automatically stores new playlist into playlist collection in AppCore
+     *
+     * @param playlistName Name of Playlist
+     * @return returns new playlist object
+     */
+    SimplePlaylist createSimplePlaylist(String playlistName) {
+        SimplePlaylist newSimplePlaylist = new SimplePlaylist(playlistName);
+        boolean duplicate = false;
+        int index = 0;
+        for(int i = 0; i < simplePlaylists.size(); i++) {
+            if(simplePlaylists.get(i).getNameOfPlaylist() == playlistName) {
+                duplicate = true;
+                index = i;
+                break;
+            }
+        }
+        if(!duplicate) {
+            simplePlaylists.add(newSimplePlaylist);
+            return newSimplePlaylist;
+        }
+        else {
+            Log.w(TAG, "Attempted to create duplicate Simple Playlist");
+            Log.w(TAG, "Playlist name was: " + playlistName);
+            Log.w(TAG, "Previously existing playlist's index: " + index);
+        }
+        return newSimplePlaylist;
+    }
+
+    /**
      * Used for creating new compound playlists.
      * Automatically stores new compound playlist into compound playlist collection in AppCore
      *
@@ -123,6 +137,8 @@ public class MediaStorage {
      * @return returns new compound playlist
      */
     SimplePlaylist createUserPlaylist(String playlistName) {
+        if(userPlaylists.isEmpty())
+            startIndexOfUserPlaylists = simplePlaylists.size();
         boolean duplicate = false;
         int index = 0;
         for(int i = 0; i < userPlaylists.size(); i++) {
@@ -135,6 +151,7 @@ public class MediaStorage {
         if(!duplicate) {
             SimplePlaylist newUserPlaylist = createSimplePlaylist(playlistName);
             userPlaylists.add(newUserPlaylist);
+            newUserPlaylist.setIndexInUserPlaylist(userPlaylists.size() - 1);
             return newUserPlaylist;
         }
         else {
@@ -143,7 +160,6 @@ public class MediaStorage {
             Log.w(TAG, "Previously existing playlist's index: " + userPlaylists.get(index));
             return null;
         }
-
     }
 
     /**

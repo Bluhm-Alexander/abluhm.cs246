@@ -88,43 +88,46 @@
 
     <Button
         android:id="@+id/shuffle"
-        android:onClick="shuffle"
         android:layout_width="24dp"
         android:layout_height="24dp"
         android:layout_marginBottom="32dp"
         android:layout_marginEnd="8dp"
         android:background="@drawable/shuffle_unpressed"
+        android:onClick="shuffle"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toStartOf="@id/previous"
         app:layout_constraintHorizontal_bias="1.0" />
 
     <Button
         android:id="@+id/loop"
-        android:onClick="loop"
         android:layout_width="24dp"
         android:layout_height="24dp"
         android:layout_marginBottom="32dp"
         android:layout_marginStart="8dp"
         android:background="@drawable/loop_unpressed"
+        android:onClick="loop"
         app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintStart_toEndOf="@id/next"
-        app:layout_constraintHorizontal_bias="1.0" />
+        app:layout_constraintHorizontal_bias="1.0"
+        app:layout_constraintStart_toEndOf="@id/next" />
 
     <ImageView
         android:id="@+id/albumArt"
         android:layout_width="310dp"
         android:layout_height="312dp"
+        android:onClick="toggleAlbumArt"
         android:src="@drawable/no_album_art"
         app:layout_constraintBottom_toTopOf="@+id/playPauseButton"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/artist"
-        app:layout_constraintVertical_bias="0.225" />
+        app:layout_constraintVertical_bias="0.0" />
 
     <SeekBar
         android:id="@+id/songProgressBar"
-        android:layout_width="344dp"
-        android:layout_height="17dp"
+        android:layout_width="0dp"
+        android:layout_height="64dp"
+        android:layout_marginEnd="24dp"
+        android:layout_marginStart="24dp"
         app:layout_constraintBottom_toTopOf="@+id/previous"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
@@ -136,11 +139,11 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="0:00"
-        app:layout_constraintBottom_toTopOf="@+id/songProgressBar"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.049"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/albumArt"
+        app:layout_constraintTop_toTopOf="@+id/songProgressBar"
         app:layout_constraintVertical_bias="1.0" />
 
     <TextView
@@ -148,12 +151,23 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="0:00"
-        app:layout_constraintBottom_toTopOf="@+id/songProgressBar"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.936"
         app:layout_constraintStart_toEndOf="@+id/currentTime"
         app:layout_constraintTop_toBottomOf="@+id/albumArt"
+        app:layout_constraintTop_toTopOf="@+id/songProgressBar"
         app:layout_constraintVertical_bias="1.0" />
+
+    <TextView
+        android:id="@+id/trackCount"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="TextView"
+        app:layout_constraintBottom_toTopOf="@+id/playPauseButton"
+        app:layout_constraintEnd_toStartOf="@+id/songProgressBar"
+        app:layout_constraintHorizontal_bias="0.5"
+        app:layout_constraintStart_toEndOf="@+id/songProgressBar"
+        app:layout_constraintTop_toBottomOf="@+id/songProgressBar" />
 
 
 </android.support.constraint.ConstraintLayout>

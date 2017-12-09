@@ -11,6 +11,7 @@ import android.widget.Adapter;
 import android.widget.ArrayAdapter;
 import android.widget.ListAdapter;
 import android.widget.ListView;
+import android.widget.RelativeLayout;
 import android.widget.Toast;
 
 import java.util.ArrayList;
@@ -35,6 +36,7 @@ public class SettingsFragment extends ListFragment {
         setRetainInstance(true);
 
         addSettings();
+
 
         return rootView;
     }

@@ -1,9 +1,12 @@
 package com.example.steven.testtabs;
 
 import android.Manifest;
+import android.app.Dialog;
 import android.content.ContentResolver;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.database.Cursor;
 import android.graphics.drawable.Drawable;
@@ -14,16 +17,22 @@ import android.support.design.widget.TabLayout;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
 import android.support.v4.view.ViewPager;
+import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
+import android.view.LayoutInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
+import android.widget.EditText;
 import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.Toast;
+
+import com.google.gson.Gson;
+
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
@@ -38,8 +47,6 @@ public class MainActivity extends AppCompatActivity {
     private static final String TAG = "MainActivity";
     private static final int MY_PERMISSION_REQUEST = 1;
 
-    private ViewPager viewPager;
-    private PagerAdapter pagerAdapter;
     private TabLayout tabLayout;
     private TextView currentSongName;
     private RelativeLayout bottomBar;
@@ -70,8 +77,8 @@ public class MainActivity extends AppCompatActivity {
         // I might have fixed it - Colton
         getPermissions();
 
-        pagerAdapter = new PagerAdapter(getSupportFragmentManager());
-        viewPager = (ViewPager) findViewById(R.id.container);
+        AppCore.getInstance().pagerAdapter = new PagerAdapter(getSupportFragmentManager());
+        AppCore.getInstance().viewPager = (ViewPager) findViewById(R.id.container);
         playPauseButton = (Button) findViewById(R.id.play_pause);
         setupViewPager();
         setupTabLayout();
@@ -91,7 +98,7 @@ public class MainActivity extends AppCompatActivity {
 
     private void setupTabLayout() {
         tabLayout = (TabLayout) findViewById(R.id.tabs);
-        tabLayout.setupWithViewPager(viewPager);
+        tabLayout.setupWithViewPager(AppCore.getInstance().viewPager);
 
         tabLayout.addOnTabSelectedListener(new TabLayout.OnTabSelectedListener() {
 
@@ -99,6 +106,7 @@ public class MainActivity extends AppCompatActivity {
             public void onTabSelected(TabLayout.Tab tab) {
                 int previousTab = currentTab;
                 currentTab = tabLayout.getSelectedTabPosition();
+                AppCore.getInstance().currentTab = currentTab;
                 Log.d(TAG, "Switched to tab: " + currentTab + " from: " + previousTab);
             }
 
@@ -134,15 +142,17 @@ public class MainActivity extends AppCompatActivity {
 
         //SimplePlaylist tabs - Single playlist tabs
         for(int i = 0; i < sizeOfDefaultPlaylists && i < AppCore.getInstance().mediaStorage.getSimplePlaylists().size(); i++)
-            pagerAdapter.addFragment(new SongListFragment(), AppCore.getInstance().mediaStorage.getSimplePlaylist(i));
+            AppCore.getInstance().pagerAdapter.addFragment(new SongListFragment(), AppCore.getInstance().mediaStorage.getSimplePlaylist(i));
 
         //CompoundPlaylist tabs - Collection of playlist tabs (Expanded)
         for(int i = 0; i < AppCore.getInstance().mediaStorage.getCompoundPlaylists().size(); i++)
-            pagerAdapter.addFragment(new ExpandablePlaylistFragment(), AppCore.getInstance().mediaStorage.getCompoundPlaylist(i));
+            AppCore.getInstance().pagerAdapter.addFragment(new ExpandablePlaylistFragment(), AppCore.getInstance().mediaStorage.getCompoundPlaylist(i));
 
         //Set adapter
-        viewPager.setAdapter(pagerAdapter);
+        AppCore.getInstance().viewPager.setAdapter(AppCore.getInstance().pagerAdapter);
     }
+
+
 
     /*******************************************************************************************
      * onStart() is called after onCreate(). when User navigates away from the application
@@ -187,31 +197,6 @@ public class MainActivity extends AppCompatActivity {
         else {
             bottomBar.setVisibility(View.GONE);
         }
-    }
-
-    public void createPlaylist(View view) {
-
-        //Hardcoding names for now to test with
-        String playlistName = "tmp" + AppCore.getInstance().mediaStorage.getUserPlaylists().size();
-
-        //TODO:Get name of playlist somehow
-
-        SimplePlaylist userPlaylist = AppCore.getInstance().mediaStorage.createUserPlaylist(playlistName);
-
-        //TODO: Save to shared preferences
-
-        //I can't figure out a better way to refresh the list after adding a new playlist
-        ExpandablePlaylistFragment current = (ExpandablePlaylistFragment)pagerAdapter.getItem(currentTab);
-        current.updatePlaylists();
-
-    }
-
-    public void addToPlaylist(View view) {
-        //Create plus icons next to each song
-    }
-
-    public void finishedAddingToPlaylist(View view) {
-        //Remove plus icons next to each song
     }
 
     /*************************************************************************************
@@ -319,34 +304,38 @@ public class MainActivity extends AppCompatActivity {
             //Adding ALBUM_ID apparently it is a lot more stable for pulling Album Art
             //Also I may be using this later to search through songs because it is faster apparently
             //because it is a hash
+
+            //This code has problems commenting out for performance
             int albumID      = songCursor.getColumnIndex(MediaStore.Audio.Media.ALBUM_ID);
-            int artColumn    = songCursor.getColumnIndex(MediaStore.Audio.Albums.ALBUM_ART);
+            //int artColumn    = songCursor.getColumnIndex(MediaStore.Audio.Albums.ALBUM_ART);
 
             int i = 0;
             do {
                 String thisTitle = songCursor.getString(titleColumn);
                 String thisArtist = songCursor.getString(artistColumn);
                 String thisAlbum = songCursor.getString(albumColumn);
+
                 //This is where we will add Album Art to the song Class.
                 //We may need to reduce resolution in order to improve performance
                 //if we want to include the images in the main menu
                 //for now the NowPlaying activity will retrieve and render these images based on
                 //their path for performance
-                String coverPath;
+                //String coverPath;
                 //Must check to see if the path to album art is empty
-                Log.d("getMusic()", "artColumn index is: " + artColumn);
+                //Not returning anything moving to nowPlaying
+                /**Log.d("getMusic()", "artColumn index is: " + artColumn);
                 if (artColumn < 0) {
                     coverPath = "NA";
                 }
                 else {
                     coverPath = songCursor.getString(artColumn);
-                }
-
+                }**/
                 long thisAlbumId = songCursor.getLong(albumID);
+
                 long thisId = songCursor.getLong(idColumn);
 
                 AppCore.getInstance().mediaStorage.createSong
-                        (thisId, thisTitle, thisArtist, thisAlbum, coverPath, thisAlbumId);
+                        (thisId, thisTitle, thisArtist, thisAlbum, thisAlbumId); // used to incorporate coverPath, thisAlbumId
                 i++;
             }
             while(songCursor.moveToNext());
@@ -364,7 +353,13 @@ public class MainActivity extends AppCompatActivity {
             Log.w("getMusic()", "Found no songs on this device. Bug or is this okay?");
 
         createDefaultPlaylists();
+        getUserPlaylists();
     }
+
+    public void addSearchBar() {
+
+    }
+
 
     /********************************************************************************************
      * createDefaultPlaylists() creates the default playlists to be added into the Media Player
@@ -471,22 +466,22 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
-    //Create tab for selected playlist
-    public boolean createTabForPlaylist(SimplePlaylist playlist) {
-        if(playlist.isEmpty()) {
-            Toast.makeText(mContext, "Cannot create new tab for empty playlist. For now..." , Toast.LENGTH_SHORT).show();
-            Log.e(TAG, "Attempted to create tab with empty playlist");
-            return false;
-        }
-        for(int i = 0; i < tabLayout.getChildCount(); i++) {
-            if(pagerAdapter.getPageTitle(i).equals(playlist.getNameOfPlaylist())) {
-                Toast.makeText(mContext, "Tab already exists with that name", Toast.LENGTH_SHORT).show();
-                Log.e(TAG, "Attempted to create tab with already existing name");
-                return false;
+    public void getUserPlaylists() {
+        String userPlaylistName = AppCore.getInstance().mediaStorage.getUserPlaylists().getNameOfPlaylist();
+        SharedPreferences playlists = getSharedPreferences("playlists", MODE_PRIVATE);
+        Gson gson = new Gson();
+
+        int playlistsSize = playlists.getInt(userPlaylistName + "size", 0);
+        for(int j = 0; j < playlistsSize; j++) {
+            String playlistName = playlists.getString(userPlaylistName + j + "name", "");
+            int playlistSize = playlists.getInt(userPlaylistName + j + "size", 0);
+            SimplePlaylist simplePlaylist = AppCore.getInstance().mediaStorage.createUserPlaylist(playlistName);
+            for(int k = 0; k < playlistSize; k++) {
+                Log.d("SharedPreferences", "Grabbing song from: \"" + userPlaylistName + j + "song" + k + "\" from shared preferences");
+                String json = playlists.getString(userPlaylistName + j + "song" + k, null);
+                Song song = gson.fromJson(json, Song.class);
+                simplePlaylist.add(song);
             }
         }
-        //Create new tab with given playlist
-        pagerAdapter.addFragment(new SongListFragment(), playlist);
-        return true;
     }
 }
