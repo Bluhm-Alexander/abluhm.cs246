@@ -137,8 +137,9 @@ public class MediaStorage {
      * @return returns new compound playlist
      */
     SimplePlaylist createUserPlaylist(String playlistName) {
-        if(userPlaylists.isEmpty())
+        if(userPlaylists.isEmpty()) {
             startIndexOfUserPlaylists = simplePlaylists.size();
+        }
         boolean duplicate = false;
         int index = 0;
         for(int i = 0; i < userPlaylists.size(); i++) {

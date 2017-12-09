@@ -51,7 +51,6 @@ public class ExpandablePlaylistFragment extends Fragment {
                     else {
                         collapseAll();
                         expandableListView.expandGroup(i);
-                        Log.d("test", "setting index to: " + i);
                         AppCore.getInstance().currentPlaylistIndexInExpandableListView = i;
                     }
                     return true;
@@ -87,7 +86,6 @@ public class ExpandablePlaylistFragment extends Fragment {
                             Log.d(TAG, "Adding song to user playlist");
                             //AppCore.getInstance().addingToPlaylistIndex = playlists.get(i - 1).getIndexInCollection();
                             AppCore.getInstance().addingToPlaylistIndex = playlists.get(i - 1).getIndexInCollection();
-                            Log.d("test", "Setting addingToPlaylistIndex to " + AppCore.getInstance().addingToPlaylistIndex);
                             Toast.makeText(getActivity(), "Select songs to add", Toast.LENGTH_SHORT).show();
                             AppCore.getInstance().viewPager.setCurrentItem(0);
                         }
@@ -200,8 +198,9 @@ public class ExpandablePlaylistFragment extends Fragment {
                 }
                 else {
                     String name = sequence.toString();
-                    SimplePlaylist userPlaylist = AppCore.getInstance().mediaStorage.createUserPlaylist(name);
+                    AppCore.getInstance().mediaStorage.createUserPlaylist(name);
 
+                    AppCore.getInstance().saveUserPlaylistPreference();
                     //I can't figure out a better way to refresh the list after adding a new playlist
                     updatePlaylists();
                 }

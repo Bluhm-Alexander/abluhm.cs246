@@ -84,6 +84,8 @@ public class MainActivity extends AppCompatActivity {
         setupTabLayout();
 
         //Going to AppCore to Start our music Service
+        AppCore.getInstance().mainContext = getApplicationContext();
+        AppCore.getInstance().loadUserPlaylistPreferences();
         AppCore.getInstance().startService();
 
         //set up context
@@ -360,7 +362,9 @@ public class MainActivity extends AppCompatActivity {
             Log.w("getMusic()", "Found no songs on this device. Bug or is this okay?");
 
         createDefaultPlaylists();
-        getUserPlaylists();
+        AppCore.getInstance().loadUserPlaylistPreferences();
+        if(AppCore.getInstance().mediaStorage.getUserPlaylists().isEmpty())
+            AppCore.getInstance().mediaStorage.createUserPlaylist("Play all");
     }
 
     public void addSearchBar() {
@@ -472,25 +476,6 @@ public class MainActivity extends AppCompatActivity {
             SimplePlaylist simplePlaylist = AppCore.getInstance().mediaStorage.getSimplePlaylist(index);
             if(simplePlaylist.isEmpty())
                 Log.w("createDefaultPlaylists", "Playlist : " + simplePlaylist.getNameOfPlaylist() + ". Bug or is this okay?");
-        }
-    }
-
-    public void getUserPlaylists() {
-        String userPlaylistName = AppCore.getInstance().mediaStorage.getUserPlaylists().getNameOfPlaylist();
-        SharedPreferences playlists = getSharedPreferences("playlists", MODE_PRIVATE);
-        Gson gson = new Gson();
-
-        int playlistsSize = playlists.getInt(userPlaylistName + "size", 0);
-        for(int j = 0; j < playlistsSize; j++) {
-            String playlistName = playlists.getString(userPlaylistName + j + "name", "");
-            int playlistSize = playlists.getInt(userPlaylistName + j + "size", 0);
-            SimplePlaylist simplePlaylist = AppCore.getInstance().mediaStorage.createUserPlaylist(playlistName);
-            for(int k = 0; k < playlistSize; k++) {
-                Log.d("SharedPreferences", "Grabbing song from: \"" + userPlaylistName + j + "song" + k + "\" from shared preferences");
-                String json = playlists.getString(userPlaylistName + j + "song" + k, null);
-                Song song = gson.fromJson(json, Song.class);
-                simplePlaylist.add(song);
-            }
         }
     }
 }

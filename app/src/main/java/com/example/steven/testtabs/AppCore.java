@@ -1,6 +1,7 @@
 package com.example.steven.testtabs;
 
 import android.content.ComponentName;
+import android.content.Context;
 import android.content.Intent;
 import android.content.ServiceConnection;
 import android.content.SharedPreferences;
@@ -8,7 +9,11 @@ import android.os.IBinder;
 import android.support.v4.view.ViewPager;
 import android.util.Log;
 
+import com.google.gson.Gson;
+
 import java.util.ArrayList;
+
+import static android.content.Context.MODE_PRIVATE;
 
 /********************************************************************************************
  * Created by okoboji on 11/11/17.
@@ -47,6 +52,7 @@ public class AppCore {
     public boolean removingPlaylists = false;
     public boolean musicBound = false;
     public int currentTab = 0;
+    public Context mainContext;
 
     /*********************************************************************************************
      * Private constructor;
@@ -90,5 +96,29 @@ public class AppCore {
                 musicBound = false;
             }
         };
+    }
+
+    public void saveUserPlaylistPreference() {
+        /*
+        Log.d("Preferences", "Saving userPlaylists");
+
+        SharedPreferences preferences = mainContext.getSharedPreferences("userPlaylists", MODE_PRIVATE);
+        SharedPreferences.Editor prefsEditor = preferences.edit();
+        Gson gson = new Gson();
+        String json = gson.toJson(mediaStorage.getUserPlaylists());
+        prefsEditor.putString("user", json);
+        prefsEditor.apply();
+        */
+    }
+
+    public void loadUserPlaylistPreferences() {
+        /*
+        Log.d("Preferences", "Loading userPlaylists");
+        SharedPreferences preferences = mainContext.getSharedPreferences("userPlaylists", MODE_PRIVATE);
+        Gson gson = new Gson();
+        String json = preferences.getString("user", "");
+        Log.d("Preferences", "json: " + json);
+        CompoundPlaylist userPlaylists = gson.fromJson(json, CompoundPlaylist.class);
+        */
     }
 }

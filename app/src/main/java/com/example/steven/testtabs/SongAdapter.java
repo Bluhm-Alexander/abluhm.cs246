@@ -59,6 +59,7 @@ public class SongAdapter extends BaseAdapter {
                         //Add song to playlist
                         AppCore.getInstance().mediaStorage.getSimplePlaylist(AppCore.getInstance().addingToPlaylistIndex).add(currentSong);
                         Toast.makeText(convertView.getContext(), "Added " + currentSong.getTitle() + " to user playlist", Toast.LENGTH_SHORT).show();
+                        AppCore.getInstance().loadUserPlaylistPreferences();
                     }
                 }
             });

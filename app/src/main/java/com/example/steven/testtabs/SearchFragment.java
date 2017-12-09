@@ -45,7 +45,6 @@ public class SearchFragment extends Fragment {
 
         setRetainInstance(true);
 
-
         return rootView;
     }
 

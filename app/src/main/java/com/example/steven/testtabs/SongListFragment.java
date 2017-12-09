@@ -31,7 +31,6 @@ public class SongListFragment extends ListFragment {
         Log.d(TAG, "Pressed song at index: " + i);
         super.onListItemClick(listView, v, i, id);
 
-        //There is a bug here where it tries to retrieve the song but it is null
         AppCore.getInstance().musicSrv.onSongPicked(songList.getIndexInCollection(), i);
     }
 
