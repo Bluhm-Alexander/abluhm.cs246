@@ -6,6 +6,7 @@ import android.content.ContentResolver;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.Loader;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.database.Cursor;
@@ -287,6 +288,7 @@ public class MainActivity extends AppCompatActivity {
         startActivity(nowPlaying);
     }
 
+
     /********************************************************************************************
      * getMusic() retrieves a list of music files from the android device and puts them into a String
      * Default playlists are then created by a different sort type of this list and pushed into
@@ -315,6 +317,15 @@ public class MainActivity extends AppCompatActivity {
             //Also I may be using this later to search through songs because it is faster apparently
             //because it is a hash
 
+            /***************************************
+             * Some changes I may regret
+             *********************************/
+
+
+            /******************************************
+             * End of changes
+             ****************************************/
+
             //This code has problems commenting out for performance
             int albumID      = songCursor.getColumnIndex(MediaStore.Audio.Media.ALBUM_ID);
             //int artColumn    = songCursor.getColumnIndex(MediaStore.Audio.Albums.ALBUM_ART);
@@ -324,7 +335,11 @@ public class MainActivity extends AppCompatActivity {
                 String thisTitle = songCursor.getString(titleColumn);
                 String thisArtist = songCursor.getString(artistColumn);
                 String thisAlbum = songCursor.getString(albumColumn);
-                //String genre = songCursor.getString(genreColumn);
+
+                //Get Genre
+                //String genre = songCursor.getString(songCursor.getColumnIndexOrThrow(MediaStore.Audio.Genres.NAME));
+
+
                 String thisTrack = songCursor.getString(trackColumn);
                 //This is where we will add Album Art to the song Class.
                 //We may need to reduce resolution in order to improve performance
@@ -479,8 +494,29 @@ public class MainActivity extends AppCompatActivity {
             currentAlbumPlaylist.add(currentSong);
             previousAlbum = currentSong.getAlbum();
         }
+        /************************************************************************************
+         * Added by Alex albumSort was broken so I did this instead. Takes compundPlaylist and
+         * extracts songs into simplePlaylist. This doesnt work either
+         ************************************************************************************/
+        //Correct AlbumSort
+        SimplePlaylist correctAlbumSort = AppCore.getInstance().mediaStorage.createSimplePlaylist
+                ("Play all Items");
+
+        Log.d("AlbumSort", "The size of the compo8und playlist is " + albumCollection.size());
+        for (i = 0; i < albumCollection.size(); i++) {
+            correctAlbumSort.addAll(albumCollection.get(i));
+
+        }
+        //Add to beginning of playlist
+        albumCollection.add(0, correctAlbumSort);
+
+        /********************************
+         * End of addition
+         ******************************/
+
         //Just in case the "last playlist" isn't at index 0 (was never initialized)
         //Add last album playlist
+
         if(i > 0)
             albumCollection.add(currentAlbumPlaylist);
 

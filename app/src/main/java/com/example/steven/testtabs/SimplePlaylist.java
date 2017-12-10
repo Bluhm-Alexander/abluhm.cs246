@@ -37,6 +37,11 @@ class SimplePlaylist extends ArrayList<Song> {
             indexInCollection = AppCore.getInstance().mediaStorage.getSimplePlaylists().size();
         indexInUserPlaylist = 1;
     }
+    public void addPlayLists(SimplePlaylist playList) {
+        for (int i = 0; i < playList.size(); i++) {
+            this.add(playList.get(i));
+        }
+    }
 
     public int getIndexInUserPlaylist() {
         return indexInUserPlaylist;
